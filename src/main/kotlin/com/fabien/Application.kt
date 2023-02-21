@@ -1,5 +1,6 @@
 package com.fabien
 
+import com.fabien.organisationIdentity.configureOrganizationIdentityRouting
 import io.ktor.server.application.*
 import com.fabien.plugins.*
 
@@ -13,4 +14,5 @@ fun Application.module() {
     configureMonitoring()
     configureSerialization()
     configureRouting()
+    configureOrganizationIdentityRouting()
 }

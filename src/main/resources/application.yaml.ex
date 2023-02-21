@@ -8,3 +8,8 @@ ktor:
 jwt:
   domain:
   audience:
+insee:
+  baseApi: "api.insee.fr"
+  siretApi: "entreprises/sirene/V3/siret"
+  authenticationApi: "token"
+  base64ConsumerKeySecret:
