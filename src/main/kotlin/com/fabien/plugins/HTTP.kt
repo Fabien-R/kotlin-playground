@@ -1,4 +1,4 @@
-package com.example.plugins
+package com.fabien.plugins
 
 import io.ktor.server.plugins.defaultheaders.*
 import io.ktor.server.plugins.swagger.*

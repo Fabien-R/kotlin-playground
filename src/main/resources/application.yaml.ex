@@ -1,7 +1,7 @@
 ktor:
   application:
     modules:
-      - com.example.ApplicationKt.module
+      - com.fabien.ApplicationKt.module
   deployment:
     port: 3001
   development: true

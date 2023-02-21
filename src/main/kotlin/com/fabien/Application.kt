@@ -1,7 +1,7 @@
-package com.example
+package com.fabien
 
 import io.ktor.server.application.*
-import com.example.plugins.*
+import com.fabien.plugins.*
 
 fun main(args: Array<String>): Unit =
     io.ktor.server.cio.EngineMain.main(args)
