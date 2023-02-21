@@ -21,6 +21,13 @@ Let's play!
 
 ## Table of Contents
 
+- [Authentication](#Authentication)
 - [Troubleshooting](#Troubleshooting)
+
+## Authentication 
+
+I use a free Auth0 instance for the Identity and Access Management service. It supports JWT standard.
+
+TODO  - Authorization
 
 ## Troubleshooting
