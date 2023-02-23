@@ -48,7 +48,7 @@ abstract class ComparisonCondition(open val field: InseeQueryFields, private val
 
     internal val value: String
         get() = when (_value) {
-            is String -> if (surround) "\"$_value\"" else _value// need surrounding double quote becauses may contain white spaces
+            is String -> if (surround) "\"$_value\"" else _value// need surrounding double quote because may contain white spaces
             else -> _value.toString()
         }
 

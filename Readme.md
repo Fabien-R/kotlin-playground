@@ -21,25 +21,35 @@ Let's play!
 
 ## Table of Contents
 
-- [Authentication](#Authentication)
+- [Third Parties](#Third Parties)
+- [DSL](#DSL)
 - [Troubleshooting](#Troubleshooting)
-- [Insee](#Insee)
 
-## Authentication 
+
+## Third Parties
+
+### Authentication 
 
 I use a free Auth0 instance for the Identity and Access Management service. It supports JWT standard.
 
-TODO  - Authorization
-
-## Insee
+### Insee
 
 [Insee](https://www.insee.fr/en/accueil) is a French institute that collects information on the French economy and societe.
 They freely open their enterprises-database we can use as an Identity provider for french enterprises.
 They provide several APIs at their [API-store](https://api.insee.fr/catalogue/).
 
-We use the SIREN API allowing us to retrieve the flat list of establishments of legal entity (enterprises).
+I use the SIREN API to retrieve the flat list of establishments of legal entities (enterprises).
 
-To be able to query the service we need to create an account and retrieve the consumer key and secret to fill `base64ConsumerKeySecret` of [application.yaml](src/main/resources/application.yaml) as explained [here](https://api.insee.fr/catalogue/site/themes/wso2/subthemes/insee/pages/help.jag)
+To be able to query the service I have created an account and retrieve the consumer key and secret to fill `base64ConsumerKeySecret` of [application.yaml](src/main/resources/application.yaml) as explained [here](https://api.insee.fr/catalogue/site/themes/wso2/subthemes/insee/pages/help.jag)
+
+## DSL
+I have created a simple DSL for querying the INSEE SIREN API [here](src/main/kotlin/com/fabien/organisationIdentity/insee/InseeQueryDsl.kt).
+The goal is to search establishments matching its nationalId or its name.
+1. The nationalId search retrieves all establishments whose nationalId wraps the wanted one.
+2. The name search uses a set of different INSEE fields: it retrieves all establishments whose at least one of these fields is approximately the name we search for.
+3. The zipCode is used to limit the results.
+
+It's really nice to see how much more readable, upgradable it is to use for external APIs.
 
 ## Troubleshooting
 
