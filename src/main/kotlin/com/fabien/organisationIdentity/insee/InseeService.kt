@@ -2,6 +2,7 @@ package com.fabien.organisationIdentity.insee
 
 import com.fabien.organisationIdentity.insee.InseeQueryFields.*
 import io.ktor.client.call.*
+import io.ktor.http.*
 
 class InseeService(private val inseeApi: InseeApi) {
 
@@ -71,7 +72,23 @@ class InseeService(private val inseeApi: InseeApi) {
 
     suspend fun fetchInseeSuppliers(nationalId: String?, searchText: String?, zipCode: String?, pageSize: Int, page: Int): PaginatedOrganizations {
 
-        val body = inseeApi.fetchInseeSuppliersSearch(formatToInseeParams(nationalId, searchText, zipCode, pageSize, page)).body<InseeResponse>()
+        val response = inseeApi.fetchInseeSuppliersSearch(formatToInseeParams(nationalId, searchText, zipCode, pageSize, page))
+
+        if (!response.status.isSuccess()) {
+            val body = response.body<InseeFaultyResponse>()
+
+            // when there is no matching etab, Insee returns 404
+            if (body.header.statut == HttpStatusCode.NotFound.value && body.header.message.contains("Aucun élément trouvé")) {
+                return PaginatedOrganizations(
+                    organizations = emptyList(),
+                    page = 0,
+                    total = 0,
+                )
+            }
+            throw InseeException(body.header.statut, body.header.message)
+        }
+
+        val body = response.body<InseeResponse>()
         if (body.etablissements != null && body.header != null) {
             val organizations = body.etablissements.map(::toOrganization)
 
