@@ -1,12 +1,14 @@
 package com.fabien.organisationIdentity.insee
 
 import io.ktor.client.*
+import io.ktor.client.call.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.logging.*
 import io.ktor.client.plugins.*
 import io.ktor.client.plugins.auth.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
+import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
@@ -44,14 +46,22 @@ class InseeApi(private val environment: ApplicationEnvironment) {
         }
     }
 
-    suspend fun fetchInseeSuppliersSearch() {
+    suspend fun fetchInseeSuppliersSearch(params: Map<String, String>): HttpResponse {
         val response = client.get {
             url {
                 protocol = URLProtocol.HTTPS
                 host = environment.config.property("insee.baseApi").getString()
+                parameters.appendAll(parametersOf(params.mapValues { listOf(it.value) }))
                 path(environment.config.property("insee.siretApi").getString())
             }
             contentType(ContentType.Application.Json)
+        }
+
+        if (response.status.isSuccess()) {
+            return response
+        } else {
+            val body = response.body<InseeFaultyResponse>()
+            throw InseeException(body.header.statut, body.header.message)
         }
     }
 }
