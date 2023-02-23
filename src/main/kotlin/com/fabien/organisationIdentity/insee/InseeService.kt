@@ -11,18 +11,20 @@ class InseeService(private val inseeApi: InseeApi) {
                 if (siret != null) SIRET contains siret
                 if (denomination != null)
                     or {
-                        // ETAB_DENOMINATION, more complicated because historized data
-                        USUAL_FIRST_NAME_LEGAL_UNIT approximateSearch denomination
-                        NAME_LEGAL_UNIT approximateSearch denomination
-                        DENOMINATION_LEGAL_UNIT approximateSearch denomination
-                        USUAL_DENOMINATION_LEGAL_UNIT_1 approximateSearch denomination
-                        USUAL_DENOMINATION_LEGAL_UNIT_2 approximateSearch denomination
-                        USUAL_DENOMINATION_LEGAL_UNIT_3 approximateSearch denomination
-                        USAGE_NAME_LEGAL_UNIT approximateSearch denomination
-                        FIRST_NAME_LEGAL_UNIT_1 approximateSearch denomination
-                        FIRST_NAME_LEGAL_UNIT_2 approximateSearch denomination
-                        FIRST_NAME_LEGAL_UNIT_3 approximateSearch denomination
-                        FIRST_NAME_LEGAL_UNIT_4 approximateSearch denomination
+                        listOf(
+                            // ETAB_DENOMINATION, more complicated because historized data
+                            USUAL_FIRST_NAME_LEGAL_UNIT,
+                            NAME_LEGAL_UNIT,
+                            DENOMINATION_LEGAL_UNIT,
+                            USUAL_DENOMINATION_LEGAL_UNIT_1,
+                            USUAL_DENOMINATION_LEGAL_UNIT_2,
+                            USUAL_DENOMINATION_LEGAL_UNIT_3,
+                            USAGE_NAME_LEGAL_UNIT,
+                            FIRST_NAME_LEGAL_UNIT_1,
+                            FIRST_NAME_LEGAL_UNIT_2,
+                            FIRST_NAME_LEGAL_UNIT_3,
+                            FIRST_NAME_LEGAL_UNIT_4,
+                        ).forEach { it approximateSearch denomination }
                     }
             }
             if (zipCode != null) ZIP_CODE eq (zipCode)
