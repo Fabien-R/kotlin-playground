@@ -20,7 +20,7 @@ fun Application.configureOrganizationIdentityRouting() {
             require(!nationalId.isNullOrEmpty() || !searchText.isNullOrEmpty()) { "nationalId or searchText is mandatory" }
 
             try {
-                call.respondNullable(HttpStatusCode.OK, inseeService.fetchInseeSuppliers())
+                call.respondNullable(HttpStatusCode.OK, inseeService.fetchInseeSuppliers(nationalId, searchText, zipCode, pageSize, page))
             } catch (e: Exception) {
                 call.respond(HttpStatusCode.InternalServerError, "Error with organization identity provider")
                 throw e

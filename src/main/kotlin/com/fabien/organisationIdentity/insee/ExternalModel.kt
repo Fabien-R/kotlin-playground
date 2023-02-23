@@ -3,6 +3,27 @@ package com.fabien.organisationIdentity.insee
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
+enum class InseeQueryFields(val field: String) {
+    SIRET("siret"),
+    ETAB_DENOMINATION("denominationUsuelleEtablissement"),
+    SIMPLE_IDENTIFICATION("identificationSimplifieeEtablissement"),
+    DENOMINATION_LEGAL_UNIT("denominationUniteLegale"),
+    USUAL_DENOMINATION_LEGAL_UNIT_1("denominationUsuelle1UniteLegale"),
+    USUAL_DENOMINATION_LEGAL_UNIT_2("denominationUsuelle2UniteLegale"),
+    USUAL_DENOMINATION_LEGAL_UNIT_3("denominationUsuelle3UniteLegale"),
+    STATUTORY_LEGAL_UNIT("categorieJuridiqueUniteLegale"),
+    USUAL_FIRST_NAME_LEGAL_UNIT("prenomUsuelUniteLegale"),
+    NAME_LEGAL_UNIT("nomUniteLegale"),
+
+    USAGE_NAME_LEGAL_UNIT("nomUsageUniteLegale"),
+    FIRST_NAME_LEGAL_UNIT_1("prenom1UniteLegale"),
+    FIRST_NAME_LEGAL_UNIT_2("prenom2UniteLegale"),
+    FIRST_NAME_LEGAL_UNIT_3("prenom3UniteLegale"),
+    FIRST_NAME_LEGAL_UNIT_4("prenom4UniteLegale"),
+
+    ZIP_CODE("codePostalEtablissement"),
+}
+
 @Serializable
 data class TokenInfo(
     @SerialName("access_token") val accessToken: String,
