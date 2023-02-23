@@ -4,34 +4,29 @@ import com.fabien.organisationIdentity.insee.InseeQueryFields.*
 import io.ktor.client.call.*
 
 class InseeService(private val inseeApi: InseeApi) {
-    fun mapToInseeSearch(siret: String?, denomination: String?, zipCode: String?): String {
-        val siretFilter = if (siret != null) "siret:*$siret*" else null
-        val denominationPattern = if (denomination != null) "\"$denomination\"~2" else null
-        val denominationFilter = if (denominationPattern != null) arrayOf(
-            // ETAB_DENOMINATION, more complicated because historized data
-            USUAL_FIRST_NAME_LEGAL_UNIT,
-            NAME_LEGAL_UNIT,
-            DENOMINATION_LEGAL_UNIT,
-            USUAL_DENOMINATION_LEGAL_UNIT_1,
-            USUAL_DENOMINATION_LEGAL_UNIT_2,
-            USUAL_DENOMINATION_LEGAL_UNIT_3,
-            USAGE_NAME_LEGAL_UNIT,
-            FIRST_NAME_LEGAL_UNIT_1,
-            FIRST_NAME_LEGAL_UNIT_2,
-            FIRST_NAME_LEGAL_UNIT_3,
-            FIRST_NAME_LEGAL_UNIT_4,
-        ).joinToString(separator = " OR ") { "${it.field}:$denominationPattern" }
-        else null
 
-        val zipCodeFilter = if (zipCode != null) "codePostalEtablissement:$zipCode" else null
-// TODO could a DSL make it more generic? is it possible?
-        return arrayOf(
-            arrayOf(siretFilter, denominationFilter)
-                .filterNotNull().joinToString(separator = " OR ") { "($it)" },
-            zipCodeFilter
-        )
-            .filterNotNull()
-            .joinToString(separator = " AND ")
+    fun mapToInseeSearch(siret: String?, denomination: String?, zipCode: String?): String {
+        return query {
+            or {
+                if (siret != null) SIRET contains siret
+                if (denomination != null)
+                    or {
+                        // ETAB_DENOMINATION, more complicated because historized data
+                        USUAL_FIRST_NAME_LEGAL_UNIT approximateSearch denomination
+                        NAME_LEGAL_UNIT approximateSearch denomination
+                        DENOMINATION_LEGAL_UNIT approximateSearch denomination
+                        USUAL_DENOMINATION_LEGAL_UNIT_1 approximateSearch denomination
+                        USUAL_DENOMINATION_LEGAL_UNIT_2 approximateSearch denomination
+                        USUAL_DENOMINATION_LEGAL_UNIT_3 approximateSearch denomination
+                        USAGE_NAME_LEGAL_UNIT approximateSearch denomination
+                        FIRST_NAME_LEGAL_UNIT_1 approximateSearch denomination
+                        FIRST_NAME_LEGAL_UNIT_2 approximateSearch denomination
+                        FIRST_NAME_LEGAL_UNIT_3 approximateSearch denomination
+                        FIRST_NAME_LEGAL_UNIT_4 approximateSearch denomination
+                    }
+            }
+            if (zipCode != null) ZIP_CODE eq (zipCode)
+        }.build()
     }
 
     fun formatToInseeParams(nationalId: String?, searchText: String?, zipCode: String?, pageSize: Int, page: Int) = mapOf(
