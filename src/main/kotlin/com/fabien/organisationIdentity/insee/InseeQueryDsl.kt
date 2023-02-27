@@ -33,7 +33,7 @@ abstract class Condition() {
     }
 }
 
-abstract class ComparisonCondition(open val field: InseeQueryFields, private val _value: Any, private val surround: Boolean = true) : Condition() {
+sealed class ComparisonCondition(open val field: InseeQueryFields, private val _value: Any, private val surround: Boolean = true) : Condition() {
     init {
         if (_value !is Number && _value !is String && _value !is Boolean) {
             throw IllegalArgumentException(
@@ -70,7 +70,8 @@ class ApproximateSearch(override val field: InseeQueryFields, _value: Any) : Com
     override fun toString() = "${field.field}:$value~2"
 }
 
-open class CompositeCondition private constructor(private val operator: String) : Condition() {
+
+open class CompositeCondition private constructor(internal val operator: String) : Condition() {
     private val conditions = mutableListOf<Condition>()
 
     override fun addCondition(condition: Condition) {
