@@ -43,4 +43,11 @@ dependencies {
     implementation("io.ktor:ktor-server-config-yaml:$ktor_version")
     testImplementation("io.ktor:ktor-server-tests-jvm:$ktor_version")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
+    testImplementation("org.junit.jupiter:junit-jupiter:5.9.2")
+}
+
+tasks {
+    test {
+        useJUnitPlatform()
+    }
 }
