@@ -78,12 +78,11 @@ open class CompositeCondition private constructor(internal val operator: String)
         conditions += condition
     }
 
-    override fun toString(): String {
-        return if (conditions.size == 1) {
-            conditions.first().toString()
-        } else {
-            conditions.joinToString(prefix = "(", postfix = ")", separator = " $operator ")
-        }
+    override fun toString() =
+        when(conditions.size) {
+            0 -> ""
+            1 -> conditions.first().toString()
+            else -> conditions.joinToString(prefix = "(", postfix = ")", separator = " $operator ")
     }
 
     class And : CompositeCondition("AND")
