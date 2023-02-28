@@ -1,6 +1,7 @@
 package com.fabien.organisationIdentity.insee
 
 import com.fabien.organisationIdentity.insee.CompositeCondition.*
+import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
@@ -46,8 +47,16 @@ internal class ConditionTest {
 
     @ParameterizedTest
     @MethodSource("comparisonConditions")
-    fun `Test comparison condition`(message: String, condition: ComparisonCondition, expected: String) {
+    fun `Test comparison condition formatting`(message: String, condition: ComparisonCondition, expected: String) {
         assertEquals(expected, condition.toString(), message)
+    }
+
+    @ParameterizedTest
+    @MethodSource("comparisonConditions")
+    fun `Comparison condition can not add nested condition`(message: String, condition: ComparisonCondition) {
+        assertThrows<IllegalStateException>("Can't add a nested condition to the insee comparison") {
+            condition.addCondition(Eq(InseeQueryFields.SIRET, "WhatEver"))
+        }
     }
 
     @ParameterizedTest
