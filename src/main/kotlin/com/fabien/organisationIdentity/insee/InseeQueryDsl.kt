@@ -1,11 +1,14 @@
 package com.fabien.organisationIdentity.insee
 
-class InseeQueryBuilder(val condition: Condition) {
+class InseeQueryBuilder(private val condition: Condition) {
     fun build() = condition.toString()
 }
 
 fun query(initializer: Condition.()  -> Unit) = InseeQueryBuilder(CompositeCondition.And().apply(initializer))
 
+// TODO would be great to expose extended InseeQueryFields function with only paratemer of supported type Number / String / Boolean
+// Union type does not exist
+// I don't want redeclare eq/notEq/etc. for each type
 abstract class Condition() {
     abstract fun addCondition(condition: Condition)
     infix fun InseeQueryFields.eq(value: Any) {
