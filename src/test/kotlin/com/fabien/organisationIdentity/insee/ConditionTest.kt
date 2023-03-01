@@ -4,7 +4,10 @@ import com.fabien.organisationIdentity.insee.CompositeCondition.And
 import com.fabien.organisationIdentity.insee.CompositeCondition.Or
 import io.mockk.*
 import io.mockk.junit5.MockKExtension
-import org.junit.jupiter.api.*
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertAll
+import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
@@ -20,6 +23,7 @@ internal class ConditionTest {
     fun clean() {
         unmockkAll()
     }
+
     companion object {
         @JvmStatic
         fun comparisonConditions(): List<Arguments> {
@@ -104,31 +108,31 @@ internal class ConditionTest {
 //    }
 
     @Test
-    fun funEqFunctionShouldAddItsComparisonCondition() {
+    fun eqFunctionShouldAddItsComparisonCondition() {
         val eq: Condition.(InseeQueryFields, Any) -> Unit = { field, value -> field eq value }
-        `Condition comparison function should add their ComparisonCondition to condition`(Eq::class, eq)
+        `Condition comparison function should add its ComparisonCondition to condition`(Eq::class, eq)
     }
 
     @Test
-    fun funNotEqFunctionShouldAddItsComparisonCondition() {
+    fun notEqFunctionShouldAddItsComparisonCondition() {
         val notEq: Condition.(InseeQueryFields, Any) -> Unit = { field, value -> field notEq value }
-        `Condition comparison function should add their ComparisonCondition to condition`(NotEq::class, notEq)
+        `Condition comparison function should add its ComparisonCondition to condition`(NotEq::class, notEq)
     }
 
     @Test
-    fun funContainsFunctionShouldAddItsComparisonCondition() {
+    fun containsFunctionShouldAddItsComparisonCondition() {
         val contains: Condition.(InseeQueryFields, Any) -> Unit = { field, value -> field contains value }
-        `Condition comparison function should add their ComparisonCondition to condition`(Contains::class, contains)
+        `Condition comparison function should add its ComparisonCondition to condition`(Contains::class, contains)
     }
 
     @Test
-    fun funApproximateSearchFunctionShouldAddItsComparisonCondition() {
+    fun approximateSearchFunctionShouldAddItsComparisonCondition() {
         val approximateSearch: Condition.(InseeQueryFields, Any) -> Unit = { field, value -> field approximateSearch value }
-        `Condition comparison function should add their ComparisonCondition to condition`(ApproximateSearch::class, approximateSearch)
+        `Condition comparison function should add its ComparisonCondition to condition`(ApproximateSearch::class, approximateSearch)
     }
 
 
-    private inline fun <reified T : ComparisonCondition> `Condition comparison function should add their ComparisonCondition to condition`(
+    private inline fun <reified T : ComparisonCondition> `Condition comparison function should add its ComparisonCondition to condition`(
         clazz: KClass<T>,
         function: Condition.(field: InseeQueryFields, value: Any) -> Unit
     ) {
@@ -161,6 +165,55 @@ internal class ConditionTest {
 
         verify(exactly = 1) {
             constructedWith<T>(EqMatcher(field, true), EqMatcher(value, true)).toString()
+        }
+        assertAll(
+            { assertIs<T>(slot.captured) },
+        )
+
+    }
+
+    @Test
+    fun andFunctionShouldAddItsCompositeCondition() {
+        val and: Condition.() -> Unit = { and { } }
+        `Condition composite function should add its CompositeCondition to condition`(And::class, and)
+    }
+
+    @Test
+    fun orFunctionShouldAddItsCompositeCondition() {
+        val or: Condition.() -> Unit = { or { } }
+        `Condition composite function should add its CompositeCondition to condition`(Or::class, or)
+    }
+
+    private inline fun <reified T : CompositeCondition> `Condition composite function should add its CompositeCondition to condition`(
+        clazz: KClass<T>,
+        function: Condition.() -> Unit
+    ) {
+        mockkConstructor(clazz)
+
+        // /!\ We don't/can't mock constructor
+        // We mock function of matching constructor to verify later it has been called.
+        // Mockk does not check directly that a constructor has been called.
+        every {
+            constructedWith<T>().toString()
+        } answers { callOriginal() }
+
+        val slot = slot<T>()
+
+        val condition = spyk<Condition> {
+            every {
+                this@spyk.addCondition(capture(slot))
+            } returns mockk()
+            function()
+        }
+
+        slot.toString()
+
+        verify(exactly = 1) {
+            condition.addCondition(slot.captured)
+        }
+
+        verify(exactly = 1) {
+            constructedWith<T>().toString()
         }
         assertAll(
             { assertIs<T>(slot.captured) },
