@@ -10,7 +10,7 @@ fun query(initializer: Condition.()  -> Unit) = InseeQueryBuilder(CompositeCondi
 // Union type does not exist
 // I don't want redeclare eq/notEq/etc. for each type
 abstract class Condition() {
-    abstract fun addCondition(condition: Condition)
+    internal abstract fun addCondition(condition: Condition)
     infix fun InseeQueryFields.eq(value: Any) {
         addCondition(Eq(this, value))
     }

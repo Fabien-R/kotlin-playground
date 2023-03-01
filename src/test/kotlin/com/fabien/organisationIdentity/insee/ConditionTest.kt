@@ -1,14 +1,25 @@
 package com.fabien.organisationIdentity.insee
 
-import com.fabien.organisationIdentity.insee.CompositeCondition.*
-import org.junit.jupiter.api.assertThrows
+import com.fabien.organisationIdentity.insee.CompositeCondition.And
+import com.fabien.organisationIdentity.insee.CompositeCondition.Or
+import io.mockk.*
+import io.mockk.junit5.MockKExtension
+import org.junit.jupiter.api.*
+import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
+import kotlin.reflect.KClass
 import kotlin.test.assertEquals
+import kotlin.test.assertIs
 
 
+@ExtendWith(MockKExtension::class)
 internal class ConditionTest {
+    @BeforeEach
+    fun clean() {
+        unmockkAll()
+    }
     companion object {
         @JvmStatic
         fun comparisonConditions(): List<Arguments> {
@@ -68,5 +79,92 @@ internal class ConditionTest {
         }
 
         assertEquals(expected.invoke(compositeCondition.operator), compositeCondition.toString(), message)
+    }
+
+
+//    @TestFactory
+//    fun testFunctionComparisonConditions()  {
+//        val eq: Condition.(InseeQueryFields, Any) -> Unit = { field, value -> field eq value }
+//        val notEq: Condition.(InseeQueryFields, Any) -> Unit = { field, value -> field notEq value }
+//        val contains: Condition.(InseeQueryFields, Any) -> Unit = { field, value -> field contains value }
+//        val approximateSearch: Condition.(InseeQueryFields, Any) -> Unit = { field, value -> field approximateSearch value }
+//        listOf(
+//            // message, comparisonCondition type, function
+//            Triple("eq", Eq::class, eq),  //
+//            Triple("notEq", NotEq::class, notEq),  //
+//            Triple("contains", Contains::class, contains),  //
+//            Triple("approximateSearch", ApproximateSearch::class, approximateSearch),  //
+//        ).map { (message, clazz, function) ->
+//            println("start")
+//            DynamicTest.dynamicTest("Condition function $message should add its ComparisonCondition") {
+//                `Condition comparison function should add their ComparisonCondition to condition`(clazz, function)
+//            }
+//            println("end")
+//        }
+//    }
+
+    @Test
+    fun funEqFunctionShouldAddItsComparisonCondition() {
+        val eq: Condition.(InseeQueryFields, Any) -> Unit = { field, value -> field eq value }
+        `Condition comparison function should add their ComparisonCondition to condition`(Eq::class, eq)
+    }
+
+    @Test
+    fun funNotEqFunctionShouldAddItsComparisonCondition() {
+        val notEq: Condition.(InseeQueryFields, Any) -> Unit = { field, value -> field notEq value }
+        `Condition comparison function should add their ComparisonCondition to condition`(NotEq::class, notEq)
+    }
+
+    @Test
+    fun funContainsFunctionShouldAddItsComparisonCondition() {
+        val contains: Condition.(InseeQueryFields, Any) -> Unit = { field, value -> field contains value }
+        `Condition comparison function should add their ComparisonCondition to condition`(Contains::class, contains)
+    }
+
+    @Test
+    fun funApproximateSearchFunctionShouldAddItsComparisonCondition() {
+        val approximateSearch: Condition.(InseeQueryFields, Any) -> Unit = { field, value -> field approximateSearch value }
+        `Condition comparison function should add their ComparisonCondition to condition`(ApproximateSearch::class, approximateSearch)
+    }
+
+
+    private inline fun <reified T : ComparisonCondition> `Condition comparison function should add their ComparisonCondition to condition`(
+        clazz: KClass<T>,
+        function: Condition.(field: InseeQueryFields, value: Any) -> Unit
+    ) {
+        val value = "666"
+        val field = InseeQueryFields.SIRET
+        mockkConstructor(clazz)
+
+        // /!\ We don't/can't mock constructor
+        // We mock function of matching constructor to verify later it has been called.
+        // Mockk does not check directly that a constructor has been called.
+        every {
+            constructedWith<T>(EqMatcher(field, true), EqMatcher(value, true)).toString()
+        } answers { callOriginal() }
+
+        val slot = slot<T>()
+
+        val condition = spyk<Condition> {
+            every {
+                this@spyk.addCondition(capture(slot))
+
+            } returns mockk()
+            function(field, value)
+        }
+
+        slot.toString()
+
+        verify(exactly = 1) {
+            condition.addCondition(slot.captured)
+        }
+
+        verify(exactly = 1) {
+            constructedWith<T>(EqMatcher(field, true), EqMatcher(value, true)).toString()
+        }
+        assertAll(
+            { assertIs<T>(slot.captured) },
+        )
+
     }
 }
