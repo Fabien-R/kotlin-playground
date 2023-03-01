@@ -4,10 +4,7 @@ import com.fabien.organisationIdentity.insee.CompositeCondition.And
 import com.fabien.organisationIdentity.insee.CompositeCondition.Or
 import io.mockk.*
 import io.mockk.junit5.MockKExtension
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertAll
-import org.junit.jupiter.api.assertThrows
+import org.junit.jupiter.api.*
 import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
@@ -24,41 +21,40 @@ internal class ConditionTest {
         unmockkAll()
     }
 
-    companion object {
-        @JvmStatic
-        fun comparisonConditions(): List<Arguments> {
-            return listOf(
-                // message, condition, expected
-                Arguments.of("Eq", Eq(InseeQueryFields.SIRET, "1234"), "siret:\"1234\""),  //
-                Arguments.of("NotEq", NotEq(InseeQueryFields.SIRET, "1234"), "-siret:\"1234\""),  //
-                Arguments.of("Contains", Contains(InseeQueryFields.SIRET, "1234"), "siret:*1234*"),  //
-                Arguments.of("ApproximateSearch", ApproximateSearch(InseeQueryFields.SIRET, "1234"), "siret:\"1234\"~2"),  //
-            )
-        }
 
-        @JvmStatic
-        fun compositeConditions(): List<Arguments> {
-            val eq = Eq(InseeQueryFields.SIRET, "1234")
-            val contains = Eq(InseeQueryFields.NAME_LEGAL_UNIT, "Green")
-            val notEq = Eq(InseeQueryFields.ZIP_CODE, "69000")
-            val or = Or()
-            or.addCondition(eq)
-            or.addCondition(contains)
-            return listOf(
-                // message, condition, expected
-                Arguments.of("zero condition", emptyList<Condition>(), fun(_: String) = ""),  //
-                Arguments.of("one simple condition", listOf(eq), fun(_: String) = eq.toString()),  //
-                Arguments.of(
-                    "several simple conditions",
-                    listOf(eq, contains, notEq),
-                    fun(operator: String) = "($eq $operator $contains $operator $notEq)"),  //
-                Arguments.of(
-                    "nested conditions",
-                    listOf(or, notEq),
-                    fun(operator: String) = "(($eq ${or.operator} $contains) $operator $notEq)"),  //
-            )
-        }
+    private fun comparisonConditions(): List<Arguments> {
+        return listOf(
+            // message, condition, expected
+            Arguments.of("Eq", Eq(InseeQueryFields.SIRET, "1234"), "siret:\"1234\""),  //
+            Arguments.of("NotEq", NotEq(InseeQueryFields.SIRET, "1234"), "-siret:\"1234\""),  //
+            Arguments.of("Contains", Contains(InseeQueryFields.SIRET, "1234"), "siret:*1234*"),  //
+            Arguments.of("ApproximateSearch", ApproximateSearch(InseeQueryFields.SIRET, "1234"), "siret:\"1234\"~2"),  //
+        )
     }
+
+
+    private fun compositeConditions(): List<Arguments> {
+        val eq = Eq(InseeQueryFields.SIRET, "1234")
+        val contains = Eq(InseeQueryFields.NAME_LEGAL_UNIT, "Green")
+        val notEq = Eq(InseeQueryFields.ZIP_CODE, "69000")
+        val or = Or()
+        or.addCondition(eq)
+        or.addCondition(contains)
+        return listOf(
+            // message, condition, expected
+            Arguments.of("zero condition", emptyList<Condition>(), fun(_: String) = ""),  //
+            Arguments.of("one simple condition", listOf(eq), fun(_: String) = eq.toString()),  //
+            Arguments.of(
+                "several simple conditions",
+                listOf(eq, contains, notEq),
+                fun(operator: String) = "($eq $operator $contains $operator $notEq)"),  //
+            Arguments.of(
+                "nested conditions",
+                listOf(or, notEq),
+                fun(operator: String) = "(($eq ${or.operator} $contains) $operator $notEq)"),  //
+        )
+    }
+
 
     @ParameterizedTest
     @MethodSource("comparisonConditions")
