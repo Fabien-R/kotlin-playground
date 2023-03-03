@@ -13,7 +13,6 @@ import kotlin.reflect.KClass
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 
-
 @ExtendWith(MockKExtension::class)
 internal class ConditionTest {
     @BeforeEach
@@ -21,17 +20,15 @@ internal class ConditionTest {
         unmockkAll()
     }
 
-
     private fun comparisonConditions(): List<Arguments> {
         return listOf(
             // message, condition, expected
-            Arguments.of("Eq", Eq(InseeQueryFields.SIRET, "1234"), "siret:\"1234\""),  //
-            Arguments.of("NotEq", NotEq(InseeQueryFields.SIRET, "1234"), "-siret:\"1234\""),  //
-            Arguments.of("Contains", Contains(InseeQueryFields.SIRET, "1234"), "siret:*1234*"),  //
-            Arguments.of("ApproximateSearch", ApproximateSearch(InseeQueryFields.SIRET, "1234"), "siret:\"1234\"~2"),  //
+            Arguments.of("Eq", Eq(InseeQueryFields.SIRET, "1234"), "siret:\"1234\""), //
+            Arguments.of("NotEq", NotEq(InseeQueryFields.SIRET, "1234"), "-siret:\"1234\""), //
+            Arguments.of("Contains", Contains(InseeQueryFields.SIRET, "1234"), "siret:*1234*"), //
+            Arguments.of("ApproximateSearch", ApproximateSearch(InseeQueryFields.SIRET, "1234"), "siret:\"1234\"~2"), //
         )
     }
-
 
     private fun compositeConditions(): List<Arguments> {
         val eq = Eq(InseeQueryFields.SIRET, "1234")
@@ -42,19 +39,20 @@ internal class ConditionTest {
         or.addCondition(contains)
         return listOf(
             // message, condition, expected
-            Arguments.of("zero condition", emptyList<Condition>(), fun(_: String) = ""),  //
-            Arguments.of("one simple condition", listOf(eq), fun(_: String) = eq.toString()),  //
+            Arguments.of("zero condition", emptyList<Condition>(), fun(_: String) = ""), //
+            Arguments.of("one simple condition", listOf(eq), fun(_: String) = eq.toString()), //
             Arguments.of(
                 "several simple conditions",
                 listOf(eq, contains, notEq),
-                fun(operator: String) = "($eq $operator $contains $operator $notEq)"),  //
+                fun(operator: String) = "($eq $operator $contains $operator $notEq)",
+            ), //
             Arguments.of(
                 "nested conditions",
                 listOf(or, notEq),
-                fun(operator: String) = "(($eq ${or.operator} $contains) $operator $notEq)"),  //
+                fun(operator: String) = "(($eq ${or.operator} $contains) $operator $notEq)",
+            ), //
         )
     }
-
 
     @ParameterizedTest
     @MethodSource("comparisonConditions")
@@ -80,7 +78,6 @@ internal class ConditionTest {
 
         assertEquals(expected.invoke(compositeCondition.operator), compositeCondition.toString(), message)
     }
-
 
 //    @TestFactory
 //    fun testFunctionComparisonConditions()  {
@@ -127,10 +124,9 @@ internal class ConditionTest {
         `Condition comparison function should add its ComparisonCondition to condition`(ApproximateSearch::class, approximateSearch)
     }
 
-
     private inline fun <reified T : ComparisonCondition> `Condition comparison function should add its ComparisonCondition to condition`(
         clazz: KClass<T>,
-        function: Condition.(field: InseeQueryFields, value: Any) -> Unit
+        function: Condition.(field: InseeQueryFields, value: Any) -> Unit,
     ) {
         val value = "666"
         val field = InseeQueryFields.SIRET
@@ -148,7 +144,6 @@ internal class ConditionTest {
         val condition = spyk<Condition> {
             every {
                 this@spyk.addCondition(capture(slot))
-
             } returns mockk()
             function(field, value)
         }
@@ -165,7 +160,6 @@ internal class ConditionTest {
         assertAll(
             { assertIs<T>(slot.captured) },
         )
-
     }
 
     @Test
@@ -182,7 +176,7 @@ internal class ConditionTest {
 
     private inline fun <reified T : CompositeCondition> `Condition composite function should add its CompositeCondition to condition`(
         clazz: KClass<T>,
-        function: Condition.() -> Unit
+        function: Condition.() -> Unit,
     ) {
         mockkConstructor(clazz)
 
@@ -214,6 +208,5 @@ internal class ConditionTest {
         assertAll(
             { assertIs<T>(slot.captured) },
         )
-
     }
 }

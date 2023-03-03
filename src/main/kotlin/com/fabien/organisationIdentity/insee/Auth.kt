@@ -32,9 +32,11 @@ internal class InseeAuth(private val environment: ApplicationEnvironment) {
 
     private val tokenClient = HttpClient(CIO) {
         install(ContentNegotiation) {
-            json(Json {
-                ignoreUnknownKeys = true
-            })
+            json(
+                Json {
+                    ignoreUnknownKeys = true
+                },
+            )
         }
     }
 
@@ -59,15 +61,17 @@ internal class InseeAuth(private val environment: ApplicationEnvironment) {
                 }
                 bearerTokenStorage.last()
             },
-            realm = null
-        )
+            realm = null,
+        ),
     )
 
     private suspend fun HttpClient.queryTokenEndpoint(block: HttpRequestBuilder.() -> Unit = {}): HttpResponse =
-        this.submitForm(formParameters = Parameters.build {
-            append("grant_type", "client_credentials")
-            append("validity_period", TOKEN_VALIDITY_SECONDS.toString())
-        }) {
+        this.submitForm(
+            formParameters = Parameters.build {
+                append("grant_type", "client_credentials")
+                append("validity_period", TOKEN_VALIDITY_SECONDS.toString())
+            },
+        ) {
             url {
                 protocol = URLProtocol.HTTPS
                 host = environment.config.property("insee.baseApi").getString()
@@ -79,4 +83,3 @@ internal class InseeAuth(private val environment: ApplicationEnvironment) {
             block()
         }
 }
-

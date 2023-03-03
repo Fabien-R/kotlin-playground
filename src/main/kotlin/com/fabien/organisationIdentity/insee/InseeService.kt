@@ -10,7 +10,7 @@ class InseeService(private val inseeApi: InseeApi) {
         return query {
             or {
                 if (siret != null) SIRET contains siret
-                if (denomination != null)
+                if (denomination != null) {
                     or {
                         listOf(
                             // ETAB_DENOMINATION, more complicated because historized data
@@ -27,6 +27,7 @@ class InseeService(private val inseeApi: InseeApi) {
                             FIRST_NAME_LEGAL_UNIT_4,
                         ).forEach { it approximateSearch denomination }
                     }
+                }
             }
             if (zipCode != null) ZIP_CODE eq (zipCode)
         }.build()
@@ -42,15 +43,16 @@ class InseeService(private val inseeApi: InseeApi) {
 
     fun toOrganization(etab: Etablissement): Organization {
         val name =
-            if (etab.uniteLegale?.categorieJuridiqueUniteLegale == 1000)
+            if (etab.uniteLegale?.categorieJuridiqueUniteLegale == 1000) {
                 listOfNotNull(etab.uniteLegale.prenomUsuelUniteLegale, etab.uniteLegale.nomUniteLegale).joinToString(separator = " ")
-            else
+            } else {
                 listOfNotNull(
                     etab.uniteLegale?.denominationUniteLegale,
                     etab.uniteLegale?.denominationUsuelle1UniteLegale,
                     etab.uniteLegale?.denominationUsuelle2UniteLegale,
                     etab.uniteLegale?.denominationUsuelle3UniteLegale,
                 ).firstOrNull() ?: "NO NAME"
+            }
         val address = listOfNotNull(
             etab.adresseEtablissement?.numeroVoieEtablissement,
             etab.adresseEtablissement?.typeVoieEtablissement,
@@ -66,12 +68,11 @@ class InseeService(private val inseeApi: InseeApi) {
             country = "FRANCE",
             zipCode = etab.adresseEtablissement?.codePostalEtablissement,
             city = etab.adresseEtablissement?.libelleCommuneEtablissement,
-            address = address
+            address = address,
         )
     }
 
     suspend fun fetchInseeSuppliers(nationalId: String?, searchText: String?, zipCode: String?, pageSize: Int, page: Int): PaginatedOrganizations {
-
         val response = inseeApi.fetchInseeSuppliersSearch(formatToInseeParams(nationalId, searchText, zipCode, pageSize, page))
 
         if (!response.status.isSuccess()) {
@@ -100,6 +101,5 @@ class InseeService(private val inseeApi: InseeApi) {
         } else {
             throw InseeException(body.fault!!.code, body.fault.message)
         }
-
     }
 }

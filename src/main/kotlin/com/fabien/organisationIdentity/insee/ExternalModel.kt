@@ -89,5 +89,5 @@ data class InseeFault(
 data class InseeResponse(
     val header: InseeResponseHeader? = null,
     val etablissements: List<Etablissement>? = null,
-    val fault: InseeFault? = null
+    val fault: InseeFault? = null,
 )

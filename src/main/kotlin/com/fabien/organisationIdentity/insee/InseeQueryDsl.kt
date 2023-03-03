@@ -4,7 +4,7 @@ class InseeQueryBuilder(private val condition: Condition) {
     fun build() = condition.toString()
 }
 
-fun query(initializer: Condition.()  -> Unit) = InseeQueryBuilder(CompositeCondition.And().apply(initializer))
+fun query(initializer: Condition.() -> Unit) = InseeQueryBuilder(CompositeCondition.And().apply(initializer))
 
 // TODO would be great to expose extended InseeQueryFields function with only paratemer of supported type Number / String / Boolean
 // Union type does not exist
@@ -40,7 +40,7 @@ sealed class ComparisonCondition(open val field: InseeQueryFields, private val _
     init {
         if (_value !is Number && _value !is String && _value !is Boolean) {
             throw IllegalArgumentException(
-                "Only numbers, strings, and booleans values can be used in insee-queries"
+                "Only numbers, strings, and booleans values can be used in insee-queries",
             )
         }
     }
@@ -51,10 +51,9 @@ sealed class ComparisonCondition(open val field: InseeQueryFields, private val _
 
     internal val value: String
         get() = when (_value) {
-            is String -> if (surround) "\"$_value\"" else _value// need surrounding double quote because may contain white spaces
+            is String -> if (surround) "\"$_value\"" else _value // need surrounding double quote because may contain white spaces
             else -> _value.toString()
         }
-
 }
 
 class Eq(override val field: InseeQueryFields, _value: Any) : ComparisonCondition(field, _value) {
@@ -73,7 +72,6 @@ class ApproximateSearch(override val field: InseeQueryFields, _value: Any) : Com
     override fun toString() = "${field.field}:$value~2"
 }
 
-
 open class CompositeCondition private constructor(internal val operator: String) : Condition() {
     private val conditions = mutableListOf<Condition>()
 
@@ -82,11 +80,11 @@ open class CompositeCondition private constructor(internal val operator: String)
     }
 
     override fun toString() =
-        when(conditions.size) {
+        when (conditions.size) {
             0 -> ""
             1 -> conditions.first().toString()
             else -> conditions.joinToString(prefix = "(", postfix = ")", separator = " $operator ")
-    }
+        }
 
     class And : CompositeCondition("AND")
     class Or : CompositeCondition("OR")

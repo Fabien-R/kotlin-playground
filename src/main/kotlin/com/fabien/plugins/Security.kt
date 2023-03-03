@@ -34,6 +34,5 @@ fun Application.configureSecurity() {
                 call.respondText { "Hey you" }
             }
         }
-
     }
 }

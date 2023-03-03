@@ -33,14 +33,15 @@ class InseeApi(private val environment: ApplicationEnvironment) {
             providers.add(InseeAuth(environment).oAuth2) // TODO should be a companion object or factory or something injected
         }
         install(HttpRequestRetry) {
-
         }
         install(ContentNegotiation) {
-            json(Json {
-                ignoreUnknownKeys = true
-                isLenient = true
-                prettyPrint = true
-            })
+            json(
+                Json {
+                    ignoreUnknownKeys = true
+                    isLenient = true
+                    prettyPrint = true
+                },
+            )
         }
     }
 
@@ -54,5 +55,4 @@ class InseeApi(private val environment: ApplicationEnvironment) {
             }
             contentType(ContentType.Application.Json)
         }
-
 }

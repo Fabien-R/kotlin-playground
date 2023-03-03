@@ -2,7 +2,7 @@ package com.fabien.organisationIdentity.insee
 
 import kotlinx.serialization.Serializable
 
-class InseeException(val statusCode: Int, override val message: String): Exception(message)
+class InseeException(val statusCode: Int, override val message: String) : Exception(message)
 
 @Serializable
 data class Organization(
@@ -12,7 +12,7 @@ data class Organization(
     val country: String,
     val city: String?,
     val address: String,
-    val active: Boolean
+    val active: Boolean,
 )
 
 @Serializable
