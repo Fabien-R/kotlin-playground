@@ -60,7 +60,7 @@ spotless {
         ktlint("0.48.2").editorConfigOverride(
             mapOf(
                 "standard:max-line-length" to "160",
-                "disabled_rules" to "standard:no-wildcard-imports",
+                "ktlint_standard_no-wildcard-imports" to "disabled",
             ),
         )
         target(
