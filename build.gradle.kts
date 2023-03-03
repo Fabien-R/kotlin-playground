@@ -7,6 +7,7 @@ plugins {
     kotlin("jvm") version "1.8.10"
     id("io.ktor.plugin") version "2.2.3"
     id("org.jetbrains.kotlin.plugin.serialization") version "1.8.10"
+    id("com.diffplug.spotless") version "6.16.0"
 }
 
 group = "com.fabien"
@@ -51,5 +52,33 @@ dependencies {
 tasks {
     test {
         useJUnitPlatform()
+    }
+}
+
+spotless {
+    kotlin {
+        ktlint("0.48.2").editorConfigOverride(
+            mapOf(
+                "standard:max-line-length" to "160",
+                "disabled_rules" to "standard:no-wildcard-imports",
+            ),
+        )
+        target(
+            "*/kotlin/**/*.kt",
+            "src/*/kotlin/**/*.kt",
+        )
+        targetExclude(
+            "*/resources/**/*.kt",
+            "src/*/resources/**/*.kt",
+            "**/build/**",
+            "**/.gradle/**",
+        )
+    }
+    kotlinGradle {
+        ktlint("0.48.2").editorConfigOverride(
+            mapOf(
+                "max_line_length" to "160",
+            ),
+        )
     }
 }
