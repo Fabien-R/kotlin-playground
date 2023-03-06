@@ -1,0 +1,8 @@
+#!/bin/bash
+set -e
+
+echo "Running git pre-commit hook"
+
+./gradlew check
+
+echo "Finished running git pre-commit hook"
