@@ -23,6 +23,7 @@ Let's play!
 
 - [Third Parties](#Third Parties)
 - [DSL](#DSL)
+- [GitHub workflows](#GitHub workflows)
 - [Troubleshooting](#Troubleshooting)
 
 
@@ -42,6 +43,12 @@ I use the SIREN API to retrieve the flat list of establishments of legal entitie
 
 To be able to query the service I have created an account and retrieve the consumer key and secret to fill `base64ConsumerKeySecret` of [application.yaml](src/main/resources/application.yaml) as explained [here](https://api.insee.fr/catalogue/site/themes/wso2/subthemes/insee/pages/help.jag)
 
+### Codecov
+
+[Codecov](https://about.codecov.io) is a centralized platform to which I send my code coverage reports so that I have:
+* a single place to check some quality metrics of different projects and different technos
+* the past trend of the metrics for each project
+
 ## DSL
 I have created a simple DSL for querying the INSEE SIREN API [here](src/main/kotlin/com/fabien/organisationIdentity/insee/InseeQueryDsl.kt).
 The goal is to search establishments matching its nationalId or its name.
@@ -50,6 +57,22 @@ The goal is to search establishments matching its nationalId or its name.
 3. The zipCode is used to limit the results.
 
 It's really nice to see how much more readable, upgradable it is to use for external APIs.
+
+## GitHub workflows
+All workflows use [GitHub Actions](https://github.com/features/actions)  to easily automate my pipelines.
+Since this is a fully managed service by GitHub
+* it is fully integrated with my repository and its lifecylce
+* I don't need to operate the infrastructure (or know how to scale it)
+* I have 2000 minutes free each month
+
+From my experience it is lighter than Gitlab CI or even more than Jenkins. 
+As long as we use generic kind of pipeline, it is easier to write and maintain.
+
+A [CI pipeline](.github/workflows/ci.yml) is triggered on each pull request or main push and includes:
+* linter
+* build
+* test
+* test coverage report
 
 ## Troubleshooting
 
