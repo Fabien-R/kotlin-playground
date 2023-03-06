@@ -8,6 +8,7 @@ plugins {
     id("io.ktor.plugin") version "2.2.3"
     id("org.jetbrains.kotlin.plugin.serialization") version "1.8.10"
     id("com.diffplug.spotless") version "6.16.0"
+    id("org.jetbrains.kotlinx.kover") version "0.7.0-Alpha"
 }
 
 group = "com.fabien"
@@ -80,5 +81,11 @@ spotless {
                 "max_line_length" to "160",
             ),
         )
+    }
+}
+
+koverReport {
+    xml {
+        onCheck = true
     }
 }
