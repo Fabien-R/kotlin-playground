@@ -24,6 +24,7 @@ Let's play!
 - [Third Parties](#Third Parties)
 - [DSL](#DSL)
 - [GitHub workflows](#GitHub workflows)
+- [Tests](#Tests)
 - [Troubleshooting](#Troubleshooting)
 
 
@@ -73,6 +74,19 @@ A [CI pipeline](.github/workflows/ci.yml) is triggered on each pull request or m
 * build
 * test
 * test coverage report
+
+## Tests
+/!\ WIP
+Tests are located [here](src/test/kotlin/com/fabien)
+I use Junit5 and its integrated framework jupiter  and [MockK](https://mockk.io/) for the mock library as it offers to write idiomatic Kotlin test code.
+
+// Test Kotest + arrow ?
+
+// TODO Integration test
+// TODO e2e tests
+
+I also added [Kover plugin](https://github.com/Kotlin/kotlinx-kover) to generate code coverage and then send it to third party Codeco.
+A dashboard is (privately?) available [here](https://app.codecov.io/github/Fabien-R/kotlin-playground)
 
 ## Troubleshooting
 
