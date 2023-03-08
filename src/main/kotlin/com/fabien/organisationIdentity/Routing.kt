@@ -1,14 +1,28 @@
 package com.fabien.organisationIdentity
 
 import com.fabien.organisationIdentity.insee.InseeApi
+import com.fabien.organisationIdentity.insee.InseeAuth
 import com.fabien.organisationIdentity.insee.InseeService
+import io.ktor.client.engine.cio.*
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 
 fun Application.configureOrganizationIdentityRouting() {
-    val inseeService = InseeService(InseeApi(this.environment))
+    val inseeHttpEngine = CIO.create {
+        threadsCount = 20
+        requestTimeout = 3000
+        maxConnectionsCount = 20
+        endpoint {
+            maxConnectionsPerRoute = 4
+            keepAliveTime = 5000
+            connectTimeout = 4000
+            connectAttempts = 1
+        }
+    }
+
+    val inseeService = InseeService(InseeApi(this.environment, inseeHttpEngine, InseeAuth(environment)))
     routing {
         get("/organization/search") {
             val nationalId = call.parameters["nationalId"]

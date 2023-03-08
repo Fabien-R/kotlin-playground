@@ -18,7 +18,7 @@ import kotlinx.serialization.json.Json
 const val TOKEN_VALIDITY_SECONDS = 10 * 1
 
 // Trick other the ktor client plugin checks against the auth scheme Bearer see @io.ktor.client.plugins.auth.providers.BearerAuthProvider.isApplicable
-internal class SimplifiedOAuth2BearerProvider(
+class SimplifiedOAuth2BearerProvider(
     private val bearerAuthProvider: BearerAuthProvider,
 ) : AuthProvider by bearerAuthProvider {
 
@@ -27,10 +27,10 @@ internal class SimplifiedOAuth2BearerProvider(
     }
 }
 
-internal class InseeAuth(private val environment: ApplicationEnvironment) {
+class InseeAuth(private val environment: ApplicationEnvironment) {
     private val bearerTokenStorage = mutableListOf<BearerTokens>()
 
-    private val tokenClient = HttpClient(CIO) {
+    private val tokenClient = HttpClient(CIO.create()) {
         install(ContentNegotiation) {
             json(
                 Json {
@@ -65,7 +65,7 @@ internal class InseeAuth(private val environment: ApplicationEnvironment) {
         ),
     )
 
-    private suspend fun HttpClient.queryTokenEndpoint(block: HttpRequestBuilder.() -> Unit = {}): HttpResponse =
+    suspend fun HttpClient.queryTokenEndpoint(block: HttpRequestBuilder.() -> Unit = {}): HttpResponse =
         this.submitForm(
             formParameters = Parameters.build {
                 append("grant_type", "client_credentials")

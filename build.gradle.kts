@@ -48,6 +48,7 @@ dependencies {
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
     testImplementation("org.junit.jupiter:junit-jupiter:5.9.2")
     testImplementation("io.mockk:mockk:$mockk_version")
+    testImplementation("io.ktor:ktor-client-mock:$ktor_version")
 }
 
 tasks {

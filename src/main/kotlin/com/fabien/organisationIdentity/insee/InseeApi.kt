@@ -1,7 +1,7 @@
 package com.fabien.organisationIdentity.insee
 
 import io.ktor.client.*
-import io.ktor.client.engine.cio.*
+import io.ktor.client.engine.*
 import io.ktor.client.plugins.*
 import io.ktor.client.plugins.auth.*
 import io.ktor.client.plugins.contentnegotiation.*
@@ -12,25 +12,14 @@ import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
 import kotlinx.serialization.json.Json
 
-class InseeApi(private val environment: ApplicationEnvironment) {
-    private val client = HttpClient(CIO) {
-        engine {
-            threadsCount = 20
-            requestTimeout = 3000
-            maxConnectionsCount = 20
-            endpoint {
-                maxConnectionsPerRoute = 4
-                keepAliveTime = 5000
-                connectTimeout = 4000
-                connectAttempts = 1
-            }
-        }
+class InseeApi(private val environment: ApplicationEnvironment, httpClientEngine: HttpClientEngine, inseeAuth: InseeAuth) {
+    private val client = HttpClient(httpClientEngine) {
         install(Logging) {
             logger = Logger.DEFAULT
             level = LogLevel.HEADERS
         }
         install(Auth) {
-            providers.add(InseeAuth(environment).oAuth2) // TODO should be a companion object or factory or something injected
+            providers.add(inseeAuth.oAuth2) // TODO should be a companion object or factory or something injected
         }
         install(HttpRequestRetry) {
         }
