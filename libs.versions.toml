@@ -1,0 +1,85 @@
+[versions]
+arrow = "1.2.0-RC"
+aws-sdk-kotlin = "0.19.5-beta"
+coroutines = "1.7.0"
+hikari = "5.0.1"
+hoplite = "2.7.4"
+jupiter = "5.9.2"
+klint = "0.48.2"
+kotlin = "1.8.21"
+kover = "0.7.0-Alpha"
+ktor = "2.2.3"
+logback = "1.2.11"
+mockk = "1.13.4"
+postgresql = "42.6.0"
+spotless = "6.16.0"
+sqldelight = "2.0.0-alpha05"
+
+[libraries]
+arrow-core = { module = "io.arrow-kt:arrow-core", version.ref = "arrow" }
+arrow-fx = { module = "io.arrow-kt:arrow-fx-coroutines", version.ref = "arrow" }
+aws-sdk-kotlin-s3 = { module = "aws.sdk.kotlin:s3", version.ref = "aws-sdk-kotlin" }
+coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
+hikari = { module = "com.zaxxer:HikariCP", version.ref="hikari" }
+hoplite-core = { module = "com.sksamuel.hoplite:hoplite-core", version.ref = "hoplite" }
+hoplite-json = { module = "com.sksamuel.hoplite:hoplite-json", version.ref = "hoplite" }
+
+jupiter-junit = { module = "org.junit.jupiter:junit-jupiter", version.ref = "jupiter"}
+kotlin-test-junit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlin"}
+
+ktor-serialization-json-jvm = { module = "io.ktor:ktor-serialization-kotlinx-json-jvm", version.ref = "ktor" }
+ktor-serialization-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
+
+ktor-server-auth-jvm = { module = "io.ktor:ktor-server-auth-jvm", version.ref = "ktor"}
+ktor-server-auth-jwt-jvm = { module = "io.ktor:ktor-server-auth-jwt-jvm", version.ref = "ktor"}
+ktor-server-cio-jvm = { module = "io.ktor:ktor-server-cio-jvm", version.ref = "ktor"}
+ktor-server-config-yaml = { module = "io.ktor:ktor-server-config-yaml", version.ref = "ktor"}
+ktor-server-core-jvm = { module = "io.ktor:ktor-server-core-jvm", version.ref = "ktor"}
+ktor-server-content-negotiation-jvm = { module = "io.ktor:ktor-server-content-negotiation-jvm", version.ref = "ktor" }
+ktor-server-defaultheaders-jvm = { module = "io.ktor:ktor-server-default-headers-jvm", version.ref = "ktor" }
+
+ktor-client-auth = { module = "io.ktor:ktor-client-auth", version.ref = "ktor"}
+ktor-client-cio-jvm = { module = "io.ktor:ktor-client-cio-jvm", version.ref = "ktor" }
+ktor-client-content-negotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktor" }
+ktor-client-login = { module = "io.ktor:ktor-client-logging", version.ref = "ktor" }
+ktor-client-mock = { module = "io.ktor:ktor-client-mock", version.ref = "ktor"}
+
+ktor-client-serialization = { module = "io.ktor:ktor-client-serialization", version.ref = "ktor" }
+
+logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
+mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
+
+postgresql = { module="org.postgresql:postgresql", version.ref = "postgresql" }
+sqldelight-jdbc = { module = "app.cash.sqldelight:jdbc-driver", version.ref = "sqldelight" }
+sqldelight-postgresql = { module = "app.cash.sqldelight:postgresql-dialect", version.ref = "sqldelight" }
+
+[bundles]
+arrow = ["arrow-core", "arrow-fx"]
+hoplite = ["hoplite-core", "hoplite-json"]
+ktor-json = [
+    "ktor-serialization-json-jvm",
+    "ktor-serialization-json"
+]
+ktor-server = [
+    "ktor-server-auth-jvm",
+    "ktor-server-auth-jwt-jvm",
+    "ktor-server-cio-jvm",
+    "ktor-server-config-yaml",
+    "ktor-server-core-jvm",
+    "ktor-server-content-negotiation-jvm",
+    "ktor-server-defaultheaders-jvm"
+]
+ktor-client = [
+    "ktor-client-auth",
+    "ktor-client-cio-jvm",
+    "ktor-client-content-negotiation",
+    "ktor-client-login"
+]
+
+[plugins]
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+kover = { id = "org.jetbrains.kotlinx.kover", version.ref = "kover" }
+ktor = { id = "io.ktor.plugin", version.ref = "ktor" }
+serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
+sqldelight = { id = "app.cash.sqldelight", version.ref = "sqldelight" }

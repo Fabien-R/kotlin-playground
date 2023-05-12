@@ -11,7 +11,6 @@ fun main(args: Array<String>): Unit =
 fun Application.module() {
     configureSecurity()
     configureHTTP()
-    configureMonitoring()
     configureSerialization()
     configureRouting()
     configureOrganizationIdentityRouting()
