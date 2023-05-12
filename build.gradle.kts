@@ -77,7 +77,9 @@ spotless {
 }
 
 koverReport {
-    xml {
-        onCheck = true
+    defaults {
+        xml {
+            onCheck = true
+        }
     }
 }
