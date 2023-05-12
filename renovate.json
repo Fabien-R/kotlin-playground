@@ -1,0 +1,30 @@
+{
+    "extends": [
+        "config:base",
+        ":automergeDisabled",
+        "group:recommended",
+        "group:allNonMajor"
+    ],
+    "timezone": "Europe/Paris",
+    "commitMessagePrefix": "⬆️",
+    "prConcurrentLimit": 5,
+    "commitBodyTable": true,
+    "packageRules": [
+        {
+            "matchPaths": [".github/**"],
+            "groupName": "github"
+        },
+        {
+            "matchPackagePrefixes": ["com.zaxxer:HikariCP", "org.postgresql", "app.cash.sqldelight"],
+            "groupName": "database"
+        },
+        {
+            "matchPackagePrefixes": ["io.ktor"],
+            "groupName": "ktor-server"
+        },
+        {
+            "matchPackagePrefixes": ["io.arrow-kt"],
+            "groupName": "arrow"
+        }
+    ]
+}
