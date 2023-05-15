@@ -2,8 +2,6 @@ package com.fabien.organisationIdentity.insee
 
 import kotlinx.serialization.Serializable
 
-class InseeException(val statusCode: Int, override val message: String) : Exception(message)
-
 @Serializable
 data class Organization(
     val name: String,

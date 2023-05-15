@@ -51,17 +51,16 @@ class InseeApi(private val environment: ApplicationEnvironment, httpClientEngine
                 contentType(ContentType.Application.Json)
             }.also {
                 ensure(it.status.isSuccess()) {
-                    val faultyBody = it.body<InseeFaultyResponse>()
                     // when there is no matching etab, Insee returns 404
-                    if (faultyBody.header.statut == HttpStatusCode.NotFound.value && faultyBody.header.message.contains("Aucun élément trouvé")) {
+                    if (it.status == HttpStatusCode.NotFound) {
                         InseeNotFound
                     } else {
-                        InseeError(faultyBody.header.statut, faultyBody.header.message)
+                        InseeError(it.status)
                     }
                 }
             }.let {
                 val body = it.body<InseeResponse>()
-                ensure(body.etablissements != null && body.header != null) { InseeError(body.fault!!.code, body.fault.message) }
+                ensure(body.etablissements != null && body.header != null) { InseeError(HttpStatusCode(body.fault!!.code, body.fault.message)) }
                 SucessfullInseeResponse(body.header, body.etablissements)
             }
         }

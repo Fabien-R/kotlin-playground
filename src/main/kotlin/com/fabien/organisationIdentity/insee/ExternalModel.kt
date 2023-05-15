@@ -33,17 +33,6 @@ data class TokenInfo(
 )
 
 @Serializable
-data class InseeFaultyResponseHeader(
-    val statut: Int,
-    val message: String,
-)
-
-@Serializable
-data class InseeFaultyResponse(
-    val header: InseeFaultyResponseHeader,
-)
-
-@Serializable
 data class InseeResponseHeader(
     val total: Int,
     val debut: Int,
