@@ -1,8 +1,6 @@
 package com.fabien.organisationIdentity
 
-import com.fabien.organisationIdentity.insee.InseeApi
-import com.fabien.organisationIdentity.insee.InseeAuth
-import com.fabien.organisationIdentity.insee.inseeService
+import com.fabien.organisationIdentity.insee.*
 import io.ktor.client.engine.cio.*
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -31,14 +29,7 @@ fun Application.configureOrganizationIdentityRouting() {
             val pageSize = call.parameters["pageSize"]?.toInt() ?: 5
             val page = call.parameters["page"]?.toInt() ?: 0
 
-            require(!nationalId.isNullOrEmpty() || !searchText.isNullOrEmpty()) { "nationalId or searchText is mandatory" }
-
-            try {
-                call.respondNullable(HttpStatusCode.OK, inseeService.fetchInseeSuppliers(nationalId, searchText, zipCode, pageSize, page))
-            } catch (e: Exception) {
-                call.respond(HttpStatusCode.InternalServerError, "Error with organization identity provider")
-                throw e
-            }
+            inseeService.fetchInseeSuppliers(nationalId, searchText, zipCode, pageSize, page).respond(HttpStatusCode.OK)
         }
     }
 }

@@ -1,45 +1,43 @@
 package com.fabien.organisationIdentity.insee
 
+import arrow.core.Either
+import arrow.core.raise.either
+import arrow.core.raise.ensure
+import com.fabien.MissingNationalIdOrSearchText
+import com.fabien.OrganizationIdentityError
 import com.fabien.organisationIdentity.insee.InseeQueryFields.*
-import io.ktor.client.call.*
-import io.ktor.http.*
 
 interface InseeService {
-    suspend fun fetchInseeSuppliers(nationalId: String?, searchText: String?, zipCode: String?, pageSize: Int, page: Int): PaginatedOrganizations
+    suspend fun fetchInseeSuppliers(
+        nationalId: String?,
+        searchText: String?,
+        zipCode: String?,
+        pageSize: Int,
+        page: Int,
+    ): Either<OrganizationIdentityError, PaginatedOrganizations>
 }
 
 fun inseeService(inseeApi: InseeApi) = object : InseeService {
 
-    override suspend fun fetchInseeSuppliers(nationalId: String?, searchText: String?, zipCode: String?, pageSize: Int, page: Int): PaginatedOrganizations {
-        val response = inseeApi.fetchInseeSuppliersSearch(formatToInseeParams(nationalId, searchText, zipCode, pageSize, page))
-
-        if (!response.status.isSuccess()) {
-            val body = response.body<InseeFaultyResponse>()
-
-            // when there is no matching etab, Insee returns 404
-            if (body.header.statut == HttpStatusCode.NotFound.value && body.header.message.contains("Aucun élément trouvé")) {
-                return PaginatedOrganizations(
-                    organizations = emptyList(),
-                    page = 0,
-                    total = 0,
-                )
+    override suspend fun fetchInseeSuppliers(
+        nationalId: String?,
+        searchText: String?,
+        zipCode: String?,
+        pageSize: Int,
+        page: Int,
+    ): Either<OrganizationIdentityError, PaginatedOrganizations> =
+        either {
+            ensure(!nationalId.isNullOrEmpty() || !searchText.isNullOrEmpty()) { MissingNationalIdOrSearchText }
+            formatToInseeParams(nationalId, searchText, zipCode, pageSize, page).let { inseeParams ->
+                inseeApi.fetchInseeSuppliersSearch(inseeParams).bind().let { successfulResponse ->
+                    PaginatedOrganizations(
+                        organizations = successfulResponse.etablissements.map(Etablissement::toOrganization),
+                        page = successfulResponse.header.debut / successfulResponse.header.nombre,
+                        total = successfulResponse.header.total,
+                    )
+                }
             }
-            throw InseeException(body.header.statut, body.header.message)
         }
-
-        val body = response.body<InseeResponse>()
-        if (body.etablissements != null && body.header != null) {
-            val organizations = body.etablissements.map(Etablissement::toOrganization)
-
-            return PaginatedOrganizations(
-                organizations = organizations,
-                page = body.header.debut / body.header.nombre,
-                total = body.header.total,
-            )
-        } else {
-            throw InseeException(body.fault!!.code, body.fault.message)
-        }
-    }
 
     fun mapToInseeSearch(siret: String?, denomination: String?, zipCode: String?): String {
         return query {

@@ -1,6 +1,11 @@
 package com.fabien.organisationIdentity.insee
 
+import arrow.core.raise.either
+import arrow.core.raise.ensure
+import com.fabien.InseeError
+import com.fabien.InseeNotFound
 import io.ktor.client.*
+import io.ktor.client.call.*
 import io.ktor.client.engine.*
 import io.ktor.client.plugins.*
 import io.ktor.client.plugins.auth.*
@@ -35,13 +40,29 @@ class InseeApi(private val environment: ApplicationEnvironment, httpClientEngine
     }
 
     suspend fun fetchInseeSuppliersSearch(params: Map<String, String>) =
-        client.get {
-            url {
-                protocol = URLProtocol.HTTPS
-                host = environment.config.property("insee.baseApi").getString()
-                parameters.appendAll(parametersOf(params.mapValues { listOf(it.value) }))
-                path(environment.config.property("insee.siretApi").getString())
+        either {
+            client.get {
+                url {
+                    protocol = URLProtocol.HTTPS
+                    host = environment.config.property("insee.baseApi").getString()
+                    parameters.appendAll(parametersOf(params.mapValues { listOf(it.value) }))
+                    path(environment.config.property("insee.siretApi").getString())
+                }
+                contentType(ContentType.Application.Json)
+            }.also {
+                ensure(it.status.isSuccess()) {
+                    val faultyBody = it.body<InseeFaultyResponse>()
+                    // when there is no matching etab, Insee returns 404
+                    if (faultyBody.header.statut == HttpStatusCode.NotFound.value && faultyBody.header.message.contains("Aucun élément trouvé")) {
+                        InseeNotFound
+                    } else {
+                        InseeError(faultyBody.header.statut, faultyBody.header.message)
+                    }
+                }
+            }.let {
+                val body = it.body<InseeResponse>()
+                ensure(body.etablissements != null && body.header != null) { InseeError(body.fault!!.code, body.fault.message) }
+                SucessfullInseeResponse(body.header, body.etablissements)
             }
-            contentType(ContentType.Application.Json)
         }
 }

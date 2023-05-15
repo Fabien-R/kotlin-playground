@@ -24,6 +24,7 @@ repositories {
 
 dependencies {
 
+    implementation(libs.arrow.core)
     implementation(libs.bundles.ktor.client)
     implementation(libs.bundles.ktor.json)
     implementation(libs.bundles.ktor.server)
@@ -43,6 +44,12 @@ dependencies {
 }
 
 tasks {
+    withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
+        kotlinOptions {
+            jvmTarget = "${JavaVersion.VERSION_19}"
+            freeCompilerArgs = freeCompilerArgs + "-Xcontext-receivers"
+        }
+    }
     test {
         useJUnitPlatform()
     }

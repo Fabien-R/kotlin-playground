@@ -99,3 +99,8 @@ data class InseeResponse(
     val etablissements: List<Etablissement>? = null,
     val fault: InseeFault? = null,
 )
+
+data class SucessfullInseeResponse(
+    val header: InseeResponseHeader,
+    val etablissements: List<Etablissement>,
+)
