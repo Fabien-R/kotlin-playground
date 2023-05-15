@@ -50,9 +50,11 @@ data class InseeResponseHeader(
     val nombre: Int,
 )
 
+const val NATURAL_PERSON_INSEE_CONST = 1000
+
 @Serializable
 data class LegalUnit(
-    val categorieJuridiqueUniteLegale: Int,
+    val categorieJuridiqueUniteLegale: Int, // https://www.insee.fr/fr/information/2028129
     val prenomUsuelUniteLegale: String?,
     val nomUniteLegale: String?,
     val denominationUniteLegale: String?,
@@ -60,7 +62,7 @@ data class LegalUnit(
     val denominationUsuelle2UniteLegale: String?,
     val denominationUsuelle3UniteLegale: String?,
     val etatAdministratifUniteLegale: String?,
-)
+) { fun isNaturalPerson() = categorieJuridiqueUniteLegale == NATURAL_PERSON_INSEE_CONST }
 
 @Serializable
 data class Address(
@@ -72,10 +74,16 @@ data class Address(
 )
 
 @Serializable
+data class PeriodEtablissement(
+    val etatAdministratifEtablissement: String?,
+)
+
+@Serializable
 data class Etablissement(
     val uniteLegale: LegalUnit?,
     val siret: String,
     val adresseEtablissement: Address?,
+    val periodesEtablissement: List<PeriodEtablissement>? = null,
 )
 
 @Serializable

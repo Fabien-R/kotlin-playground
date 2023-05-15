@@ -2,7 +2,7 @@ package com.fabien.organisationIdentity
 
 import com.fabien.organisationIdentity.insee.InseeApi
 import com.fabien.organisationIdentity.insee.InseeAuth
-import com.fabien.organisationIdentity.insee.InseeService
+import com.fabien.organisationIdentity.insee.inseeService
 import io.ktor.client.engine.cio.*
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -22,7 +22,7 @@ fun Application.configureOrganizationIdentityRouting() {
         }
     }
 
-    val inseeService = InseeService(InseeApi(this.environment, inseeHttpEngine, InseeAuth(environment)))
+    val inseeService = inseeService(InseeApi(this.environment, inseeHttpEngine, InseeAuth(environment)))
     routing {
         get("/organization/search") {
             val nationalId = call.parameters["nationalId"]

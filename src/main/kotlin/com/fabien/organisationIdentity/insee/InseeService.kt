@@ -4,7 +4,42 @@ import com.fabien.organisationIdentity.insee.InseeQueryFields.*
 import io.ktor.client.call.*
 import io.ktor.http.*
 
-class InseeService(private val inseeApi: InseeApi) {
+interface InseeService {
+    suspend fun fetchInseeSuppliers(nationalId: String?, searchText: String?, zipCode: String?, pageSize: Int, page: Int): PaginatedOrganizations
+}
+
+fun inseeService(inseeApi: InseeApi) = object : InseeService {
+
+    override suspend fun fetchInseeSuppliers(nationalId: String?, searchText: String?, zipCode: String?, pageSize: Int, page: Int): PaginatedOrganizations {
+        val response = inseeApi.fetchInseeSuppliersSearch(formatToInseeParams(nationalId, searchText, zipCode, pageSize, page))
+
+        if (!response.status.isSuccess()) {
+            val body = response.body<InseeFaultyResponse>()
+
+            // when there is no matching etab, Insee returns 404
+            if (body.header.statut == HttpStatusCode.NotFound.value && body.header.message.contains("Aucun élément trouvé")) {
+                return PaginatedOrganizations(
+                    organizations = emptyList(),
+                    page = 0,
+                    total = 0,
+                )
+            }
+            throw InseeException(body.header.statut, body.header.message)
+        }
+
+        val body = response.body<InseeResponse>()
+        if (body.etablissements != null && body.header != null) {
+            val organizations = body.etablissements.map(Etablissement::toOrganization)
+
+            return PaginatedOrganizations(
+                organizations = organizations,
+                page = body.header.debut / body.header.nombre,
+                total = body.header.total,
+            )
+        } else {
+            throw InseeException(body.fault!!.code, body.fault.message)
+        }
+    }
 
     fun mapToInseeSearch(siret: String?, denomination: String?, zipCode: String?): String {
         return query {
@@ -40,66 +75,40 @@ class InseeService(private val inseeApi: InseeApi) {
         "debut" to (page * pageSize).toString(),
         "tri" to "siret",
     )
-
-    fun toOrganization(etab: Etablissement): Organization {
-        val name =
-            if (etab.uniteLegale?.categorieJuridiqueUniteLegale == 1000) {
-                listOfNotNull(etab.uniteLegale.prenomUsuelUniteLegale, etab.uniteLegale.nomUniteLegale).joinToString(separator = " ")
-            } else {
-                listOfNotNull(
-                    etab.uniteLegale?.denominationUniteLegale,
-                    etab.uniteLegale?.denominationUsuelle1UniteLegale,
-                    etab.uniteLegale?.denominationUsuelle2UniteLegale,
-                    etab.uniteLegale?.denominationUsuelle3UniteLegale,
-                ).firstOrNull() ?: "NO NAME"
-            }
-        val address = listOfNotNull(
-            etab.adresseEtablissement?.numeroVoieEtablissement,
-            etab.adresseEtablissement?.typeVoieEtablissement,
-            etab.adresseEtablissement?.libelleVoieEtablissement,
-        ).joinToString(separator = " ")
-        // TODO
-        val active = true
-
-        return Organization(
-            name = name,
-            nationalId = etab.siret,
-            active = active,
-            country = "FRANCE",
-            zipCode = etab.adresseEtablissement?.codePostalEtablissement,
-            city = etab.adresseEtablissement?.libelleCommuneEtablissement,
-            address = address,
-        )
-    }
-
-    suspend fun fetchInseeSuppliers(nationalId: String?, searchText: String?, zipCode: String?, pageSize: Int, page: Int): PaginatedOrganizations {
-        val response = inseeApi.fetchInseeSuppliersSearch(formatToInseeParams(nationalId, searchText, zipCode, pageSize, page))
-
-        if (!response.status.isSuccess()) {
-            val body = response.body<InseeFaultyResponse>()
-
-            // when there is no matching etab, Insee returns 404
-            if (body.header.statut == HttpStatusCode.NotFound.value && body.header.message.contains("Aucun élément trouvé")) {
-                return PaginatedOrganizations(
-                    organizations = emptyList(),
-                    page = 0,
-                    total = 0,
-                )
-            }
-            throw InseeException(body.header.statut, body.header.message)
-        }
-
-        val body = response.body<InseeResponse>()
-        if (body.etablissements != null && body.header != null) {
-            val organizations = body.etablissements.map(::toOrganization)
-
-            return PaginatedOrganizations(
-                organizations = organizations,
-                page = body.header.debut / body.header.nombre,
-                total = body.header.total,
-            )
-        } else {
-            throw InseeException(body.fault!!.code, body.fault.message)
-        }
-    }
 }
+
+const val COUNTRY_FRANCE = "FRANCE"
+
+fun Etablissement.toOrganization() = Organization(
+    name = uniteLegale.getName(),
+    nationalId = siret,
+    active = isActive(),
+    country = COUNTRY_FRANCE,
+    zipCode = adresseEtablissement?.codePostalEtablissement,
+    city = adresseEtablissement?.libelleCommuneEtablissement,
+    address = adresseEtablissement.toLineString(),
+)
+
+const val NO_LEGAL_UNIT_NAME = "NO NAME"
+
+internal fun LegalUnit?.getName() =
+    if (this?.isNaturalPerson() == true) {
+        listOfNotNull(prenomUsuelUniteLegale, nomUniteLegale).joinToString(separator = " ")
+    } else {
+        listOfNotNull(
+            this?.denominationUniteLegale,
+            this?.denominationUsuelle1UniteLegale,
+            this?.denominationUsuelle2UniteLegale,
+            this?.denominationUsuelle3UniteLegale,
+        ).firstOrNull() ?: NO_LEGAL_UNIT_NAME
+    }
+
+internal fun Etablissement.isActive() =
+    uniteLegale?.etatAdministratifUniteLegale == "A" &&
+        !periodesEtablissement.isNullOrEmpty() && periodesEtablissement[0].etatAdministratifEtablissement == "A"
+
+internal fun Address?.toLineString() = listOfNotNull(
+    this?.numeroVoieEtablissement,
+    this?.typeVoieEtablissement,
+    this?.libelleVoieEtablissement,
+).joinToString(separator = " ")
