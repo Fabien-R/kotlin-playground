@@ -1,8 +1,10 @@
 package com.fabien.organisationIdentity.insee
 
+import arrow.core.Either
 import arrow.core.raise.either
 import arrow.core.raise.ensure
 import com.fabien.InseeError
+import com.fabien.InseeException
 import com.fabien.InseeNotFound
 import io.ktor.client.*
 import io.ktor.client.call.*
@@ -41,27 +43,34 @@ class InseeApi(private val environment: ApplicationEnvironment, httpClientEngine
 
     suspend fun fetchInseeSuppliersSearch(params: Map<String, String>) =
         either {
-            client.get {
-                url {
-                    protocol = URLProtocol.HTTPS
-                    host = environment.config.property("insee.baseApi").getString()
-                    parameters.appendAll(parametersOf(params.mapValues { listOf(it.value) }))
-                    path(environment.config.property("insee.siretApi").getString())
-                }
-                contentType(ContentType.Application.Json)
-            }.also {
-                ensure(it.status.isSuccess()) {
-                    // when there is no matching etab, Insee returns 404
-                    if (it.status == HttpStatusCode.NotFound) {
-                        InseeNotFound
-                    } else {
-                        InseeError(it.status)
+            Either.catchOrThrow<InseeException, SucessfullInseeResponse> {
+                client.get {
+                    url {
+                        protocol = URLProtocol.HTTPS
+                        host = environment.config.property("insee.baseApi").getString()
+                        parameters.appendAll(parametersOf(params.mapValues { listOf(it.value) }))
+                        path(environment.config.property("insee.siretApi").getString())
                     }
+                    contentType(ContentType.Application.Json)
+                }.also {
+                    ensure(it.status.isSuccess()) {
+                        // when there is no matching etab, Insee returns 404
+                        if (it.status == HttpStatusCode.NotFound) {
+                            InseeNotFound
+                        } else {
+                            InseeError(it.status)
+                        }
+                    }
+                }.let {
+                    val body = it.body<InseeResponse>()
+                    ensure(body.etablissements != null && body.header != null) { InseeError(HttpStatusCode(body.fault!!.code, body.fault.message)) }
+                    SucessfullInseeResponse(body.header, body.etablissements)
                 }
-            }.let {
-                val body = it.body<InseeResponse>()
-                ensure(body.etablissements != null && body.header != null) { InseeError(HttpStatusCode(body.fault!!.code, body.fault.message)) }
-                SucessfullInseeResponse(body.header, body.etablissements)
-            }
+            }.mapLeft { inseeTokenException ->
+                // Client authentication is handled via ktor plugins. We can not wrap their response with arrow type error handling framework before here
+                InseeError(inseeTokenException.status)
+                // FIXME should treat insee error when querying the token at a finer granularity and oustide the error of the fetch
+                // we have a not found when the token api is wrong which is different of Not found for the fetch case when no etab is found...
+            }.bind()
         }
 }

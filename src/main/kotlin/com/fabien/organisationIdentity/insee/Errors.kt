@@ -1,10 +1,7 @@
 package com.fabien.organisationIdentity.insee
 
 import arrow.core.Either
-import com.fabien.InseeError
-import com.fabien.InseeNotFound
-import com.fabien.MissingNationalIdOrSearchText
-import com.fabien.OrganizationIdentityError
+import com.fabien.*
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*
@@ -20,7 +17,8 @@ suspend inline fun <reified A : Any> Either<OrganizationIdentityError, A>.respon
 @Suppress("ComplexMethod")
 suspend fun PipelineContext<Unit, ApplicationCall>.respond(error: OrganizationIdentityError): Unit =
     when (error) {
-        is InseeError -> call.respond(HttpStatusCode.InternalServerError, "Our suppliers has respond with status ${error.statusCode} and fault ${error.message}")
+        // https://www.sirene.fr/static-resources/htm/codes_retour.html for all Insee return code
+        is InseeError -> call.respond(HttpStatusCode.InternalServerError, "Our suppliers has respond with status ${error.status.value} and fault ${error.status.description}")
         is InseeNotFound -> call.respond(HttpStatusCode.NotFound, PaginatedOrganizations(emptyList(), 0, 0))
         is MissingNationalIdOrSearchText -> call.respond(HttpStatusCode.UnprocessableEntity, "Require at least one of the nationalId or searchText parameters")
     }

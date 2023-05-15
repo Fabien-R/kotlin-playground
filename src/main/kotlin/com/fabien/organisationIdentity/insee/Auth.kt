@@ -1,5 +1,6 @@
 package com.fabien.organisationIdentity.insee
 
+import com.fabien.InseeException
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.engine.cio.*
@@ -43,22 +44,24 @@ class InseeAuth(private val environment: ApplicationEnvironment) {
     val oAuth2 = SimplifiedOAuth2BearerProvider(
         BearerAuthProvider(
             refreshTokens = {
-                val refreshTokenInfo: TokenInfo = tokenClient.queryTokenEndpoint { markAsRefreshTokenRequest() }.body()
-                bearerTokenStorage.add(BearerTokens(refreshTokenInfo.accessToken, refreshTokenInfo.accessToken))
+                tokenClient.queryTokenEndpoint { markAsRefreshTokenRequest() }
+                    .also { response ->
+                        if (!response.status.isSuccess()) {
+                            throw InseeException(response.status)
+                        }
+                    }
+                    .body<TokenInfo>()
+                    .run { bearerTokenStorage.add(BearerTokens(this.accessToken, this.accessToken)) }
                 bearerTokenStorage.last()
             },
             loadTokens = {
-                try {
-                    val query = tokenClient.queryTokenEndpoint()
-                    if (!query.status.isSuccess()) {
-                        throw IllegalStateException("Impossible to get a token from Insee")
-                    }
-                    val tokenInfo = query.body<TokenInfo>()
-                    bearerTokenStorage.add(BearerTokens(tokenInfo.accessToken, tokenInfo.accessToken))
-                } catch (e: Exception) {
-                    println(e.message)
-                    throw(e)
-                }
+                tokenClient.queryTokenEndpoint()
+                    .also { response ->
+                        if (!response.status.isSuccess()) {
+                            throw InseeException(response.status)
+                        }
+                    }.body<TokenInfo>()
+                    .run { bearerTokenStorage.add(BearerTokens(this.accessToken, this.accessToken)) }
                 bearerTokenStorage.last()
             },
             realm = null,

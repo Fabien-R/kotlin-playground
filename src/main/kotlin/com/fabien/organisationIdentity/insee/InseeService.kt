@@ -30,6 +30,7 @@ fun inseeService(inseeApi: InseeApi) = object : InseeService {
             ensure(!nationalId.isNullOrEmpty() || !searchText.isNullOrEmpty()) { MissingNationalIdOrSearchText }
             formatToInseeParams(nationalId, searchText, zipCode, pageSize, page).let { inseeParams ->
                 inseeApi.fetchInseeSuppliersSearch(inseeParams).bind().let { successfulResponse ->
+                    // TODO if page > total * size -> header.nombre  = 0 -> should return outbound
                     PaginatedOrganizations(
                         organizations = successfulResponse.etablissements.map(Etablissement::toOrganization),
                         page = successfulResponse.header.debut / successfulResponse.header.nombre,
