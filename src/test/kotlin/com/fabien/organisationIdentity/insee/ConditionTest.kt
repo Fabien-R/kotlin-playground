@@ -222,11 +222,9 @@ internal class ConditionTest {
             constructedWith<And>().toString()
         } answers { callOriginal() }
 
-        val result = query {
+        query {
             InseeQueryFields.SIRET eq "1234"
         }.build()
-
-        println(result)
 
         verify(exactly = 1) {
             constructedWith<And>().toString()

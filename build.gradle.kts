@@ -29,13 +29,12 @@ dependencies {
     testImplementation(libs.kotlin.test.junit)
     testImplementation(libs.mockk)
     testImplementation(libs.ktor.client.mock)
+    testImplementation(libs.ktor.server.tests.jvm)
 
 //    implementation("io.ktor:ktor-server-host-common-jvm:$ktor_version")
 //    implementation("io.ktor:ktor-server-status-pages-jvm:$ktor_version")
 //    implementation("io.ktor:ktor-server-swagger:$ktor_version")
 //    implementation("io.ktor:ktor-server-call-logging-jvm:$ktor_version")
-
-//    testImplementation("io.ktor:ktor-server-tests-jvm:$ktor_version")
 }
 
 tasks {
