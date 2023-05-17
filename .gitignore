@@ -36,3 +36,6 @@ out/
 .vscode/
 
 *.test.yaml
+
+### Environment variable settings
+.githooks/environment-variables
