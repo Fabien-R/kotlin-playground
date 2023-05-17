@@ -13,3 +13,4 @@ insee:
   siretApi: "$INSEE_SIRET_API:entreprises/sirene/V3/siret"
   authenticationApi: "$INSEE_AUTHENTICATION_API:token"
   base64ConsumerKeySecret: $INSEE_BASE64_CONSUMER_KEY_SECRET
+  tokenValiditySeconds: 10

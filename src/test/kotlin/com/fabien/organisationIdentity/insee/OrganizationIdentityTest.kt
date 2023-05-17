@@ -9,6 +9,7 @@ import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.config.*
 import io.ktor.server.testing.*
+import kotlinx.coroutines.delay
 import org.junit.jupiter.api.Test
 import kotlin.test.assertContains
 import kotlin.test.assertEquals
@@ -172,6 +173,23 @@ class OrganizationIdentityTest {
         createClientWithJsonNegotiation().get("/organization/search?nationalId=00792667800017").apply {
             assertEquals(HttpStatusCode.InternalServerError, status)
             assertContains(bodyAsText(), "404")
+        }
+    }
+
+    @Test
+    fun inseeShouldRefreshToken() = testApplication {
+        environment {
+            // 1 second is not enough to make the query after loading the token
+            config = ApplicationConfig("application.yaml").mergeWith(MapApplicationConfig("insee.tokenValiditySeconds" to "2"))
+        }
+        createClientWithJsonNegotiation().get("/organization/search?nationalId=00792667800017").apply {
+            assertEquals(HttpStatusCode.OK, status)
+        }
+        // force the token to be expired
+        delay(2000)
+
+        createClientWithJsonNegotiation().get("/organization/search?nationalId=00792667800017").apply {
+            assertEquals(HttpStatusCode.OK, status)
         }
     }
 }

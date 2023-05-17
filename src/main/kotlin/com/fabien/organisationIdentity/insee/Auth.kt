@@ -16,8 +16,6 @@ import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
 import kotlinx.serialization.json.Json
 
-const val TOKEN_VALIDITY_SECONDS = 10 * 1
-
 // Trick other the ktor client plugin checks against the auth scheme Bearer see @io.ktor.client.plugins.auth.providers.BearerAuthProvider.isApplicable
 class SimplifiedOAuth2BearerProvider(
     private val bearerAuthProvider: BearerAuthProvider,
@@ -44,35 +42,31 @@ class InseeAuth(private val environment: ApplicationEnvironment) {
     val oAuth2 = SimplifiedOAuth2BearerProvider(
         BearerAuthProvider(
             refreshTokens = {
-                tokenClient.queryTokenEndpoint { markAsRefreshTokenRequest() }
-                    .also { response ->
-                        if (!response.status.isSuccess()) {
-                            throw InseeException(response.status)
-                        }
-                    }
-                    .body<TokenInfo>()
-                    .run { bearerTokenStorage.add(BearerTokens(this.accessToken, this.accessToken)) }
-                bearerTokenStorage.last()
+                loadToken { markAsRefreshTokenRequest() }
             },
             loadTokens = {
-                tokenClient.queryTokenEndpoint()
-                    .also { response ->
-                        if (!response.status.isSuccess()) {
-                            throw InseeException(response.status)
-                        }
-                    }.body<TokenInfo>()
-                    .run { bearerTokenStorage.add(BearerTokens(this.accessToken, this.accessToken)) }
-                bearerTokenStorage.last()
+                loadToken()
             },
             realm = null,
         ),
     )
 
+    private suspend fun loadToken(block: HttpRequestBuilder.() -> Unit = {}): BearerTokens {
+        tokenClient.queryTokenEndpoint { block() }
+            .also { response ->
+                if (!response.status.isSuccess()) {
+                    throw InseeException(response.status)
+                }
+            }.body<TokenInfo>()
+            .run { bearerTokenStorage.add(BearerTokens(this.accessToken, this.accessToken)) }
+        return bearerTokenStorage.last()
+    }
+
     suspend fun HttpClient.queryTokenEndpoint(block: HttpRequestBuilder.() -> Unit = {}): HttpResponse =
         this.submitForm(
             formParameters = Parameters.build {
                 append("grant_type", "client_credentials")
-                append("validity_period", TOKEN_VALIDITY_SECONDS.toString())
+                append("validity_period", environment.config.property("insee.tokenValiditySeconds").getString())
             },
         ) {
             url {
