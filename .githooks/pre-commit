@@ -3,6 +3,8 @@ set -e
 
 echo "Running git pre-commit hook"
 
+source .githooks/environment-variables
+
 ./gradlew check
 
 echo "Finished running git pre-commit hook"

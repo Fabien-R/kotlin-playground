@@ -1,0 +1,6 @@
+#!/bin/bash
+
+# Githooks do not have access to IDE environment variables. Trick
+export INSEE_BASE64_CONSUMER_KEY_SECRET=
+export JWT_DOMAIN=
+export JWT_AUDIENCE=
