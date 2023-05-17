@@ -10,6 +10,7 @@ import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.testing.*
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 class OrganizationIdentityTest {
 
@@ -113,6 +114,41 @@ class OrganizationIdentityTest {
                 assertEquals("MINISTERE DE LA REGION WALLONNE", nationalIdSearched[0].name, "searchText and nationalId are cumulative")
             }
         }
+    }
+
+    @Test
+    fun searchOrganizationWithDifferentPageSize() = testApplication {
+        createClientWithJsonNegotiation().get("/organization/search?searchText=auchan").apply {
+            assertEquals(HttpStatusCode.OK, status)
+            body<PaginatedOrganizations>().let {
+                assertEquals(5, it.organizations.size, "as default page size")
+            }
+        }
+        val newPageSize = 10
+        createClientWithJsonNegotiation().get("/organization/search?searchText=auchan&pageSize=$newPageSize").apply {
+            assertEquals(HttpStatusCode.OK, status)
+            body<PaginatedOrganizations>().let {
+                assertEquals(newPageSize, it.organizations.size, "modified page size")
+            }
+        }
+    }
+
+    @Test
+    fun searchOrganizationPagination() = testApplication {
+        val page1 = createClientWithJsonNegotiation().get("/organization/search?searchText=auchan&page=1").run {
+            assertEquals(HttpStatusCode.OK, status)
+            body<PaginatedOrganizations>()
+        }
+
+        val page2 = createClientWithJsonNegotiation().get("/organization/search?searchText=auchan&page=2").run {
+            assertEquals(HttpStatusCode.OK, status)
+            body<PaginatedOrganizations>()
+        }
+
+        assertEquals(1, page1.page)
+        assertEquals(2, page2.page)
+        assertEquals(page1.total, page2.total, "total number of organization should not change")
+        assertTrue(page1.organizations.intersect(page2.organizations.toSet()).isEmpty(), "page should have different organizations")
     }
 }
 
