@@ -7,8 +7,10 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
+import io.ktor.server.config.*
 import io.ktor.server.testing.*
 import org.junit.jupiter.api.Test
+import kotlin.test.assertContains
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
@@ -149,6 +151,28 @@ class OrganizationIdentityTest {
         assertEquals(2, page2.page)
         assertEquals(page1.total, page2.total, "total number of organization should not change")
         assertTrue(page1.organizations.intersect(page2.organizations.toSet()).isEmpty(), "page should have different organizations")
+    }
+
+    @Test
+    fun inseeWrongSecretShouldReturnInternalServerErrorWihUnAuthorizedStatusEncapsulatedInMessage() = testApplication {
+        environment {
+            config = ApplicationConfig("application.yaml").mergeWith(MapApplicationConfig("insee.base64ConsumerKeySecret" to "wrongKeySecret"))
+        }
+        createClientWithJsonNegotiation().get("/organization/search?nationalId=00792667800017").apply {
+            assertEquals(HttpStatusCode.InternalServerError, status)
+            assertContains(bodyAsText(), "401")
+        }
+    }
+
+    @Test
+    fun inseeWrongSiretAPIShouldReturnInternalServerErrorWihNotFound() = testApplication {
+        environment {
+            config = ApplicationConfig("application.yaml").mergeWith(MapApplicationConfig("insee.siretApi" to "wrongSiretApi"))
+        }
+        createClientWithJsonNegotiation().get("/organization/search?nationalId=00792667800017").apply {
+            assertEquals(HttpStatusCode.InternalServerError, status)
+            assertContains(bodyAsText(), "404")
+        }
     }
 }
 

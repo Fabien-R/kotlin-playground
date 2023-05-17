@@ -54,8 +54,8 @@ class InseeApi(private val environment: ApplicationEnvironment, httpClientEngine
                     contentType(ContentType.Application.Json)
                 }.also {
                     ensure(it.status.isSuccess()) {
-                        // when there is no matching etab, Insee returns 404
-                        if (it.status == HttpStatusCode.NotFound) {
+                        // when there is no matching etab, Insee returns 404 but with empty message
+                        if (it.status == HttpStatusCode.NotFound && it.status.description.isEmpty()) {
                             InseeNotFound
                         } else {
                             InseeError(it.status)
