@@ -38,9 +38,9 @@ internal class InseeApiTest {
         val mockedAuth = spyk(InseeAuth(mockedEnv)) {
             coEvery { anyConstructed<HttpClient>().queryTokenEndpoint() } returns (
                 mockk {
-                    every { status } returns io.ktor.http.HttpStatusCode.BadRequest
+                    every { status } returns HttpStatusCode.BadRequest
                     mockkStatic(HttpClientCall::body)
-                    coEvery { body<TokenInfo>() } returns TokenInfo("token", 888, "full", "type")
+                    coEvery { body<TokenInfo>() } returns TokenInfo("token")
                 }
                 )
         }
