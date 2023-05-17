@@ -2,6 +2,8 @@ package com.fabien.organisationIdentity.insee
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import nl.adaptivity.xmlutil.serialization.XmlElement
+import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
 enum class InseeQueryFields(val field: String) {
     SIRET("siret"),
@@ -75,20 +77,24 @@ data class Etablissement(
     val periodesEtablissement: List<PeriodEtablissement>? = null,
 )
 
+@XmlSerialName(prefix = "", namespace = "http://wso2.org/apimanager", value = "fault")
 @Serializable
-data class InseeFault(
+data class Fault(
+    @XmlElement
+    @XmlSerialName(value = "code")
     val code: Int,
+    @XmlElement
+    @XmlSerialName(value = "message")
     val message: String,
+    @XmlSerialName(value = "type")
+    @XmlElement
+    val type: String,
+    @XmlElement
+    @XmlSerialName(value = "description")
     val description: String,
 )
 
 @Serializable
-data class InseeResponse(
-    val header: InseeResponseHeader? = null,
-    val etablissements: List<Etablissement>? = null,
-    val fault: InseeFault? = null,
-)
-
 data class SucessfullInseeResponse(
     val header: InseeResponseHeader,
     val etablissements: List<Etablissement>,

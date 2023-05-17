@@ -19,6 +19,7 @@ suspend fun PipelineContext<Unit, ApplicationCall>.respond(error: OrganizationId
     when (error) {
         // https://www.sirene.fr/static-resources/htm/codes_retour.html for all Insee return code
         is InseeError -> call.respond(HttpStatusCode.InternalServerError, "Our suppliers has respond with status ${error.status.value} and fault ${error.status.description}")
+        is InseeOtherError -> call.respond(HttpStatusCode.InternalServerError, "Our suppliers has respond with status ${error.status.value}, fault ${error.status.description} and description ${error.description}")
         is InseeNotFound -> call.respond(HttpStatusCode.NotFound, PaginatedOrganizations(emptyList(), 0, 0))
         is MissingNationalIdOrSearchText -> call.respond(HttpStatusCode.UnprocessableEntity, "Require at least one of the nationalId or searchText parameters")
     }

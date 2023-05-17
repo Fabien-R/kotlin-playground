@@ -6,6 +6,7 @@ import arrow.core.raise.ensure
 import com.fabien.InseeError
 import com.fabien.InseeException
 import com.fabien.InseeNotFound
+import com.fabien.InseeOtherError
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.engine.*
@@ -16,6 +17,7 @@ import io.ktor.client.plugins.logging.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
+import io.ktor.serialization.kotlinx.xml.*
 import io.ktor.server.application.*
 import kotlinx.serialization.json.Json
 
@@ -38,6 +40,7 @@ class InseeApi(private val environment: ApplicationEnvironment, httpClientEngine
                     prettyPrint = true
                 },
             )
+            xml()
         }
     }
 
@@ -54,18 +57,22 @@ class InseeApi(private val environment: ApplicationEnvironment, httpClientEngine
                     contentType(ContentType.Application.Json)
                 }.also {
                     ensure(it.status.isSuccess()) {
-                        // when there is no matching etab, Insee returns 404 but with empty message
-                        if (it.status == HttpStatusCode.NotFound && it.status.description.isEmpty()) {
-                            InseeNotFound
-                        } else {
-                            InseeError(it.status)
-                        }
+                        it.contentType()?.let { contentType ->
+                            if (JsonContentTypeMatcher.contains(contentType)) {
+                                // when there is no matching etab, Insee returns 404 but with empty message
+                                if (it.status == HttpStatusCode.NotFound && it.status.description.isEmpty()) {
+                                    InseeNotFound
+                                } else {
+                                    InseeError(it.status)
+                                }
+                            } else {
+                                // Insee API Manager return xml error
+                                val body = it.body<Fault>()
+                                InseeOtherError(it.status, body.description)
+                            }
+                        } ?: InseeOtherError(it.status, "Impossible to deserialize Insee error")
                     }
-                }.let {
-                    val body = it.body<InseeResponse>()
-                    ensure(body.etablissements != null && body.header != null) { InseeError(HttpStatusCode(body.fault!!.code, body.fault.message)) }
-                    SucessfullInseeResponse(body.header, body.etablissements)
-                }
+                }.body()
             }.mapLeft { inseeTokenException ->
                 // Client authentication is handled via ktor plugins. We can not wrap their response with arrow type error handling framework before here
                 InseeError(inseeTokenException.status)

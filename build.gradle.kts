@@ -22,6 +22,7 @@ dependencies {
     implementation(libs.arrow.core)
     implementation(libs.bundles.ktor.client)
     implementation(libs.bundles.ktor.json)
+    implementation(libs.ktor.serialization.xml)
     implementation(libs.bundles.ktor.server)
     implementation(libs.logback.classic)
 
