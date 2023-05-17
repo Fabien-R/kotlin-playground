@@ -21,9 +21,9 @@ Let's play!
 
 ## Table of Contents
 
-- [Third Parties](#Third Parties)
+- [Third Parties](#Third-Parties)
 - [DSL](#DSL)
-- [GitHub workflows](#GitHub workflows)
+- [GitHub workflows](#GitHub-workflows)
 - [Tests](#Tests)
 - [Troubleshooting](#Troubleshooting)
 
