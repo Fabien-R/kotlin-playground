@@ -4,32 +4,19 @@ import com.fabien.InseeException
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.engine.cio.*
-import io.ktor.client.plugins.auth.*
 import io.ktor.client.plugins.auth.providers.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
 import io.ktor.client.request.forms.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
-import io.ktor.http.auth.*
 import io.ktor.serialization.kotlinx.json.*
-import io.ktor.server.application.*
 import kotlinx.serialization.json.Json
 
-// Trick other the ktor client plugin checks against the auth scheme Bearer see @io.ktor.client.plugins.auth.providers.BearerAuthProvider.isApplicable
-class SimplifiedOAuth2BearerProvider(
-    private val bearerAuthProvider: BearerAuthProvider,
-) : AuthProvider by bearerAuthProvider {
+fun inseeAuth(host: String, authenticationAPI: String, consumerKeySecret: String, tokenValiditySeconds: String): BearerAuthProvider {
+    val bearerTokenStorage = mutableListOf<BearerTokens>()
 
-    override fun isApplicable(auth: HttpAuthHeader): Boolean {
-        return auth.authScheme == "${AuthScheme.OAuth}2"
-    }
-}
-
-class InseeAuth(private val environment: ApplicationEnvironment) {
-    private val bearerTokenStorage = mutableListOf<BearerTokens>()
-
-    private val tokenClient = HttpClient(CIO.create()) {
+    val tokenClient = HttpClient(CIO.create()) {
         install(ContentNegotiation) {
             json(
                 Json {
@@ -39,19 +26,25 @@ class InseeAuth(private val environment: ApplicationEnvironment) {
         }
     }
 
-    val oAuth2 = SimplifiedOAuth2BearerProvider(
-        BearerAuthProvider(
-            refreshTokens = {
-                loadToken { markAsRefreshTokenRequest() }
+    suspend fun HttpClient.queryTokenEndpoint(block: HttpRequestBuilder.() -> Unit = {}): HttpResponse =
+        this.submitForm(
+            formParameters = Parameters.build {
+                append("grant_type", "client_credentials")
+                append("validity_period", tokenValiditySeconds)
             },
-            loadTokens = {
-                loadToken()
-            },
-            realm = null,
-        ),
-    )
+        ) {
+            url {
+                protocol = URLProtocol.HTTPS
+                this.host = host
+                path(authenticationAPI)
+            }
+            headers {
+                append(HttpHeaders.Authorization, "Basic $consumerKeySecret")
+            }
+            block()
+        }
 
-    private suspend fun loadToken(block: HttpRequestBuilder.() -> Unit = {}): BearerTokens {
+    suspend fun loadToken(block: HttpRequestBuilder.() -> Unit = {}): BearerTokens {
         tokenClient.queryTokenEndpoint { block() }
             .also { response ->
                 if (!response.status.isSuccess()) {
@@ -62,21 +55,13 @@ class InseeAuth(private val environment: ApplicationEnvironment) {
         return bearerTokenStorage.last()
     }
 
-    suspend fun HttpClient.queryTokenEndpoint(block: HttpRequestBuilder.() -> Unit = {}): HttpResponse =
-        this.submitForm(
-            formParameters = Parameters.build {
-                append("grant_type", "client_credentials")
-                append("validity_period", environment.config.property("insee.tokenValiditySeconds").getString())
-            },
-        ) {
-            url {
-                protocol = URLProtocol.HTTPS
-                host = environment.config.property("insee.baseApi").getString()
-                path(environment.config.property("insee.authenticationApi").getString())
-            }
-            headers {
-                append(HttpHeaders.Authorization, "Basic ${environment.config.property("insee.base64ConsumerKeySecret").getString()}")
-            }
-            block()
-        }
+    return BearerAuthProvider(
+        refreshTokens = {
+            loadToken { markAsRefreshTokenRequest() }
+        },
+        loadTokens = {
+            loadToken()
+        },
+        realm = null,
+    )
 }

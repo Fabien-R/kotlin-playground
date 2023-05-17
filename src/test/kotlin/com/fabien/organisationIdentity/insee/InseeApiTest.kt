@@ -18,39 +18,39 @@ internal class InseeApiTest {
     @Test
     @Disabled("Did not manage to correctly mock extension function HttpClient#queryTokenEndpoint inside InseeAuth")
     fun `should call token API when 401`() = runBlocking {
-        val mockEngine = MockEngine { request ->
-            respond(
-                content = "Token outdated",
-                status = HttpStatusCode.Unauthorized,
-                headers = headersOf(HttpHeaders.ContentType, "application/json"),
-            )
-        }
-
-        val mockedEnv = mockk<ApplicationEnvironment> {
-            every { config.property(eq("insee.baseApi")).getString() } returns "baseApi"
-            every { config.property(eq("insee.siretApi")).getString() } returns "siretApi"
-            every { config.property(eq("insee.authenticationApi")).getString() } returns "authApi"
-            every { config.property(eq("insee.base64ConsumerKeySecret")).getString() } returns "base64ConsumerKeySecret"
-        }
-
-        mockkConstructor(HttpClient::class)
-
-        val mockedAuth = spyk(InseeAuth(mockedEnv)) {
-            coEvery { anyConstructed<HttpClient>().queryTokenEndpoint() } returns (
-                mockk {
-                    every { status } returns HttpStatusCode.BadRequest
-                    mockkStatic(HttpClientCall::body)
-                    coEvery { body<TokenInfo>() } returns TokenInfo("token")
-                }
-                )
-        }
-
-        val inseeApi = InseeApi(mockedEnv, mockEngine, mockedAuth)
-
-        inseeApi.fetchInseeSuppliersSearch(emptyMap())
-
-        with(mockedAuth) {
-            coVerify { anyConstructed<HttpClient>().queryTokenEndpoint() }
-        }
+//        val mockEngine = MockEngine { request ->
+//            respond(
+//                content = "Token outdated",
+//                status = HttpStatusCode.Unauthorized,
+//                headers = headersOf(HttpHeaders.ContentType, "application/json"),
+//            )
+//        }
+//
+//        val mockedEnv = mockk<ApplicationEnvironment> {
+//            every { config.property(eq("insee.baseApi")).getString() } returns "baseApi"
+//            every { config.property(eq("insee.siretApi")).getString() } returns "siretApi"
+//            every { config.property(eq("insee.authenticationApi")).getString() } returns "authApi"
+//            every { config.property(eq("insee.base64ConsumerKeySecret")).getString() } returns "base64ConsumerKeySecret"
+//        }
+//
+//        mockkConstructor(HttpClient::class)
+//
+//        val mockedAuth = spyk(InseeAuth(mockedEnv)) {
+//            coEvery { anyConstructed<HttpClient>().queryTokenEndpoint() } returns (
+//                mockk {
+//                    every { status } returns HttpStatusCode.BadRequest
+//                    mockkStatic(HttpClientCall::body)
+//                    coEvery { body<TokenInfo>() } returns TokenInfo("token")
+//                }
+//                )
+//        }
+//
+//        val inseeApi = InseeApi(mockedEnv, mockEngine, mockedAuth)
+//
+//        inseeApi.fetchInseeSuppliersSearch(emptyMap())
+//
+//        with(mockedAuth) {
+//            coVerify { anyConstructed<HttpClient>().queryTokenEndpoint() }
+//        }
     }
 }

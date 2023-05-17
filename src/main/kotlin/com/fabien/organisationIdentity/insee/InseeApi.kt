@@ -19,14 +19,14 @@ import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
 import kotlinx.serialization.json.Json
 
-class InseeApi(private val environment: ApplicationEnvironment, httpClientEngine: HttpClientEngine, inseeAuth: InseeAuth) {
+class InseeApi(private val environment: ApplicationEnvironment, httpClientEngine: HttpClientEngine, inseeAuth: AuthProvider) {
     private val client = HttpClient(httpClientEngine) {
         install(Logging) {
             logger = Logger.DEFAULT
             level = LogLevel.HEADERS
         }
         install(Auth) {
-            providers.add(inseeAuth.oAuth2) // TODO should be a companion object or factory or something injected
+            providers.add(inseeAuth)
         }
         install(HttpRequestRetry) {
         }

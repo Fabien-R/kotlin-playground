@@ -186,7 +186,7 @@ class OrganizationIdentityTest {
             assertEquals(HttpStatusCode.OK, status)
         }
         // force the token to be expired
-        delay(2000)
+        delay(3000)
 
         createClientWithJsonNegotiation().get("/organization/search?nationalId=00792667800017").apply {
             assertEquals(HttpStatusCode.OK, status)
