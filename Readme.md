@@ -14,8 +14,8 @@ So this project is my playground to discover some of its benefits and limits
 * Use external APIs
 * Implement a DSL
 * Provide APIs 
-* Integrate with an external Authentication and Authorization service
-* Integrate with a DB
+* (WIP) Integrate with an external Authentication and Authorization service
+* (TODO) Integrate with a DB
 
 Let's play!
 
@@ -78,15 +78,13 @@ A [CI pipeline](.github/workflows/ci.yml) is triggered on each pull request or m
 ## Tests
 /!\ WIP
 Tests are located [here](src/test/kotlin/com/fabien)
+
 I use Junit5 and its integrated framework jupiter  and [MockK](https://mockk.io/) for the mock library as it offers to write idiomatic Kotlin test code.
+API tests use (for now) the [Ktor TestApplication utility](https://ktor.io/docs/testing.html#overview). You can find them [here](src/test/kotlin/com/fabien/organisationIdentity/insee/OrganizationIdentityTest.kt).
 
-// Test Kotest + arrow ?
+I also added [Kover plugin](https://github.com/Kotlin/kotlinx-kover) to generate code coverage and then send it to third party [codecov](#Codecov): a [coverage dashboard](https://app.codecov.io/github/Fabien-R/kotlin-playground) is privately available.
 
-// TODO Integration test
-// TODO e2e tests
-
-I also added [Kover plugin](https://github.com/Kotlin/kotlinx-kover) to generate code coverage and then send it to third party Codeco.
-A dashboard is (privately?) available [here](https://app.codecov.io/github/Fabien-R/kotlin-playground)
+Tests are also executed during gitHook pre-commit and require to fil [environment-variables](.githooks/environment-variables)(gitHooks do not have access to IDE environment variables).
 
 ## Troubleshooting
 
