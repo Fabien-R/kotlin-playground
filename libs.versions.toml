@@ -38,6 +38,7 @@ ktor-server-config-yaml = { module = "io.ktor:ktor-server-config-yaml", version.
 ktor-server-core-jvm = { module = "io.ktor:ktor-server-core-jvm", version.ref = "ktor"}
 ktor-server-content-negotiation-jvm = { module = "io.ktor:ktor-server-content-negotiation-jvm", version.ref = "ktor" }
 ktor-server-defaultheaders-jvm = { module = "io.ktor:ktor-server-default-headers-jvm", version.ref = "ktor" }
+ktor-server-status-pages-jvm = { module = "io.ktor:ktor-server-status-pages-jvm", version.ref = "ktor" }
 ktor-server-tests-jvm = { module = "io.ktor:ktor-server-tests-jvm", version.ref = "ktor"}
 
 ktor-client-auth = { module = "io.ktor:ktor-client-auth", version.ref = "ktor"}
@@ -69,7 +70,8 @@ ktor-server = [
     "ktor-server-config-yaml",
     "ktor-server-core-jvm",
     "ktor-server-content-negotiation-jvm",
-    "ktor-server-defaultheaders-jvm"
+    "ktor-server-defaultheaders-jvm",
+    "ktor-server-status-pages-jvm"
 ]
 ktor-client = [
     "ktor-client-auth",
