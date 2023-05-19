@@ -70,7 +70,7 @@ spotless {
         )
     }
     kotlinGradle {
-        ktlint("0.48.2").editorConfigOverride(
+        ktlint(libs.versions.klint.get()).editorConfigOverride(
             mapOf(
                 "max_line_length" to "160",
             ),
