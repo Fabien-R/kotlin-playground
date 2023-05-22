@@ -1,5 +1,6 @@
 package com.fabien.plugins
 
+import com.fabien.authent.AUTH0
 import com.fabien.authent.JwtService
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
@@ -13,7 +14,7 @@ fun Application.configureSecurity(jwtService: JwtService) {
         }
     }
     routing {
-        authenticate("auth0") {
+        authenticate(AUTH0) {
             get("/secured") {
                 call.respondText { "Hey you" }
             }

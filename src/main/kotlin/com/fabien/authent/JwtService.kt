@@ -5,6 +5,7 @@ import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*
 import java.util.concurrent.TimeUnit
 
+const val AUTH0 = "auth0"
 interface JwtService {
     fun AuthenticationConfig.configure()
 }
@@ -24,7 +25,7 @@ fun configureJwt(jwtAudience: String, jwtDomain: String) = object : JwtService {
     }
 
     override fun AuthenticationConfig.configure() {
-        jwt("auth0") {
+        jwt(AUTH0) {
             verifier(jwkProvider)
             validate { credential -> validateCredentials(credential, null) }
         }
