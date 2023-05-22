@@ -1,5 +1,9 @@
 package com.fabien.organisationIdentity.insee
 
+import com.fabien.env.Env
+import com.fabien.env.dependencies
+import com.fabien.env.loadConfiguration
+import com.fabien.module
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.plugins.contentnegotiation.*
@@ -19,6 +23,7 @@ class OrganizationIdentityTest {
 
     @Test
     fun searchOrganizationWithoutNationalIdNorSearchText() = testApplication {
+        parametrizeApplicationTest()
         client.get("/organization/search").apply {
             assertEquals(HttpStatusCode.UnprocessableEntity, status)
             assertEquals("Require at least one of the nationalId or searchText parameters", bodyAsText())
@@ -27,6 +32,7 @@ class OrganizationIdentityTest {
 
     @Test
     fun noOrganizationFound() = testApplication {
+        parametrizeApplicationTest()
         createClientWithJsonNegotiation().get("/organization/search?searchText=plopi&zipCode=6666").apply {
             assertEquals(HttpStatusCode.NotFound, status)
             assertEquals(PaginatedOrganizations(emptyList(), 0, 0), body())
@@ -35,6 +41,7 @@ class OrganizationIdentityTest {
 
     @Test
     fun searchOrganizationWithSearchText() = testApplication {
+        parametrizeApplicationTest()
         createClientWithJsonNegotiation().get("/organization/search?searchText=touten action").apply {
             assertEquals(HttpStatusCode.OK, status)
             Organization(
@@ -53,6 +60,7 @@ class OrganizationIdentityTest {
 
     @Test
     fun searchOrganizationWithNationalId() = testApplication {
+        parametrizeApplicationTest()
         createClientWithJsonNegotiation().get("/organization/search?nationalId=00792667800017").apply {
             assertEquals(HttpStatusCode.OK, status)
             Organization(
@@ -71,6 +79,7 @@ class OrganizationIdentityTest {
 
     @Test
     fun searchOrganizationWithZipCodeAndSearchText() = testApplication {
+        parametrizeApplicationTest()
         createClientWithJsonNegotiation().get("/organization/search?zipCode=33800&searchText=plop").apply {
             assertEquals(HttpStatusCode.OK, status)
             Organization(
@@ -89,6 +98,7 @@ class OrganizationIdentityTest {
 
     @Test
     fun searchOrganizationWithZipCodeAndNationalId() = testApplication {
+        parametrizeApplicationTest()
         createClientWithJsonNegotiation().get("/organization/search?zipCode=69003&nationalId=82454312800022").apply {
             assertEquals(HttpStatusCode.OK, status)
             Organization(
@@ -107,6 +117,7 @@ class OrganizationIdentityTest {
 
     @Test
     fun searchOrganizationWithZipCodeAndNationalIdAndSearchText() = testApplication {
+        parametrizeApplicationTest()
         createClientWithJsonNegotiation().get("/organization/search?zipCode=69003&searchText=auchan&nationalId=39406971000090").apply {
             assertEquals(HttpStatusCode.OK, status)
             body<PaginatedOrganizations>().let {
@@ -121,6 +132,7 @@ class OrganizationIdentityTest {
 
     @Test
     fun searchOrganizationWithDifferentPageSize() = testApplication {
+        parametrizeApplicationTest()
         createClientWithJsonNegotiation().get("/organization/search?searchText=auchan").apply {
             assertEquals(HttpStatusCode.OK, status)
             body<PaginatedOrganizations>().let {
@@ -138,6 +150,7 @@ class OrganizationIdentityTest {
 
     @Test
     fun searchOrganizationPagination() = testApplication {
+        parametrizeApplicationTest()
         val page1 = createClientWithJsonNegotiation().get("/organization/search?searchText=auchan&page=1").run {
             assertEquals(HttpStatusCode.OK, status)
             body<PaginatedOrganizations>()
@@ -156,8 +169,8 @@ class OrganizationIdentityTest {
 
     @Test
     fun inseeWrongSecretShouldReturnInternalServerErrorWihUnAuthorizedStatusEncapsulatedInMessage() = testApplication {
-        environment {
-            config = ApplicationConfig("application.yaml").mergeWith(MapApplicationConfig("insee.base64ConsumerKeySecret" to "wrongKeySecret"))
+        with(loadConfiguration(ApplicationConfig("application.yaml"))) {
+            parametrizeApplicationTest(this.copy(insee = this.insee.copy(base64ConsumerKeySecret = "wrongKeySecret")))
         }
         createClientWithJsonNegotiation().get("/organization/search?nationalId=00792667800017").apply {
             assertEquals(HttpStatusCode.InternalServerError, status)
@@ -167,8 +180,8 @@ class OrganizationIdentityTest {
 
     @Test
     fun inseeWrongSiretAPIShouldReturnInternalServerErrorWihNotFound() = testApplication {
-        environment {
-            config = ApplicationConfig("application.yaml").mergeWith(MapApplicationConfig("insee.siretApi" to "wrongSiretApi"))
+        with(loadConfiguration(ApplicationConfig("application.yaml"))) {
+            parametrizeApplicationTest(this.copy(insee = this.insee.copy(siretApi = "wrongSiretApi")))
         }
         createClientWithJsonNegotiation().get("/organization/search?nationalId=00792667800017").apply {
             assertEquals(HttpStatusCode.InternalServerError, status)
@@ -178,10 +191,10 @@ class OrganizationIdentityTest {
 
     @Test
     fun inseeShouldRefreshToken() = testApplication {
-        environment {
-            // 1 second is not enough to make the query after loading the token
-            config = ApplicationConfig("application.yaml").mergeWith(MapApplicationConfig("insee.tokenValiditySeconds" to "2"))
+        with(loadConfiguration(ApplicationConfig("application.yaml"))) {
+            parametrizeApplicationTest(this.copy(insee = this.insee.copy(tokenValiditySeconds = "2")))
         }
+
         createClientWithJsonNegotiation().get("/organization/search?nationalId=00792667800017").apply {
             assertEquals(HttpStatusCode.OK, status)
         }
@@ -191,6 +204,14 @@ class OrganizationIdentityTest {
         createClientWithJsonNegotiation().get("/organization/search?nationalId=00792667800017").apply {
             assertEquals(HttpStatusCode.OK, status)
         }
+    }
+}
+
+context(ApplicationTestBuilder)
+private fun parametrizeApplicationTest(env: Env = loadConfiguration(ApplicationConfig("application.yaml"))) {
+    application {
+        val dependencies = dependencies(env.insee, env.jwt)
+        module(dependencies)
     }
 }
 

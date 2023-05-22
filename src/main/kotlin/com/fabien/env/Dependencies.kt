@@ -1,18 +1,18 @@
 package com.fabien.env
 
-import arrow.fx.coroutines.continuations.ResourceScope
+import com.fabien.authent.JwtService
+import com.fabien.authent.configureJwt
 import com.fabien.organisationIdentity.insee.InseeApi
 import com.fabien.organisationIdentity.insee.InseeService
 import com.fabien.organisationIdentity.insee.inseeAuth
 import com.fabien.organisationIdentity.insee.inseeService
 import io.ktor.client.engine.cio.*
-import io.ktor.server.application.*
 
 class Dependencies(
-    val inseeService: InseeService
+    val inseeService: InseeService,
+    val jwtService: JwtService,
 )
-
-suspend fun ResourceScope.dependencies(environment: ApplicationEnvironment): Dependencies {
+fun dependencies(inseeParams: Insee, jwtParams: Jwt): Dependencies {
     val inseeHttpEngine = CIO.create {
         threadsCount = 20
         requestTimeout = 3000
@@ -26,21 +26,22 @@ suspend fun ResourceScope.dependencies(environment: ApplicationEnvironment): Dep
     }
 
     val inseeAuthProvider = inseeAuth(
-        environment.config.property("insee.baseApi").getString(),
-        environment.config.property("insee.authenticationApi").getString(),
-        environment.config.property("insee.base64ConsumerKeySecret").getString(),
-        environment.config.property("insee.tokenValiditySeconds").getString(),
+        inseeParams.baseApi,
+        inseeParams.authenticationApi,
+        inseeParams.base64ConsumerKeySecret,
+        inseeParams.tokenValiditySeconds.toString(),
     )
     val inseeService = inseeService(
         InseeApi(
             inseeHttpEngine,
             inseeAuthProvider,
-            environment.config.property("insee.baseApi").getString(),
-            environment.config.property("insee.siretApi").getString()
-        )
-    )
-    return Dependencies(
-        inseeService
+            inseeParams.baseApi,
+            inseeParams.siretApi,
+        ),
     )
 
+    return Dependencies(
+        inseeService,
+        configureJwt(jwtParams.audience, jwtParams.domain),
+    )
 }

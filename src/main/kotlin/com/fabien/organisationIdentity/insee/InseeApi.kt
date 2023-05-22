@@ -18,10 +18,14 @@ import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.serialization.kotlinx.xml.*
-import io.ktor.server.application.*
 import kotlinx.serialization.json.Json
 
-class InseeApi(private val environment: ApplicationEnvironment, httpClientEngine: HttpClientEngine, inseeAuth: AuthProvider) {
+class InseeApi(
+    httpClientEngine: HttpClientEngine,
+    inseeAuth: AuthProvider,
+    val host: String,
+    val siretAPI: String,
+) {
     private val client = HttpClient(httpClientEngine) {
         install(Logging) {
             logger = Logger.DEFAULT
@@ -50,9 +54,9 @@ class InseeApi(private val environment: ApplicationEnvironment, httpClientEngine
                 client.get {
                     url {
                         protocol = URLProtocol.HTTPS
-                        host = environment.config.property("insee.baseApi").getString()
+                        host = this@InseeApi.host
                         parameters.appendAll(parametersOf(params.mapValues { listOf(it.value) }))
-                        path(environment.config.property("insee.siretApi").getString())
+                        path(siretAPI)
                     }
                     contentType(ContentType.Application.Json)
                 }.also {

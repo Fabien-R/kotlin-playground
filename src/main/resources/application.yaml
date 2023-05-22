@@ -1,7 +1,6 @@
 ktor:
   application:
-    modules:
-      - com.fabien.ApplicationKt.module
+    id: kotlin-playground
   deployment:
     port: 3001
   development: true
