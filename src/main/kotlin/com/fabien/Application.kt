@@ -4,10 +4,10 @@ import com.fabien.env.Dependencies
 import com.fabien.env.dependencies
 import com.fabien.env.loadConfiguration
 import com.fabien.organisationIdentity.configureOrganizationIdentityRouting
-import com.fabien.plugins.configureSecurity
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
+import io.ktor.server.auth.*
 import io.ktor.server.cio.*
 import io.ktor.server.config.*
 import io.ktor.server.engine.*
@@ -44,7 +44,11 @@ fun Application.module(dependencies: Dependencies) {
             call.respondText(text = "500: $cause", status = HttpStatusCode.InternalServerError)
         }
     }
+    authentication {
+        with(dependencies.jwtService) {
+            configure()
+        }
+    }
 
-    configureSecurity(dependencies.jwtService)
     configureOrganizationIdentityRouting(dependencies.inseeService)
 }
