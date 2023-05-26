@@ -14,7 +14,7 @@ So this project is my playground to discover some of its benefits and limits
 * Use external APIs
 * Implement a DSL
 * Provide APIs 
-* (WIP) Integrate with an external Authentication and Authorization service
+* Integrate with an external Authentication and Authorization service
 * (TODO) Integrate with a DB
 
 Let's play!
@@ -76,7 +76,6 @@ A [CI pipeline](.github/workflows/ci.yml) is triggered on each pull request or m
 * test coverage report
 
 ## Tests
-/!\ WIP
 Tests are located [here](src/test/kotlin/com/fabien)
 
 I use Junit5 and its integrated framework jupiter  and [MockK](https://mockk.io/) for the mock library as it offers to write idiomatic Kotlin test code.

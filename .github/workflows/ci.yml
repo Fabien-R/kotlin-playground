@@ -51,6 +51,13 @@ jobs:
           INSEE_BASE64_CONSUMER_KEY_SECRET: ${{secrets.INSEE_BASE64_CONSUMER_KEY_SECRET}}
           JWT_DOMAIN: ${{secrets.JWT_DOMAIN}}
           JWT_AUDIENCE: ${{secrets.JWT_AUDIENCE}}
+          # only for tests
+          JWT_CLIENT_ID: ${{secrets.JWT_CLIENT_ID}}
+          JWT_CLIENT_SECRET: ${{secrets.JWT_CLIENT_SECRET}}
+          STAFF_MAIL: ${{secrets.STAFF_MAIL}}
+          STAFF_PASSWORD: ${{secrets.STAFF_PASSWORD}}
+          USER_MAIL: ${{secrets.USER_MAIL}}
+          USER_PASSWORD: ${{secrets.USER_PASSWORD}}
       - name: Test
         uses: gradle/gradle-build-action@v2
         with:
