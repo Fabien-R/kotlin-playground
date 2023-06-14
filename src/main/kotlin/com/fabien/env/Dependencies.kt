@@ -2,18 +2,21 @@ package com.fabien.env
 
 import com.fabien.authent.JwtService
 import com.fabien.authent.configureJwt
+import com.fabien.invoiceExtraction.mindee.MindeeApi
 import com.fabien.organisationIdentity.insee.InseeApi
 import com.fabien.organisationIdentity.insee.InseeService
 import com.fabien.organisationIdentity.insee.inseeAuth
 import com.fabien.organisationIdentity.insee.inseeAuthLoadToken
 import com.fabien.organisationIdentity.insee.inseeService
+import com.mindee.MindeeClientInit
 import io.ktor.client.engine.cio.*
 
 class Dependencies(
     val inseeService: InseeService,
     val jwtService: JwtService,
+    val mindeeAPI: MindeeApi,
 )
-fun dependencies(inseeParams: Insee, jwtParams: Jwt): Dependencies {
+fun dependencies(inseeParams: Insee, jwtParams: Jwt, mindeeParams: Mindee): Dependencies {
     val inseeHttpEngine = CIO.create {
         threadsCount = 20
         requestTimeout = 3000
@@ -44,8 +47,11 @@ fun dependencies(inseeParams: Insee, jwtParams: Jwt): Dependencies {
         ),
     )
 
+    val mindeeClient = MindeeClientInit.create(mindeeParams.apiKey)
+
     return Dependencies(
         inseeService,
         configureJwt(jwtParams.audience, jwtParams.domain),
+        MindeeApi(mindeeClient),
     )
 }

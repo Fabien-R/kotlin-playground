@@ -25,6 +25,7 @@ dependencies {
     implementation(libs.ktor.serialization.xml)
     implementation(libs.bundles.ktor.server)
     implementation(libs.logback.classic)
+    implementation(libs.mindee.java)
 
     testImplementation(libs.jupiter.junit)
     testImplementation(libs.kotlin.test.junit)

@@ -10,6 +10,7 @@ kotlin = "1.8.22"
 kover = "0.7.1"
 ktor = "2.3.1"
 logback = "1.4.8"
+mindee="3.4.0"
 mockk = "1.13.5"
 postgresql = "42.6.0"
 spotless = "6.19.0"
@@ -50,6 +51,7 @@ ktor-client-mock = { module = "io.ktor:ktor-client-mock", version.ref = "ktor"}
 ktor-client-serialization = { module = "io.ktor:ktor-client-serialization", version.ref = "ktor" }
 
 logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
+mindee-java = { module = "com.mindee.sdk:mindee-api-java", version.ref = "mindee" }
 mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
 
 postgresql = { module="org.postgresql:postgresql", version.ref = "postgresql" }
