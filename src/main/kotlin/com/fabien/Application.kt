@@ -3,6 +3,7 @@ package com.fabien
 import com.fabien.env.Dependencies
 import com.fabien.env.dependencies
 import com.fabien.env.loadConfiguration
+import com.fabien.invoiceExtraction.configureExtractionRouting
 import com.fabien.organisationIdentity.configureOrganizationIdentityRouting
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
@@ -51,4 +52,6 @@ fun Application.module(dependencies: Dependencies) {
     }
 
     configureOrganizationIdentityRouting(dependencies.inseeService)
+
+    configureExtractionRouting(dependencies.mindeeAPI)
 }

@@ -2,6 +2,7 @@
 arrow = "1.2.0-RC"
 aws-sdk-kotlin = "0.19.5-beta"
 coroutines = "1.7.1"
+datetime = "0.4.0"
 hikari = "5.0.1"
 hoplite = "2.7.4"
 jupiter = "5.9.3"
@@ -21,6 +22,8 @@ arrow-core = { module = "io.arrow-kt:arrow-core", version.ref = "arrow" }
 arrow-fx = { module = "io.arrow-kt:arrow-fx-coroutines", version.ref = "arrow" }
 aws-sdk-kotlin-s3 = { module = "aws.sdk.kotlin:s3", version.ref = "aws-sdk-kotlin" }
 coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
+
+kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "datetime" }
 hikari = { module = "com.zaxxer:HikariCP", version.ref="hikari" }
 hoplite-core = { module = "com.sksamuel.hoplite:hoplite-core", version.ref = "hoplite" }
 hoplite-json = { module = "com.sksamuel.hoplite:hoplite-json", version.ref = "hoplite" }
