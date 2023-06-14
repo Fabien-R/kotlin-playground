@@ -2,8 +2,10 @@ package com.fabien.invoiceExtraction.mindee
 
 import com.fabien.invoiceExtraction.ExtractedInvoice
 import com.fabien.invoiceExtraction.ExtractedItem
+import com.fabien.invoiceExtraction.ExtractedSupplier
 import com.fabien.invoiceExtraction.ExtractedTax
 import com.mindee.MindeeClient
+import com.mindee.parsing.common.field.CompanyRegistrationField
 import com.mindee.parsing.common.field.TaxField
 import com.mindee.parsing.invoice.InvoiceLineItem
 import com.mindee.parsing.invoice.InvoiceV4DocumentPrediction
@@ -31,7 +33,7 @@ class MindeeApi(private val client: MindeeClient) {
     fun InvoiceV4DocumentPrediction.toExtractedInvoice() = ExtractedInvoice(
         invoiceDate = this.invoiceDateField.value.toKotlinLocalDate(),
         invoiceNumber = this.invoiceNumber.value,
-        supplier = this.getExtractedSuppliers(),
+        supplier = this.getExtractedSupplier(),
         totalExcl = this.totalNet.value,
         totalIncl = this.totalAmount.value,
         taxes = this.taxes.map { it.toExtractedTax() },
@@ -48,11 +50,14 @@ class MindeeApi(private val client: MindeeClient) {
         taxRate = this.taxRate,
     )
 
-    fun InvoiceV4DocumentPrediction.getExtractedSuppliers() = com.fabien.invoiceExtraction.ExtractedSupplier(
+    fun InvoiceV4DocumentPrediction.getExtractedSupplier() = ExtractedSupplier(
         name = this.supplierName.value,
         address = this.supplierAddress.value,
-        nationalId = this.supplierCompanyRegistrations.firstOrNull { it.type == MindeeCompanyRegistrationType.SIRET.type }?.value
-            ?: this.supplierCompanyRegistrations.firstOrNull { it.type == MindeeCompanyRegistrationType.SIREN.type }?.value,
+        nationalId = this.supplierCompanyRegistrations.toNationalId(),
         vatNumber = this.supplierCompanyRegistrations.firstOrNull { it.type == MindeeCompanyRegistrationType.VAT_NUMBER.type }?.value,
     )
+
+    fun List<CompanyRegistrationField>.toNationalId() =
+        this.firstOrNull { it.type == MindeeCompanyRegistrationType.SIRET.type }?.value
+            ?: this.firstOrNull { it.type == MindeeCompanyRegistrationType.SIREN.type }?.value
 }
