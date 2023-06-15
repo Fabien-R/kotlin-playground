@@ -48,27 +48,28 @@ internal class MindeeApiTest {
     }
 
     private fun nationalIds(): List<Arguments> {
+        val siren = "SIREN"
+        val siret = "SIRET"
+        val sirenRegistration = createCompanyRegistrationField(siren, MindeeCompanyRegistrationType.SIREN.type)
+        val sirenRegistrationWithoutValue = createCompanyRegistrationField(null, MindeeCompanyRegistrationType.SIREN.type)
+        val siretRegistration = createCompanyRegistrationField(siret, MindeeCompanyRegistrationType.SIRET.type)
+        val siretRegistrationWithoutValue = createCompanyRegistrationField(null, MindeeCompanyRegistrationType.SIRET.type)
         return listOf(
-            // SIREN, SIRET, result
-            Arguments.of(null, null, null),
-            Arguments.of("SIREN", null, "SIREN"),
-            Arguments.of(null, "SIRET", "SIRET"),
-            Arguments.of("SIREN", "SIRET", "SIRET"),
+            // list of registrations, result
+            Arguments.of(emptyList<CompanyRegistrationField>(), null),
+            Arguments.of(listOf(sirenRegistrationWithoutValue, siretRegistrationWithoutValue), null),
+            Arguments.of(listOf(sirenRegistration), siren),
+            Arguments.of(listOf(sirenRegistration, siretRegistrationWithoutValue), siren),
+            Arguments.of(listOf(siretRegistration), siret),
+            Arguments.of(listOf(sirenRegistrationWithoutValue, siretRegistration), siret),
         )
     }
 
     @ParameterizedTest
     @MethodSource("nationalIds")
-    fun `should compute national id with siret higher order`(siren: String?, siret: String?, expected: String?) {
-        val registrations = listOf(
-            createCompanyRegistrationField(siren, MindeeCompanyRegistrationType.SIREN.type),
-            createCompanyRegistrationField(siret, MindeeCompanyRegistrationType.SIRET.type),
-        )
-
-        registrations.filter { it.value != null }.let {
-            with(MindeeApi(client)) {
-                assertEquals(expected, it.toNationalId())
-            }
+    fun `should compute national id with siret higher order`(registrations: List<CompanyRegistrationField>, expected: String?) {
+        with(MindeeApi(client)) {
+            assertEquals(expected, registrations.toNationalId())
         }
     }
 
