@@ -11,7 +11,7 @@ import com.mindee.parsing.invoice.InvoiceLineItem
 import com.mindee.parsing.invoice.InvoiceV4DocumentPrediction
 import com.mindee.parsing.invoice.InvoiceV4Inference
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.runInterruptible
 import kotlinx.datetime.toKotlinLocalDate
 import java.io.InputStream
 
@@ -22,9 +22,8 @@ enum class MindeeCompanyRegistrationType(val type: String) {
 }
 
 class MindeeApi(private val client: MindeeClient) {
-    // FIXME Warning Inappropriate blocking method call
     suspend fun fetchInvoiceExtraction(file: InputStream) =
-        withContext(Dispatchers.IO) {
+        runInterruptible(Dispatchers.IO) {
             client.loadDocument(file, "plop").let { document ->
                 client.parse(InvoiceV4Inference::class.java, document).inference.documentPrediction.toExtractedInvoice()
             }
