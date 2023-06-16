@@ -1,12 +1,8 @@
 package com.fabien.invoiceExtraction.mindee
 
-import com.fabien.invoiceExtraction.ExtractedInvoice
-import com.fabien.invoiceExtraction.ExtractedItem
-import com.fabien.invoiceExtraction.ExtractedSupplier
-import com.fabien.invoiceExtraction.ExtractedTax
+import com.fabien.invoiceExtraction.*
 import com.mindee.MindeeClient
-import com.mindee.parsing.common.field.CompanyRegistrationField
-import com.mindee.parsing.common.field.TaxField
+import com.mindee.parsing.common.field.*
 import com.mindee.parsing.invoice.InvoiceLineItem
 import com.mindee.parsing.invoice.InvoiceV4DocumentPrediction
 import com.mindee.parsing.invoice.InvoiceV4Inference
@@ -30,33 +26,42 @@ class MindeeApi(private val client: MindeeClient) {
         }
 
     fun InvoiceV4DocumentPrediction.toExtractedInvoice() = ExtractedInvoice(
-        invoiceDate = this.invoiceDateField.value.toKotlinLocalDate(),
-        invoiceNumber = this.invoiceNumber.value,
+        invoiceDate = this.invoiceDateField.toExtractedField(),
+        invoiceNumber = this.invoiceNumber.toExtractedField(),
         supplier = this.getExtractedSupplier(),
-        totalExcl = this.totalNet.value,
-        totalIncl = this.totalAmount.value,
+        totalExcl = this.totalNet.toExtractedField(),
+        totalIncl = this.totalAmount.toExtractedField(),
         taxes = this.taxes.map { it.toExtractedTax() },
         invoiceItems = this.lineItems.map { it.toExtractedItem() },
     )
 
-    fun TaxField.toExtractedTax() = ExtractedTax(rate = this.rate, amount = this.value)
+    // Not good that mindee does not dissociate confidence for rate & amount
+    fun TaxField.toExtractedTax() = ExtractedTax(rate = ExtractedField(this.rate, this.confidence), amount = ExtractedField(this.value, this.confidence))
 
+    // Not good that mindee does not dissociate confidence for each field of an item
     fun InvoiceLineItem.toExtractedItem() = ExtractedItem(
-        code = this.productCode,
-        description = this.description,
-        quantity = this.quantity,
-        totalExcl = this.totalAmount,
-        taxRate = this.taxRate,
+        code = ExtractedField(this.productCode, this.confidence),
+        description = ExtractedField(this.description, this.confidence),
+        quantity = ExtractedField(this.quantity, this.confidence),
+        totalExcl = ExtractedField(this.totalAmount, this.confidence),
+        taxRate = ExtractedField(this.taxRate, this.confidence),
     )
 
     fun InvoiceV4DocumentPrediction.getExtractedSupplier() = ExtractedSupplier(
-        name = this.supplierName.value,
-        address = this.supplierAddress.value,
+        name = this.supplierName.toExtractedField(),
+        address = this.supplierAddress.toExtractedField(),
         nationalId = this.supplierCompanyRegistrations.toNationalId(),
-        vatNumber = this.supplierCompanyRegistrations.firstOrNull { it.type == MindeeCompanyRegistrationType.VAT_NUMBER.type }?.value,
+        vatNumber = this.supplierCompanyRegistrations.firstOrNull { it.type == MindeeCompanyRegistrationType.VAT_NUMBER.type }.toExtractedField(),
     )
 
     fun List<CompanyRegistrationField>.toNationalId() =
-        this.firstOrNull { it.type == MindeeCompanyRegistrationType.SIRET.type }?.value
-            ?: this.firstOrNull { it.type == MindeeCompanyRegistrationType.SIREN.type }?.value
+        (
+            this.firstOrNull { it.type == MindeeCompanyRegistrationType.SIRET.type && it.value != null }
+                ?: this.firstOrNull { it.type == MindeeCompanyRegistrationType.SIREN.type && it.value != null }
+            ).toExtractedField()
+
+    private fun AmountField.toExtractedField() = ExtractedField(this.value, this.confidence)
+    private fun StringField.toExtractedField() = ExtractedField(this.value, this.confidence)
+    private fun DateField.toExtractedField() = ExtractedField(this.value.toKotlinLocalDate(), this.confidence)
+    private fun CompanyRegistrationField?.toExtractedField() = ExtractedField(this?.value, this?.confidence ?: 0.0)
 }

@@ -1,9 +1,6 @@
 package com.fabien.invoiceExtraction.mindee
 
-import com.fabien.invoiceExtraction.ExtractedInvoice
-import com.fabien.invoiceExtraction.ExtractedItem
-import com.fabien.invoiceExtraction.ExtractedSupplier
-import com.fabien.invoiceExtraction.ExtractedTax
+import com.fabien.invoiceExtraction.*
 import com.mindee.MindeeClient
 import com.mindee.parsing.common.field.CompanyRegistrationField
 import com.mindee.parsing.common.field.TaxField
@@ -23,6 +20,10 @@ import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
 import java.time.LocalDate
 
+data class ExtractedStringTest(val value: String?, val confidence: Double)
+data class ExtractedDateTest(val value: LocalDate?, val confidence: Double)
+data class ExtractedDoubleTest(val value: Double?, val confidence: Double)
+
 @ExtendWith(MockKExtension::class)
 internal class MindeeApiTest {
 
@@ -30,12 +31,13 @@ internal class MindeeApiTest {
     lateinit var client: MindeeClient
 
     private fun taxes(): List<Arguments> {
+        val confidence = 0.67
         return listOf(
             // TaxField, ExtractedTax
-            Arguments.of(createTaxField(0.055, 25.01), ExtractedTax(0.055, 25.01)),
-            Arguments.of(createTaxField(null, 25.01), ExtractedTax(null, 25.01)),
-            Arguments.of(createTaxField(0.20, null), ExtractedTax(0.20, null)),
-            Arguments.of(createTaxField(null, null), ExtractedTax(null, null)),
+            Arguments.of(createTaxField(0.055, 25.01, confidence), ExtractedTax(ExtractedField(0.055, confidence), ExtractedField(25.01, confidence))),
+            Arguments.of(createTaxField(null, 25.01, confidence), ExtractedTax(ExtractedField(null, confidence), ExtractedField(25.01, confidence))),
+            Arguments.of(createTaxField(0.20, null, confidence), ExtractedTax(ExtractedField(0.20, confidence), ExtractedField(null, confidence))),
+            Arguments.of(createTaxField(null, null, confidence), ExtractedTax(ExtractedField(null, confidence), ExtractedField(null, confidence))),
         )
     }
 
@@ -50,52 +52,92 @@ internal class MindeeApiTest {
     private fun nationalIds(): List<Arguments> {
         val siren = "SIREN"
         val siret = "SIRET"
-        val sirenRegistration = createCompanyRegistrationField(siren, MindeeCompanyRegistrationType.SIREN.type)
-        val sirenRegistrationWithoutValue = createCompanyRegistrationField(null, MindeeCompanyRegistrationType.SIREN.type)
-        val siretRegistration = createCompanyRegistrationField(siret, MindeeCompanyRegistrationType.SIRET.type)
-        val siretRegistrationWithoutValue = createCompanyRegistrationField(null, MindeeCompanyRegistrationType.SIRET.type)
+        val sirenRegistration = createCompanyRegistrationField(siren, MindeeCompanyRegistrationType.SIREN.type, 0.81)
+        val sirenRegistrationWithoutValue = createCompanyRegistrationField(null, MindeeCompanyRegistrationType.SIREN.type, 0.0)
+        val siretRegistration = createCompanyRegistrationField(siret, MindeeCompanyRegistrationType.SIRET.type, 0.92)
+        val siretRegistrationWithoutValue = createCompanyRegistrationField(null, MindeeCompanyRegistrationType.SIRET.type, 0.0)
         return listOf(
             // list of registrations, result
-            Arguments.of(emptyList<CompanyRegistrationField>(), null),
-            Arguments.of(listOf(sirenRegistrationWithoutValue, siretRegistrationWithoutValue), null),
-            Arguments.of(listOf(sirenRegistration), siren),
-            Arguments.of(listOf(sirenRegistration, siretRegistrationWithoutValue), siren),
-            Arguments.of(listOf(siretRegistration), siret),
-            Arguments.of(listOf(sirenRegistrationWithoutValue, siretRegistration), siret),
+            Arguments.of(emptyList<CompanyRegistrationField>(), ExtractedField(null, 0.0)),
+            Arguments.of(listOf(sirenRegistrationWithoutValue, siretRegistrationWithoutValue), ExtractedField(null, 0.0)),
+            Arguments.of(listOf(sirenRegistration), ExtractedField(siren, sirenRegistration.confidence)),
+            Arguments.of(listOf(sirenRegistration, siretRegistrationWithoutValue), ExtractedField(siren, sirenRegistration.confidence)),
+            Arguments.of(listOf(siretRegistration), ExtractedField(siret, siretRegistration.confidence)),
+            Arguments.of(listOf(sirenRegistrationWithoutValue, siretRegistration), ExtractedField(siret, siretRegistration.confidence)),
         )
     }
 
     @ParameterizedTest
     @MethodSource("nationalIds")
-    fun `should compute national id with siret higher order`(registrations: List<CompanyRegistrationField>, expected: String?) {
+    fun `should compute national id with siret higher order`(registrations: List<CompanyRegistrationField>, expected: ExtractedField<String>) {
         with(MindeeApi(client)) {
             assertEquals(expected, registrations.toNationalId())
         }
     }
 
     private fun suppliers(): List<Arguments> {
-        val siret = createCompanyRegistrationField("SIRET", MindeeCompanyRegistrationType.SIRET.type)
-        val siren = createCompanyRegistrationField("SIRET", MindeeCompanyRegistrationType.SIREN.type)
-        val vatNumber = createCompanyRegistrationField("VAT_NUMBER", MindeeCompanyRegistrationType.VAT_NUMBER.type)
+        val siret = createCompanyRegistrationField("SIRET", MindeeCompanyRegistrationType.SIRET.type, 0.92)
+        val siren = createCompanyRegistrationField("SIREN", MindeeCompanyRegistrationType.SIREN.type, 0.81)
+        val vatNumber = createCompanyRegistrationField("VAT_NUMBER", MindeeCompanyRegistrationType.VAT_NUMBER.type, 0.77)
+        val name = "BurgerKing"
+        val nameConfidence = 0.54
+        val address = "1 rue de la frite"
+        val addressConfidence = 0.63
+
         return listOf(
             // name, address, registration, result
             Arguments.of(
-                "BurgerKing",
-                "1 rue de la frite",
+                ExtractedStringTest(name, nameConfidence),
+                ExtractedStringTest(address, addressConfidence),
                 listOf(siren, siret, vatNumber),
-                ExtractedSupplier("BurgerKing", "1 rue de la frite", siret.value, vatNumber.value),
+                ExtractedSupplier(
+                    ExtractedField(name, nameConfidence),
+                    ExtractedField(address, addressConfidence),
+                    ExtractedField(siret.value, siret.confidence),
+                    ExtractedField(vatNumber.value, vatNumber.confidence),
+                ),
             ),
-            Arguments.of("BurgerKing", "1 rue de la frite", listOf(siren), ExtractedSupplier("BurgerKing", "1 rue de la frite", siren.value, null)),
-            Arguments.of("BurgerKing", "1 rue de la frite", listOf(vatNumber), ExtractedSupplier("BurgerKing", "1 rue de la frite", null, vatNumber.value)),
-            Arguments.of(null, null, emptyList<CompanyRegistrationField>(), ExtractedSupplier(null, null, null, null)),
+            Arguments.of(
+                ExtractedStringTest(name, nameConfidence),
+                ExtractedStringTest(address, addressConfidence),
+                listOf(siren),
+                ExtractedSupplier(
+                    ExtractedField(name, nameConfidence),
+                    ExtractedField(address, addressConfidence),
+                    ExtractedField(siren.value, siren.confidence),
+                    ExtractedField(null, 0.0),
+                ),
+            ),
+            Arguments.of(
+                ExtractedStringTest(name, nameConfidence),
+                ExtractedStringTest(address, addressConfidence),
+                listOf(vatNumber),
+                ExtractedSupplier(
+                    ExtractedField(name, nameConfidence),
+                    ExtractedField(address, addressConfidence),
+                    ExtractedField(null, 0.0),
+                    ExtractedField(vatNumber.value, vatNumber.confidence),
+                ),
+            ),
+            Arguments.of(
+                ExtractedStringTest(null, 0.0),
+                ExtractedStringTest(null, 0.0),
+                emptyList<CompanyRegistrationField>(),
+                ExtractedSupplier(
+                    ExtractedField(null, 0.0),
+                    ExtractedField(null, 0.0),
+                    ExtractedField(null, 0.0),
+                    ExtractedField(null, 0.0),
+                ),
+            ),
         )
     }
 
     @ParameterizedTest
     @MethodSource("suppliers")
     fun `should extract supplier from mindee response`(
-        name: String?,
-        address: String?,
+        name: ExtractedStringTest,
+        address: ExtractedStringTest,
         registrations: List<CompanyRegistrationField>,
         expected: ExtractedSupplier,
     ) {
@@ -111,6 +153,7 @@ internal class MindeeApiTest {
         val quantity = 3.555
         val totalExcl = 1.98
         val taxRate = 0.055
+        val confidence = 0.87
         return listOf(
             // code, description, quantity, totalExcl, taxRate, result
             Arguments.of(
@@ -119,7 +162,14 @@ internal class MindeeApiTest {
                 quantity,
                 totalExcl,
                 taxRate,
-                ExtractedItem(code, description, quantity, totalExcl, taxRate),
+                confidence,
+                ExtractedItem(
+                    ExtractedField(code, confidence),
+                    ExtractedField(description, confidence),
+                    ExtractedField(quantity, confidence),
+                    ExtractedField(totalExcl, confidence),
+                    ExtractedField(taxRate, confidence),
+                ),
             ),
             Arguments.of(
                 null,
@@ -127,7 +177,14 @@ internal class MindeeApiTest {
                 null,
                 null,
                 null,
-                ExtractedItem(null, null, null, null, null),
+                0.0,
+                ExtractedItem(
+                    ExtractedField(null, 0.0),
+                    ExtractedField(null, 0.0),
+                    ExtractedField(null, 0.0),
+                    ExtractedField(null, 0.0),
+                    ExtractedField(null, 0.0),
+                ),
             ),
         )
     }
@@ -140,24 +197,25 @@ internal class MindeeApiTest {
         quantity: Double?,
         totalExcl: Double?,
         taxRate: Double?,
+        confidence: Double,
         expected: ExtractedItem,
     ) {
-        val invoiceLineItem = createItem(code, description, quantity, totalExcl, taxRate)
+        val invoiceLineItem = createItem(code, description, quantity, totalExcl, taxRate, confidence)
         with(MindeeApi(client)) {
             assertEquals(expected, invoiceLineItem.toExtractedItem())
         }
     }
 
     private fun invoices(): List<Arguments> {
-        val item1 = ExtractedItem("9999", "French Fries", 3.555, 1.98, 0.055)
-        val item2 = ExtractedItem(null, "Nuggets", 18.0, null, 0.10)
-        val supplier = ExtractedSupplier("BurgerKing", "1 rue de la frite", "SIRET", "VAT_NUMBER")
-        val date = LocalDate.of(2023, 1, 18)
-        val invoiceNumber = "123456789"
-        val totalExcl = 18.98
-        val totalIncl = 21.89
-        val tax1 = ExtractedTax(rate = 0.055, amount = 0.11)
-        val tax2 = ExtractedTax(rate = 0.10, null)
+        val item1 = ExtractedItem(ExtractedField("9999", 0.90), ExtractedField("French Fries", 0.91), ExtractedField(3.555, 0.92), ExtractedField(1.98, 0.93), ExtractedField(0.055, 0.94))
+        val item2 = ExtractedItem(ExtractedField(null, 0.0), ExtractedField("Nuggets", 0.81), ExtractedField(18.0, 0.82), ExtractedField(null, 0.0), ExtractedField(0.10, 0.94))
+        val supplier = ExtractedSupplier(ExtractedField("BurgerKing", 0.7), ExtractedField("1 rue de la frite", 0.71), ExtractedField("SIRET", 0.72), ExtractedField("VAT_NUMBER", 0.73))
+        val date = ExtractedDateTest(LocalDate.of(2023, 1, 18), 0.4)
+        val invoiceNumber = ExtractedStringTest("123456789", 0.3)
+        val totalExcl = ExtractedDoubleTest(18.98, 0.2)
+        val totalIncl = ExtractedDoubleTest(21.89, 0.1)
+        val tax1 = ExtractedTax(rate = ExtractedField(0.055, 0.6), amount = ExtractedField(0.11, 0.61))
+        val tax2 = ExtractedTax(rate = ExtractedField(0.10, 0.5), ExtractedField(null, 0.0))
 
         return listOf(
             // date, number, supplier, totalExcl, totalIncl, taxes, items, result
@@ -169,7 +227,15 @@ internal class MindeeApiTest {
                 totalIncl,
                 listOf(tax1, tax2),
                 listOf(item1, item2),
-                ExtractedInvoice(date.toKotlinLocalDate(), invoiceNumber, supplier, totalExcl, totalIncl, listOf(tax1, tax2), listOf(item1, item2)),
+                ExtractedInvoice(
+                    ExtractedField(date.value?.toKotlinLocalDate(), date.confidence),
+                    ExtractedField(invoiceNumber.value, invoiceNumber.confidence),
+                    supplier,
+                    ExtractedField(totalExcl.value, totalExcl.confidence),
+                    ExtractedField(totalIncl.value, totalIncl.confidence),
+                    listOf(tax1, tax2),
+                    listOf(item1, item2),
+                ),
 
             ),
         )
@@ -178,11 +244,11 @@ internal class MindeeApiTest {
     @ParameterizedTest
     @MethodSource("invoices")
     fun `should extract invoice from mindee response`(
-        date: LocalDate?,
-        number: String?,
+        date: ExtractedDateTest,
+        number: ExtractedStringTest,
         supplier: ExtractedSupplier,
-        totalExcl: Double?,
-        totalIncl: Double?,
+        totalExcl: ExtractedDoubleTest,
+        totalIncl: ExtractedDoubleTest,
         taxes: List<ExtractedTax>,
         items: List<ExtractedItem>,
         expected: ExtractedInvoice,
@@ -198,7 +264,7 @@ internal class MindeeApiTest {
         }
     }
 
-    private fun createTaxField(rate: Double?, amount: Double?): TaxField {
+    private fun createTaxField(rate: Double?, amount: Double?, confidence: Double): TaxField {
         val taxField = mockk<TaxField>()
         every {
             taxField.rate
@@ -208,22 +274,34 @@ internal class MindeeApiTest {
             taxField.value
         } returns amount
 
+        every {
+            taxField.confidence
+        } returns confidence
+
         return taxField
     }
 
     private fun createInvoiceDocumentPredictionForSupplier(
-        name: String?,
-        address: String?,
+        name: ExtractedStringTest,
+        address: ExtractedStringTest,
         registrations: List<CompanyRegistrationField>,
     ): InvoiceV4DocumentPrediction {
         val invoiceDocumentPrediction = mockk<InvoiceV4DocumentPrediction>()
         every {
             invoiceDocumentPrediction.supplierName.value
-        } returns name
+        } returns name.value
+
+        every {
+            invoiceDocumentPrediction.supplierName.confidence
+        } returns name.confidence
 
         every {
             invoiceDocumentPrediction.supplierAddress.value
-        } returns address
+        } returns address.value
+
+        every {
+            invoiceDocumentPrediction.supplierAddress.confidence
+        } returns address.confidence
 
         every {
             invoiceDocumentPrediction.supplierCompanyRegistrations
@@ -232,7 +310,7 @@ internal class MindeeApiTest {
         return invoiceDocumentPrediction
     }
 
-    private fun createCompanyRegistrationField(value: String?, type: String?): CompanyRegistrationField {
+    private fun createCompanyRegistrationField(value: String?, type: String?, confidence: Double): CompanyRegistrationField {
         val companyRegistrationField = mockk<CompanyRegistrationField>()
         every {
             companyRegistrationField.value
@@ -242,10 +320,14 @@ internal class MindeeApiTest {
             companyRegistrationField.type
         } returns type
 
+        every {
+            companyRegistrationField.confidence
+        } returns confidence
+
         return companyRegistrationField
     }
 
-    private fun createItem(code: String?, description: String?, quantity: Double?, totalExcl: Double?, taxRate: Double?): InvoiceLineItem {
+    private fun createItem(code: String?, description: String?, quantity: Double?, totalExcl: Double?, taxRate: Double?, confidence: Double): InvoiceLineItem {
         val item = mockk<InvoiceLineItem>()
         every {
             item.productCode
@@ -267,16 +349,20 @@ internal class MindeeApiTest {
             item.taxRate
         } returns taxRate
 
+        every {
+            item.confidence
+        } returns confidence
+
         return item
     }
 
     context(MindeeApi)
     private fun createInvoiceDocumentPredictionForInvoice(
-        date: LocalDate?,
-        number: String?,
+        date: ExtractedDateTest,
+        number: ExtractedStringTest,
         supplier: ExtractedSupplier,
-        totalExcl: Double?,
-        totalIncl: Double?,
+        totalExcl: ExtractedDoubleTest,
+        totalIncl: ExtractedDoubleTest,
         taxes: List<ExtractedTax>,
         items: List<ExtractedItem>,
     ): InvoiceV4DocumentPrediction {
@@ -286,11 +372,19 @@ internal class MindeeApiTest {
 
         every {
             invoiceDocumentPrediction.invoiceDateField.value
-        } returns date
+        } returns date.value
+
+        every {
+            invoiceDocumentPrediction.invoiceDateField.confidence
+        } returns date.confidence
 
         every {
             invoiceDocumentPrediction.invoiceNumber.value
-        } returns number
+        } returns number.value
+
+        every {
+            invoiceDocumentPrediction.invoiceNumber.confidence
+        } returns number.confidence
 
         every {
             invoiceDocumentPrediction.getExtractedSupplier()
@@ -298,11 +392,19 @@ internal class MindeeApiTest {
 
         every {
             invoiceDocumentPrediction.totalNet.value
-        } returns totalExcl
+        } returns totalExcl.value
+
+        every {
+            invoiceDocumentPrediction.totalNet.confidence
+        } returns totalExcl.confidence
 
         every {
             invoiceDocumentPrediction.totalAmount.value
-        } returns totalIncl
+        } returns totalIncl.value
+
+        every {
+            invoiceDocumentPrediction.totalAmount.confidence
+        } returns totalIncl.confidence
 
         every {
             taxesPrediction.toExtractedTax()
