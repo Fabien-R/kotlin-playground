@@ -1,5 +1,6 @@
 package com.fabien.invoiceExtraction
 
+import com.fabien.invoiceExtraction.mindee.respond
 import io.ktor.http.*
 import io.ktor.http.content.*
 import io.ktor.server.application.*
@@ -13,9 +14,7 @@ fun Application.configureExtractionRouting(invoiceExtractionApi: InvoiceExtracti
             call.receiveMultipart().forEachPart {
                 if (it is PartData.FileItem) {
                     it.streamProvider().use { input ->
-                        invoiceExtractionApi.fetchInvoiceExtraction(input).let { extraction ->
-                            call.respond(HttpStatusCode.OK, extraction)
-                        }
+                        invoiceExtractionApi.fetchInvoiceExtraction(input).respond(HttpStatusCode.OK)
                     }
                 }
             }

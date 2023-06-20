@@ -10,4 +10,10 @@ data class InseeOtherError(val status: HttpStatusCode, val description: String) 
 object InseeNotFound : OrganizationIdentityError
 object MissingNationalIdOrSearchText : OrganizationIdentityError
 
+sealed interface InvoiceExtractionError : DomainError
+sealed class MindeeError(val status: HttpStatusCode = HttpStatusCode.InternalServerError, val description: String) : InvoiceExtractionError
+data class MindeeUnAuthorizedError(val message: String) : MindeeError(description = message)
+data class MindeeIOError(val message: String) : MindeeError(description = message)
+data class MindeeOtherError(val message: String) : MindeeError(description = message)
+
 class InseeException(val status: HttpStatusCode) : RuntimeException(status.description)

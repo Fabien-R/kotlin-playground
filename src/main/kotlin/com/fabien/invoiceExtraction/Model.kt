@@ -1,5 +1,7 @@
 package com.fabien.invoiceExtraction
 
+import arrow.core.Either
+import com.fabien.InvoiceExtractionError
 import kotlinx.datetime.LocalDate
 import kotlinx.serialization.Serializable
 import java.io.InputStream
@@ -46,5 +48,5 @@ data class ExtractedTax(
 )
 
 interface InvoiceExtractionApi {
-    suspend fun fetchInvoiceExtraction(file: InputStream): ExtractedInvoice
+    suspend fun fetchInvoiceExtraction(file: InputStream): Either<InvoiceExtractionError, ExtractedInvoice>
 }

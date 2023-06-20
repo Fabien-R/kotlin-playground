@@ -1,14 +1,20 @@
 package com.fabien.invoiceExtraction.mindee
 
+import arrow.core.Either
+import com.fabien.MindeeIOError
+import com.fabien.MindeeOtherError
+import com.fabien.MindeeUnAuthorizedError
 import com.fabien.invoiceExtraction.*
 import com.mindee.MindeeClient
 import com.mindee.parsing.common.field.*
 import com.mindee.parsing.invoice.InvoiceLineItem
 import com.mindee.parsing.invoice.InvoiceV4DocumentPrediction
 import com.mindee.parsing.invoice.InvoiceV4Inference
+import com.mindee.utils.MindeeException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runInterruptible
 import kotlinx.datetime.toKotlinLocalDate
+import java.io.IOException
 import java.io.InputStream
 
 enum class MindeeCompanyRegistrationType(val type: String) {
@@ -18,7 +24,6 @@ enum class MindeeCompanyRegistrationType(val type: String) {
 }
 
 fun interface MindeeInvoiceExtractionApi : InvoiceExtractionApi {
-    override suspend fun fetchInvoiceExtraction(file: InputStream): ExtractedInvoice
 
     fun InvoiceV4DocumentPrediction.toExtractedInvoice() = ExtractedInvoice(
         invoiceDate = this.invoiceDateField.toExtractedField(),
@@ -63,9 +68,26 @@ fun interface MindeeInvoiceExtractionApi : InvoiceExtractionApi {
 
 fun mindeeApi(client: MindeeClient) = object : MindeeInvoiceExtractionApi {
     override suspend fun fetchInvoiceExtraction(file: InputStream) =
-        runInterruptible(Dispatchers.IO) {
-            client.loadDocument(file, "plop").let { document ->
-                client.parse(InvoiceV4Inference::class.java, document).inference.documentPrediction.toExtractedInvoice()
+        Either.catch {
+            runInterruptible(Dispatchers.IO) {
+                client.loadDocument(file, "plop").let { document ->
+                    client.parse(InvoiceV4Inference::class.java, document).inference.documentPrediction.toExtractedInvoice()
+                }
+            }
+        }.mapLeft { mindeeException ->
+            when (mindeeException) {
+                is MindeeException -> {
+                    when {
+                        mindeeException.message?.contains("Unauthorized") ?: false -> MindeeUnAuthorizedError(mindeeException.message ?: "Unknown error")
+                        else -> MindeeOtherError(mindeeException.message ?: "Unknown error")
+                    }
+                }
+                is IOException -> {
+                    MindeeIOError(mindeeException.message ?: "Unknown error")
+                }
+                else -> {
+                    MindeeOtherError(mindeeException.message ?: "Unknown error")
+                }
             }
         }
 }

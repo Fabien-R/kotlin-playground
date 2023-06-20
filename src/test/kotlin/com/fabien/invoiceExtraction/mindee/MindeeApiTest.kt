@@ -1,5 +1,7 @@
 package com.fabien.invoiceExtraction.mindee
 
+import arrow.core.Either
+import com.fabien.InvoiceExtractionError
 import com.fabien.invoiceExtraction.*
 import com.mindee.parsing.common.field.CompanyRegistrationField
 import com.mindee.parsing.common.field.TaxField
@@ -253,7 +255,7 @@ internal class MindeeApiTest {
     ) {
         // https://github.com/mockk/mockk/issues/1033
         val trick = object : MindeeInvoiceExtractionApi {
-            override suspend fun fetchInvoiceExtraction(file: InputStream) = mockk<ExtractedInvoice>()
+            override suspend fun fetchInvoiceExtraction(file: InputStream): Either<InvoiceExtractionError, ExtractedInvoice> = mockk()
         }
         with(spyk(trick)) {
             val invoiceDocumentPrediction = createInvoiceDocumentPredictionForInvoice(date, number, supplier, totalExcl, totalIncl, taxes, items)
