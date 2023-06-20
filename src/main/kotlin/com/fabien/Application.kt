@@ -53,5 +53,5 @@ fun Application.module(dependencies: Dependencies) {
 
     configureOrganizationIdentityRouting(dependencies.inseeService)
 
-    configureExtractionRouting(dependencies.mindeeAPI)
+    configureExtractionRouting(dependencies.invoiceExtractionApi)
 }

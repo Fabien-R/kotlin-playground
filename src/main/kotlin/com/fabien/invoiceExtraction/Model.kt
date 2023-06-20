@@ -2,6 +2,7 @@ package com.fabien.invoiceExtraction
 
 import kotlinx.datetime.LocalDate
 import kotlinx.serialization.Serializable
+import java.io.InputStream
 
 @Serializable
 data class ExtractedField<T>(
@@ -43,3 +44,7 @@ data class ExtractedTax(
     val rate: ExtractedField<Double>,
     val amount: ExtractedField<Double>,
 )
+
+interface InvoiceExtractionApi {
+    suspend fun fetchInvoiceExtraction(file: InputStream): ExtractedInvoice
+}

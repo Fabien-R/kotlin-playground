@@ -1,13 +1,11 @@
 package com.fabien.invoiceExtraction.mindee
 
 import com.fabien.invoiceExtraction.*
-import com.mindee.MindeeClient
 import com.mindee.parsing.common.field.CompanyRegistrationField
 import com.mindee.parsing.common.field.TaxField
 import com.mindee.parsing.invoice.InvoiceLineItem
 import com.mindee.parsing.invoice.InvoiceV4DocumentPrediction
 import io.mockk.every
-import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
 import io.mockk.spyk
@@ -18,6 +16,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
+import java.io.InputStream
 import java.time.LocalDate
 
 data class ExtractedStringTest(val value: String?, val confidence: Double)
@@ -27,8 +26,7 @@ data class ExtractedDoubleTest(val value: Double?, val confidence: Double)
 @ExtendWith(MockKExtension::class)
 internal class MindeeApiTest {
 
-    @MockK
-    lateinit var client: MindeeClient
+    private val mindeeApiTest: MindeeInvoiceExtractionApi = MindeeInvoiceExtractionApi { mockk() }
 
     private fun taxes(): List<Arguments> {
         val confidence = 0.67
@@ -44,7 +42,7 @@ internal class MindeeApiTest {
     @ParameterizedTest
     @MethodSource("taxes")
     fun `should extract tax from mindee response`(taxField: TaxField, expected: ExtractedTax) {
-        with(MindeeApi(client)) {
+        with(mindeeApiTest) {
             assertEquals(expected, taxField.toExtractedTax())
         }
     }
@@ -70,7 +68,7 @@ internal class MindeeApiTest {
     @ParameterizedTest
     @MethodSource("nationalIds")
     fun `should compute national id with siret higher order`(registrations: List<CompanyRegistrationField>, expected: ExtractedField<String>) {
-        with(MindeeApi(client)) {
+        with(mindeeApiTest) {
             assertEquals(expected, registrations.toNationalId())
         }
     }
@@ -142,7 +140,7 @@ internal class MindeeApiTest {
         expected: ExtractedSupplier,
     ) {
         val invoiceDocumentPrediction = createInvoiceDocumentPredictionForSupplier(name, address, registrations)
-        with(MindeeApi(client)) {
+        with(mindeeApiTest) {
             assertEquals(expected, invoiceDocumentPrediction.getExtractedSupplier())
         }
     }
@@ -201,7 +199,7 @@ internal class MindeeApiTest {
         expected: ExtractedItem,
     ) {
         val invoiceLineItem = createItem(code, description, quantity, totalExcl, taxRate, confidence)
-        with(MindeeApi(client)) {
+        with(mindeeApiTest) {
             assertEquals(expected, invoiceLineItem.toExtractedItem())
         }
     }
@@ -253,7 +251,11 @@ internal class MindeeApiTest {
         items: List<ExtractedItem>,
         expected: ExtractedInvoice,
     ) {
-        with(spyk(MindeeApi(client))) {
+        // https://github.com/mockk/mockk/issues/1033
+        val trick = object : MindeeInvoiceExtractionApi {
+            override suspend fun fetchInvoiceExtraction(file: InputStream) = mockk<ExtractedInvoice>()
+        }
+        with(spyk(trick)) {
             val invoiceDocumentPrediction = createInvoiceDocumentPredictionForInvoice(date, number, supplier, totalExcl, totalIncl, taxes, items)
 
             val result = invoiceDocumentPrediction.toExtractedInvoice()
@@ -356,7 +358,7 @@ internal class MindeeApiTest {
         return item
     }
 
-    context(MindeeApi)
+    context(MindeeInvoiceExtractionApi)
     private fun createInvoiceDocumentPredictionForInvoice(
         date: ExtractedDateTest,
         number: ExtractedStringTest,

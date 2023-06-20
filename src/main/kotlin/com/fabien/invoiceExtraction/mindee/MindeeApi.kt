@@ -17,13 +17,8 @@ enum class MindeeCompanyRegistrationType(val type: String) {
     VAT_NUMBER("VAT NUMBER"),
 }
 
-class MindeeApi(private val client: MindeeClient) {
-    suspend fun fetchInvoiceExtraction(file: InputStream) =
-        runInterruptible(Dispatchers.IO) {
-            client.loadDocument(file, "plop").let { document ->
-                client.parse(InvoiceV4Inference::class.java, document).inference.documentPrediction.toExtractedInvoice()
-            }
-        }
+fun interface MindeeInvoiceExtractionApi : InvoiceExtractionApi {
+    override suspend fun fetchInvoiceExtraction(file: InputStream): ExtractedInvoice
 
     fun InvoiceV4DocumentPrediction.toExtractedInvoice() = ExtractedInvoice(
         invoiceDate = this.invoiceDateField.toExtractedField(),
@@ -64,4 +59,13 @@ class MindeeApi(private val client: MindeeClient) {
     private fun StringField.toExtractedField() = ExtractedField(this.value, this.confidence)
     private fun DateField.toExtractedField() = ExtractedField(this.value.toKotlinLocalDate(), this.confidence)
     private fun CompanyRegistrationField?.toExtractedField() = ExtractedField(this?.value, this?.confidence ?: 0.0)
+}
+
+fun mindeeApi(client: MindeeClient) = object : MindeeInvoiceExtractionApi {
+    override suspend fun fetchInvoiceExtraction(file: InputStream) =
+        runInterruptible(Dispatchers.IO) {
+            client.loadDocument(file, "plop").let { document ->
+                client.parse(InvoiceV4Inference::class.java, document).inference.documentPrediction.toExtractedInvoice()
+            }
+        }
 }
