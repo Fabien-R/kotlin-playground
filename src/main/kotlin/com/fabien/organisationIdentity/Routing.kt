@@ -5,7 +5,7 @@ import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.routing.*
 
-fun Application.configureOrganizationIdentityRouting(inseeService: InseeService) {
+fun Application.configureOrganizationIdentityRouting(organizationIdentityService: OrganizationIdentityService) {
     routing {
         get("/organization/search") {
             val nationalId = call.parameters["nationalId"]
@@ -14,7 +14,7 @@ fun Application.configureOrganizationIdentityRouting(inseeService: InseeService)
             val pageSize = call.parameters["pageSize"]?.toInt() ?: 5
             val page = call.parameters["page"]?.toInt() ?: 0
 
-            inseeService.fetchInseeSuppliers(nationalId, searchText, zipCode, pageSize, page).respond(HttpStatusCode.OK)
+            organizationIdentityService.fetchIdentities(nationalId, searchText, zipCode, pageSize, page).respond(HttpStatusCode.OK)
         }
     }
 }

@@ -5,21 +5,14 @@ import arrow.core.raise.either
 import arrow.core.raise.ensure
 import com.fabien.MissingNationalIdOrSearchText
 import com.fabien.OrganizationIdentityError
+import com.fabien.organisationIdentity.Organization
+import com.fabien.organisationIdentity.OrganizationIdentityService
+import com.fabien.organisationIdentity.PaginatedOrganizations
 import com.fabien.organisationIdentity.insee.InseeQueryFields.*
 
-interface InseeService {
-    suspend fun fetchInseeSuppliers(
-        nationalId: String?,
-        searchText: String?,
-        zipCode: String?,
-        pageSize: Int,
-        page: Int,
-    ): Either<OrganizationIdentityError, PaginatedOrganizations>
-}
+fun inseeService(inseeApi: InseeApi) = object : OrganizationIdentityService {
 
-fun inseeService(inseeApi: InseeApi) = object : InseeService {
-
-    override suspend fun fetchInseeSuppliers(
+    override suspend fun fetchIdentities(
         nationalId: String?,
         searchText: String?,
         zipCode: String?,

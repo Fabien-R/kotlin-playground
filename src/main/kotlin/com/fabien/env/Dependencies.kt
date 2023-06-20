@@ -4,8 +4,8 @@ import com.fabien.authent.JwtService
 import com.fabien.authent.configureJwt
 import com.fabien.invoiceExtraction.InvoiceExtractionApi
 import com.fabien.invoiceExtraction.mindee.mindeeApi
+import com.fabien.organisationIdentity.OrganizationIdentityService
 import com.fabien.organisationIdentity.insee.InseeApi
-import com.fabien.organisationIdentity.insee.InseeService
 import com.fabien.organisationIdentity.insee.inseeAuth
 import com.fabien.organisationIdentity.insee.inseeAuthLoadToken
 import com.fabien.organisationIdentity.insee.inseeService
@@ -13,10 +13,11 @@ import com.mindee.MindeeClientInit
 import io.ktor.client.engine.cio.*
 
 class Dependencies(
-    val inseeService: InseeService,
+    val organizationIdentityService: OrganizationIdentityService,
     val jwtService: JwtService,
     val invoiceExtractionApi: InvoiceExtractionApi,
 )
+
 fun dependencies(inseeParams: Insee, jwtParams: Jwt, mindeeParams: Mindee): Dependencies {
     val inseeHttpEngine = CIO.create {
         threadsCount = 20

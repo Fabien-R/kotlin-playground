@@ -4,6 +4,8 @@ import com.fabien.env.Env
 import com.fabien.env.dependencies
 import com.fabien.env.loadConfiguration
 import com.fabien.module
+import com.fabien.organisationIdentity.Organization
+import com.fabien.organisationIdentity.PaginatedOrganizations
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.plugins.contentnegotiation.*

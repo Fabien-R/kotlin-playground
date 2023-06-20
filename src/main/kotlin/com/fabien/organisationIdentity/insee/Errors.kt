@@ -2,6 +2,7 @@ package com.fabien.organisationIdentity.insee
 
 import arrow.core.Either
 import com.fabien.*
+import com.fabien.organisationIdentity.PaginatedOrganizations
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*
