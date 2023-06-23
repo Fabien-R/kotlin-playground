@@ -5,6 +5,7 @@ import com.fabien.authent.configureJwt
 import com.fabien.organisationIdentity.insee.InseeApi
 import com.fabien.organisationIdentity.insee.InseeService
 import com.fabien.organisationIdentity.insee.inseeAuth
+import com.fabien.organisationIdentity.insee.inseeAuthLoadToken
 import com.fabien.organisationIdentity.insee.inseeService
 import io.ktor.client.engine.cio.*
 
@@ -25,12 +26,15 @@ fun dependencies(inseeParams: Insee, jwtParams: Jwt): Dependencies {
         }
     }
 
-    val inseeAuthProvider = inseeAuth(
+    val inseeAuthLoadToken = inseeAuthLoadToken(
         inseeParams.baseApi,
         inseeParams.authenticationApi,
         inseeParams.base64ConsumerKeySecret,
-        inseeParams.tokenValiditySeconds.toString(),
+        inseeParams.tokenValiditySeconds,
     )
+
+    val inseeAuthProvider = inseeAuth(inseeAuthLoadToken)
+
     val inseeService = inseeService(
         InseeApi(
             inseeHttpEngine,

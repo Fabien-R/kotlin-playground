@@ -13,7 +13,11 @@ import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.json.Json
 
-fun inseeAuth(host: String, authenticationAPI: String, consumerKeySecret: String, tokenValiditySeconds: String): BearerAuthProvider {
+fun interface InseeLoadToken {
+    suspend fun loadToken(block: HttpRequestBuilder.() -> Unit): BearerTokens
+}
+
+fun inseeAuthLoadToken(host: String, authenticationAPI: String, consumerKeySecret: String, tokenValiditySeconds: String) = object : InseeLoadToken {
     val bearerTokenStorage = mutableListOf<BearerTokens>()
 
     val tokenClient = HttpClient(CIO.create()) {
@@ -44,7 +48,7 @@ fun inseeAuth(host: String, authenticationAPI: String, consumerKeySecret: String
             block()
         }
 
-    suspend fun loadToken(block: HttpRequestBuilder.() -> Unit = {}): BearerTokens {
+    override suspend fun loadToken(block: HttpRequestBuilder.() -> Unit): BearerTokens {
         tokenClient.queryTokenEndpoint { block() }
             .also { response ->
                 if (!response.status.isSuccess()) {
@@ -54,14 +58,14 @@ fun inseeAuth(host: String, authenticationAPI: String, consumerKeySecret: String
             .run { bearerTokenStorage.add(BearerTokens(this.accessToken, this.accessToken)) }
         return bearerTokenStorage.last()
     }
-
-    return BearerAuthProvider(
-        refreshTokens = {
-            loadToken { markAsRefreshTokenRequest() }
-        },
-        loadTokens = {
-            loadToken()
-        },
-        realm = null,
-    )
 }
+
+fun inseeAuth(inseeLoadToken: InseeLoadToken): BearerAuthProvider = BearerAuthProvider(
+    refreshTokens = {
+        inseeLoadToken.loadToken { markAsRefreshTokenRequest() }
+    },
+    loadTokens = {
+        inseeLoadToken.loadToken {}
+    },
+    realm = null,
+)
