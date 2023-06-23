@@ -23,7 +23,7 @@ enum class MindeeCompanyRegistrationType(val type: String) {
     VAT_NUMBER("VAT NUMBER"),
 }
 
-fun interface MindeeInvoiceExtractionApi : InvoiceExtractionApi {
+internal fun interface MindeeInvoiceExtractionApi : InvoiceExtractionApi {
 
     fun InvoiceV4DocumentPrediction.toExtractedInvoice() = ExtractedInvoice(
         invoiceDate = this.invoiceDateField.toExtractedField(),
@@ -66,7 +66,7 @@ fun interface MindeeInvoiceExtractionApi : InvoiceExtractionApi {
     private fun CompanyRegistrationField?.toExtractedField() = ExtractedField(this?.value, this?.confidence ?: 0.0)
 }
 
-fun mindeeApi(client: MindeeClient) = object : MindeeInvoiceExtractionApi {
+fun mindeeApi(client: MindeeClient): InvoiceExtractionApi = object : MindeeInvoiceExtractionApi {
     override suspend fun fetchInvoiceExtraction(file: InputStream) =
         Either.catch {
             runInterruptible(Dispatchers.IO) {
