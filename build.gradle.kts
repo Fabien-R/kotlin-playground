@@ -28,6 +28,7 @@ dependencies {
     implementation(libs.logback.classic)
     implementation(libs.mindee.java)
 
+    testImplementation(libs.coroutines.test)
     testImplementation(libs.jupiter.junit)
     testImplementation(libs.kotlin.test.junit)
     testImplementation(libs.mockk)

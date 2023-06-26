@@ -2,22 +2,34 @@ package com.fabien.invoiceExtraction.mindee
 
 import arrow.core.Either
 import com.fabien.InvoiceExtractionError
+import com.fabien.MindeeError
+import com.fabien.MindeeIOError
+import com.fabien.MindeeOtherError
+import com.fabien.MindeeUnAuthorizedError
 import com.fabien.invoiceExtraction.*
+import com.mindee.DocumentToParse
+import com.mindee.MindeeClient
 import com.mindee.parsing.common.field.CompanyRegistrationField
 import com.mindee.parsing.common.field.TaxField
 import com.mindee.parsing.invoice.InvoiceLineItem
 import com.mindee.parsing.invoice.InvoiceV4DocumentPrediction
+import com.mindee.parsing.invoice.InvoiceV4Inference
+import com.mindee.utils.MindeeException
 import io.mockk.every
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
 import io.mockk.spyk
 import io.mockk.verify
+import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.toKotlinLocalDate
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
+import java.io.FileInputStream
+import java.io.IOException
 import java.io.InputStream
 import java.time.LocalDate
 
@@ -207,9 +219,26 @@ internal class MindeeApiTest {
     }
 
     private fun invoices(): List<Arguments> {
-        val item1 = ExtractedItem(ExtractedField("9999", 0.90), ExtractedField("French Fries", 0.91), ExtractedField(3.555, 0.92), ExtractedField(1.98, 0.93), ExtractedField(0.055, 0.94))
-        val item2 = ExtractedItem(ExtractedField(null, 0.0), ExtractedField("Nuggets", 0.81), ExtractedField(18.0, 0.82), ExtractedField(null, 0.0), ExtractedField(0.10, 0.94))
-        val supplier = ExtractedSupplier(ExtractedField("BurgerKing", 0.7), ExtractedField("1 rue de la frite", 0.71), ExtractedField("SIRET", 0.72), ExtractedField("VAT_NUMBER", 0.73))
+        val item1 = ExtractedItem(
+            ExtractedField("9999", 0.90),
+            ExtractedField("French Fries", 0.91),
+            ExtractedField(3.555, 0.92),
+            ExtractedField(1.98, 0.93),
+            ExtractedField(0.055, 0.94),
+        )
+        val item2 = ExtractedItem(
+            ExtractedField(null, 0.0),
+            ExtractedField("Nuggets", 0.81),
+            ExtractedField(18.0, 0.82),
+            ExtractedField(null, 0.0),
+            ExtractedField(0.10, 0.94),
+        )
+        val supplier = ExtractedSupplier(
+            ExtractedField("BurgerKing", 0.7),
+            ExtractedField("1 rue de la frite", 0.71),
+            ExtractedField("SIRET", 0.72),
+            ExtractedField("VAT_NUMBER", 0.73),
+        )
         val date = ExtractedDateTest(LocalDate.of(2023, 1, 18), 0.4)
         val invoiceNumber = ExtractedStringTest("123456789", 0.3)
         val totalExcl = ExtractedDoubleTest(18.98, 0.2)
@@ -265,6 +294,75 @@ internal class MindeeApiTest {
                 invoiceDocumentPrediction.getExtractedSupplier()
             }
             assertEquals(expected, result)
+        }
+    }
+
+    @Test
+    fun `should call mindeeClient when fetching extraction`() = runTest {
+        // Given a mocked mindeeClient with its chained calls
+        val mindeeClient = mockk<MindeeClient>()
+        val docToParse = mockk<DocumentToParse>()
+        val fileInputStream = mockk<FileInputStream>()
+        val invoicePrediction = mockk<InvoiceV4DocumentPrediction>()
+        val fileName = "plop"
+
+        with(spyk(mindeeApi(mindeeClient) as MindeeInvoiceExtractionApi)) {
+            every {
+                mindeeClient.loadDocument(eq(fileInputStream), eq(fileName))
+            } returns docToParse
+
+            every {
+                mindeeClient.parse(eq(InvoiceV4Inference::class.java), eq(docToParse)).inference.documentPrediction
+            } returns invoicePrediction
+
+            every {
+                invoicePrediction.toExtractedInvoice()
+            } returns mockk<ExtractedInvoice>()
+
+            // when fetching invoice extraction
+            fetchInvoiceExtraction(fileInputStream)
+            // Then mindee client should call its chained calls
+            verify {
+                mindeeClient.loadDocument(eq(fileInputStream), eq(fileName))
+                mindeeClient.parse(eq(InvoiceV4Inference::class.java), eq(docToParse)).inference.documentPrediction
+                invoicePrediction.toExtractedInvoice()
+            }
+        }
+    }
+
+    private fun mindeeExceptions(): List<Arguments> {
+        val unauthorizedMessage = "Unauthorized Access"
+        val otherMessage = "Other Error"
+        val unknownError = "Unknown error"
+        return listOf(
+            // mindeeException, expected error
+            Arguments.of(MindeeException(unauthorizedMessage), MindeeUnAuthorizedError(unauthorizedMessage)), //
+            Arguments.of(MindeeException(otherMessage), MindeeOtherError(otherMessage)), //
+            Arguments.of(MindeeException(null), MindeeOtherError(unknownError)), //
+            Arguments.of(IOException(otherMessage), MindeeIOError(otherMessage)), //
+            Arguments.of(IOException(), MindeeIOError(unknownError)), //
+            Arguments.of(IllegalArgumentException(otherMessage), MindeeOtherError(otherMessage)), //
+            Arguments.of(IllegalArgumentException(), MindeeOtherError(unknownError)), //
+        )
+    }
+
+    @ParameterizedTest
+    @MethodSource("mindeeExceptions")
+    fun `should map MindeeException to domain error`(clientException: Exception, expectedError: MindeeError) = runTest {
+        // Given a mocked mindeeClient that generates exception
+        val mindeeClient = mockk<MindeeClient>()
+        val fileInputStream = mockk<FileInputStream>()
+
+        every {
+            mindeeClient.loadDocument(eq(fileInputStream), any())
+        } throws clientException
+
+        with(mindeeApi(mindeeClient)) {
+            // when fetching invoice extraction
+            with(fetchInvoiceExtraction(fileInputStream)) {
+                // the exception has been translated into extraction domain error
+                assertEquals(expectedError, this.leftOrNull())
+            }
         }
     }
 
