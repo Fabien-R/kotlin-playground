@@ -24,6 +24,7 @@ Let's play!
 - [Third Parties](#Third-Parties)
 - [DSL](#DSL)
 - [GitHub workflows](#GitHub-workflows)
+- [Invoice extraction](#Invoice-Extraction)
 - [Tests](#Tests)
 - [Troubleshooting](#Troubleshooting)
 
@@ -43,6 +44,16 @@ They provide several APIs at their [API-store](https://api.insee.fr/catalogue/).
 I use the SIREN API to retrieve the flat list of establishments of legal entities (enterprises).
 
 To be able to query the service I have created an account and retrieve the consumer key and secret to fill `base64ConsumerKeySecret` of [application.yaml](src/main/resources/application.yaml) as explained [here](https://api.insee.fr/catalogue/site/themes/wso2/subthemes/insee/pages/help.jag)
+
+### Mindee
+
+[Mindee](https://developers.mindee.com/docs/java-ocr-sdk) is  a French/US company that provides an OCR API to help software product teams build accurate and robust document processing automation features in their application.
+
+They have a [developer plan](https://mindee.com/pricing) that allows to extract 250 pages per month for free. You need to create an account, subscribe to the Invoice API and retrieve the API key to fill `mindeeApiKey` of [application.yaml](src/main/resources/application.yaml).
+
+Current limitations:
+* line item total excl. seems to be quantity * unit price. /!\ if the quantity is miss-extracted both are wrong.
+* there is no confidence for each field of the line-item. The confidence is only for the whole line-item... Will be problematic when applying business rules to specific fields of the line-item.
 
 ### Codecov
 
@@ -74,6 +85,26 @@ A [CI pipeline](.github/workflows/ci.yml) is triggered on each pull request or m
 * build
 * test
 * test coverage report
+
+
+## Invoice extraction
+WIP
+
+For now we directly return the result of the third party extraction.
+
+Remaining steps:
+* DB to store Suppliers info and Invoices + Line Items
+* Add Extraction service to 
+  * enrich with DB data (design an object with extracted data + already stored data)
+  * enrich extracted data with some business intelligence rules
+    * if only one tax in the invoice, and total excl. + tax equal total incl. then complete tax rate on line items
+    * TODO
+  * separate business Extracted objects from User objects (enriched)
+* Think about categorization of fields:
+  * extracted with its confidence
+  * computed with rules
+  * enriched with DB data
+  
 
 ## Tests
 Tests are located [here](src/test/kotlin/com/fabien)

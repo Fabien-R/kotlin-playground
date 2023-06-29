@@ -2,6 +2,7 @@
 arrow = "1.2.0-RC"
 aws-sdk-kotlin = "0.19.5-beta"
 coroutines = "1.7.1"
+datetime = "0.4.0"
 hikari = "5.0.1"
 hoplite = "2.7.4"
 jupiter = "5.9.3"
@@ -10,6 +11,7 @@ kotlin = "1.8.22"
 kover = "0.7.2"
 ktor = "2.3.1"
 logback = "1.4.8"
+mindee="4.0.0"
 mockk = "1.13.5"
 postgresql = "42.6.0"
 spotless = "6.19.0"
@@ -20,6 +22,9 @@ arrow-core = { module = "io.arrow-kt:arrow-core", version.ref = "arrow" }
 arrow-fx = { module = "io.arrow-kt:arrow-fx-coroutines", version.ref = "arrow" }
 aws-sdk-kotlin-s3 = { module = "aws.sdk.kotlin:s3", version.ref = "aws-sdk-kotlin" }
 coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
+coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutines" }
+
+kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "datetime" }
 hikari = { module = "com.zaxxer:HikariCP", version.ref="hikari" }
 hoplite-core = { module = "com.sksamuel.hoplite:hoplite-core", version.ref = "hoplite" }
 hoplite-json = { module = "com.sksamuel.hoplite:hoplite-json", version.ref = "hoplite" }
@@ -50,6 +55,7 @@ ktor-client-mock = { module = "io.ktor:ktor-client-mock", version.ref = "ktor"}
 ktor-client-serialization = { module = "io.ktor:ktor-client-serialization", version.ref = "ktor" }
 
 logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
+mindee-java = { module = "com.mindee.sdk:mindee-api-java", version.ref = "mindee" }
 mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
 
 postgresql = { module="org.postgresql:postgresql", version.ref = "postgresql" }

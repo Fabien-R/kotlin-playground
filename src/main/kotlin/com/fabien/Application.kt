@@ -3,6 +3,7 @@ package com.fabien
 import com.fabien.env.Dependencies
 import com.fabien.env.dependencies
 import com.fabien.env.loadConfiguration
+import com.fabien.invoiceExtraction.configureExtractionRouting
 import com.fabien.organisationIdentity.configureOrganizationIdentityRouting
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
@@ -22,7 +23,7 @@ fun main() {
     // /!\ Using EngineMain does not allow loading module with params...
     ApplicationConfig("application.yaml").let { applicationConfig ->
         loadConfiguration(applicationConfig).also { env ->
-            val dependencies = dependencies(env.insee, env.jwt)
+            val dependencies = dependencies(env.insee, env.jwt, env.mindee)
             val applicationEngineEnvironment = commandLineEnvironment(emptyArray()) {
                 module { module(dependencies) }
             }
@@ -50,5 +51,7 @@ fun Application.module(dependencies: Dependencies) {
         }
     }
 
-    configureOrganizationIdentityRouting(dependencies.inseeService)
+    configureOrganizationIdentityRouting(dependencies.organizationIdentityService)
+
+    configureExtractionRouting(dependencies.invoiceExtractionApi)
 }

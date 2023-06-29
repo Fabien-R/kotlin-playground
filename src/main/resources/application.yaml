@@ -13,3 +13,5 @@ insee:
   authenticationApi: "$INSEE_AUTHENTICATION_API:token"
   base64ConsumerKeySecret: $INSEE_BASE64_CONSUMER_KEY_SECRET
   tokenValiditySeconds: 10
+mindee:
+  apiKey: $MINDEE_API_KEY

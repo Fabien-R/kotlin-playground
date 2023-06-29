@@ -4,6 +4,8 @@ import com.fabien.env.Env
 import com.fabien.env.dependencies
 import com.fabien.env.loadConfiguration
 import com.fabien.module
+import com.fabien.organisationIdentity.Organization
+import com.fabien.organisationIdentity.PaginatedOrganizations
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.plugins.contentnegotiation.*
@@ -192,7 +194,7 @@ class OrganizationIdentityTest {
 context(ApplicationTestBuilder)
 private fun parametrizeApplicationTest(env: Env = loadConfiguration(ApplicationConfig("application.yaml"))) {
     application {
-        val dependencies = dependencies(env.insee, env.jwt)
+        val dependencies = dependencies(env.insee, env.jwt, env.mindee)
         module(dependencies)
     }
 }
