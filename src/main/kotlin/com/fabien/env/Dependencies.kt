@@ -9,7 +9,7 @@ import com.fabien.organisationIdentity.insee.InseeApi
 import com.fabien.organisationIdentity.insee.inseeAuth
 import com.fabien.organisationIdentity.insee.inseeAuthLoadToken
 import com.fabien.organisationIdentity.insee.inseeService
-import com.mindee.MindeeClientInit
+import com.mindee.MindeeClient
 import io.ktor.client.engine.cio.*
 
 class Dependencies(
@@ -49,7 +49,7 @@ fun dependencies(inseeParams: Insee, jwtParams: Jwt, mindeeParams: Mindee): Depe
         ),
     )
 
-    val mindeeClient = MindeeClientInit.create(mindeeParams.apiKey)
+    val mindeeClient = MindeeClient(mindeeParams.apiKey)
 
     return Dependencies(
         inseeService,

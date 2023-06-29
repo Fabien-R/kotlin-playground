@@ -6,11 +6,12 @@ import com.fabien.MindeeOtherError
 import com.fabien.MindeeUnAuthorizedError
 import com.fabien.invoiceExtraction.*
 import com.mindee.MindeeClient
-import com.mindee.parsing.common.field.*
-import com.mindee.parsing.invoice.InvoiceLineItem
-import com.mindee.parsing.invoice.InvoiceV4DocumentPrediction
-import com.mindee.parsing.invoice.InvoiceV4Inference
-import com.mindee.utils.MindeeException
+import com.mindee.MindeeException
+import com.mindee.input.LocalInputSource
+import com.mindee.parsing.standard.*
+import com.mindee.product.invoice.InvoiceV4
+import com.mindee.product.invoice.InvoiceV4Document
+import com.mindee.product.invoice.InvoiceV4LineItem
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runInterruptible
 import kotlinx.datetime.toKotlinLocalDate
@@ -25,7 +26,7 @@ enum class MindeeCompanyRegistrationType(val type: String) {
 
 internal fun interface MindeeInvoiceExtractionApi : InvoiceExtractionApi {
 
-    fun InvoiceV4DocumentPrediction.toExtractedInvoice() = ExtractedInvoice(
+    fun InvoiceV4Document.toExtractedInvoice() = ExtractedInvoice(
         invoiceDate = this.invoiceDateField.toExtractedField(),
         invoiceNumber = this.invoiceNumber.toExtractedField(),
         supplier = this.getExtractedSupplier(),
@@ -39,7 +40,7 @@ internal fun interface MindeeInvoiceExtractionApi : InvoiceExtractionApi {
     fun TaxField.toExtractedTax() = ExtractedTax(rate = ExtractedField(this.rate, this.confidence), amount = ExtractedField(this.value, this.confidence))
 
     // Not good that mindee does not dissociate confidence for each field of an item
-    fun InvoiceLineItem.toExtractedItem() = ExtractedItem(
+    fun InvoiceV4LineItem.toExtractedItem() = ExtractedItem(
         code = ExtractedField(this.productCode, this.confidence),
         description = ExtractedField(this.description, this.confidence),
         quantity = ExtractedField(this.quantity, this.confidence),
@@ -47,7 +48,7 @@ internal fun interface MindeeInvoiceExtractionApi : InvoiceExtractionApi {
         taxRate = ExtractedField(this.taxRate, this.confidence),
     )
 
-    fun InvoiceV4DocumentPrediction.getExtractedSupplier() = ExtractedSupplier(
+    fun InvoiceV4Document.getExtractedSupplier() = ExtractedSupplier(
         name = this.supplierName.toExtractedField(),
         address = this.supplierAddress.toExtractedField(),
         nationalId = this.supplierCompanyRegistrations.toNationalId(),
@@ -70,9 +71,7 @@ fun mindeeApi(client: MindeeClient): InvoiceExtractionApi = object : MindeeInvoi
     override suspend fun fetchInvoiceExtraction(file: InputStream) =
         Either.catch {
             runInterruptible(Dispatchers.IO) {
-                client.loadDocument(file, "plop").let { document ->
-                    client.parse(InvoiceV4Inference::class.java, document).inference.documentPrediction.toExtractedInvoice()
-                }
+                client.parse(InvoiceV4::class.java, LocalInputSource(file, "plop")).document.inference.prediction.toExtractedInvoice()
             }
         }.mapLeft { mindeeException ->
             when (mindeeException) {
@@ -82,9 +81,11 @@ fun mindeeApi(client: MindeeClient): InvoiceExtractionApi = object : MindeeInvoi
                         else -> MindeeOtherError(mindeeException.message ?: "Unknown error")
                     }
                 }
+
                 is IOException -> {
                     MindeeIOError(mindeeException.message ?: "Unknown error")
                 }
+
                 else -> {
                     MindeeOtherError(mindeeException.message ?: "Unknown error")
                 }

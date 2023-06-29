@@ -1,25 +1,18 @@
 package com.fabien.invoiceExtraction.mindee
 
 import arrow.core.Either
-import com.fabien.InvoiceExtractionError
-import com.fabien.MindeeError
-import com.fabien.MindeeIOError
-import com.fabien.MindeeOtherError
-import com.fabien.MindeeUnAuthorizedError
+import com.fabien.*
 import com.fabien.invoiceExtraction.*
-import com.mindee.DocumentToParse
 import com.mindee.MindeeClient
-import com.mindee.parsing.common.field.CompanyRegistrationField
-import com.mindee.parsing.common.field.TaxField
-import com.mindee.parsing.invoice.InvoiceLineItem
-import com.mindee.parsing.invoice.InvoiceV4DocumentPrediction
-import com.mindee.parsing.invoice.InvoiceV4Inference
-import com.mindee.utils.MindeeException
-import io.mockk.every
+import com.mindee.MindeeException
+import com.mindee.input.LocalInputSource
+import com.mindee.parsing.standard.CompanyRegistrationField
+import com.mindee.parsing.standard.TaxField
+import com.mindee.product.invoice.InvoiceV4
+import com.mindee.product.invoice.InvoiceV4Document
+import com.mindee.product.invoice.InvoiceV4LineItem
+import io.mockk.*
 import io.mockk.junit5.MockKExtension
-import io.mockk.mockk
-import io.mockk.spyk
-import io.mockk.verify
 import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.toKotlinLocalDate
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -301,18 +294,20 @@ internal class MindeeApiTest {
     fun `should call mindeeClient when fetching extraction`() = runTest {
         // Given a mocked mindeeClient with its chained calls
         val mindeeClient = mockk<MindeeClient>()
-        val docToParse = mockk<DocumentToParse>()
         val fileInputStream = mockk<FileInputStream>()
-        val invoicePrediction = mockk<InvoiceV4DocumentPrediction>()
+        val invoicePrediction = mockk<InvoiceV4Document>()
         val fileName = "plop"
+
+        val file = slot<LocalInputSource>()
+
+        // FIXME should mock LocalInputSource constructor to no depend on implementation....
+        every {
+            fileInputStream.read(any<ByteArray>())
+        } returns -1
 
         with(spyk(mindeeApi(mindeeClient) as MindeeInvoiceExtractionApi)) {
             every {
-                mindeeClient.loadDocument(eq(fileInputStream), eq(fileName))
-            } returns docToParse
-
-            every {
-                mindeeClient.parse(eq(InvoiceV4Inference::class.java), eq(docToParse)).inference.documentPrediction
+                mindeeClient.parse(eq(InvoiceV4::class.java), capture(file)).document.inference.prediction
             } returns invoicePrediction
 
             every {
@@ -323,10 +318,10 @@ internal class MindeeApiTest {
             fetchInvoiceExtraction(fileInputStream)
             // Then mindee client should call its chained calls
             verify {
-                mindeeClient.loadDocument(eq(fileInputStream), eq(fileName))
-                mindeeClient.parse(eq(InvoiceV4Inference::class.java), eq(docToParse)).inference.documentPrediction
+                mindeeClient.parse(eq(InvoiceV4::class.java), any<LocalInputSource>()).document.inference.prediction
                 invoicePrediction.toExtractedInvoice()
             }
+            assertEquals(fileName, file.captured.filename)
         }
     }
 
@@ -353,8 +348,13 @@ internal class MindeeApiTest {
         val mindeeClient = mockk<MindeeClient>()
         val fileInputStream = mockk<FileInputStream>()
 
+        // FIXME should mock LocalInputSource constructor to no depend on implementation....
         every {
-            mindeeClient.loadDocument(eq(fileInputStream), any())
+            fileInputStream.read(any<ByteArray>())
+        } returns -1
+
+        every {
+            mindeeClient.parse(eq(InvoiceV4::class.java), any<LocalInputSource>())
         } throws clientException
 
         with(mindeeApi(mindeeClient)) {
@@ -387,8 +387,8 @@ internal class MindeeApiTest {
         name: ExtractedStringTest,
         address: ExtractedStringTest,
         registrations: List<CompanyRegistrationField>,
-    ): InvoiceV4DocumentPrediction {
-        val invoiceDocumentPrediction = mockk<InvoiceV4DocumentPrediction>()
+    ): InvoiceV4Document {
+        val invoiceDocumentPrediction = mockk<InvoiceV4Document>()
         every {
             invoiceDocumentPrediction.supplierName.value
         } returns name.value
@@ -429,8 +429,8 @@ internal class MindeeApiTest {
         return companyRegistrationField
     }
 
-    private fun createItem(code: String?, description: String?, quantity: Double?, totalExcl: Double?, taxRate: Double?, confidence: Double): InvoiceLineItem {
-        val item = mockk<InvoiceLineItem>()
+    private fun createItem(code: String?, description: String?, quantity: Double?, totalExcl: Double?, taxRate: Double?, confidence: Double): InvoiceV4LineItem {
+        val item = mockk<InvoiceV4LineItem>()
         every {
             item.productCode
         } returns code
@@ -467,10 +467,10 @@ internal class MindeeApiTest {
         totalIncl: ExtractedDoubleTest,
         taxes: List<ExtractedTax>,
         items: List<ExtractedItem>,
-    ): InvoiceV4DocumentPrediction {
-        val invoiceDocumentPrediction = mockk<InvoiceV4DocumentPrediction>()
+    ): InvoiceV4Document {
+        val invoiceDocumentPrediction = mockk<InvoiceV4Document>()
         val taxesPrediction = mockk<TaxField>()
-        val itemsPrediction = mockk<InvoiceLineItem>()
+        val itemsPrediction = mockk<InvoiceV4LineItem>()
 
         every {
             invoiceDocumentPrediction.invoiceDateField.value
