@@ -16,7 +16,8 @@
         },
         {
             "matchPackagePrefixes": ["com.zaxxer:HikariCP", "org.postgresql", "app.cash.sqldelight"],
-            "groupName": "database"
+            "groupName": "database",
+            "rebaseWhen": "behind-base-branch"
         },
         {
             "matchPackagePrefixes": ["io.ktor"],
@@ -45,6 +46,11 @@
             "groupName": "tests-tools",
             "automerge": true,
             "automergeSchedule": ["at any time"],
+            "rebaseWhen": "behind-base-branch"
+        },
+        {
+            "matchPackagePrefixes": ["com.mindee.sdk"],
+            "groupName": "mindee",
             "rebaseWhen": "behind-base-branch"
         }
     ]
