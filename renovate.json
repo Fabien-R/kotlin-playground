@@ -52,6 +52,13 @@
             "matchPackagePrefixes": ["com.mindee.sdk"],
             "groupName": "mindee",
             "rebaseWhen": "behind-base-branch"
+        },
+        {
+            "matchPackagePrefixes": ["ch.qos.logback"],
+            "groupName": "log",
+            "automerge": true,
+            "automergeSchedule": ["at any time"],
+            "rebaseWhen": "behind-base-branch"
         }
     ]
 }
