@@ -42,8 +42,14 @@
         },
         {
             "matchPackagePrefixes": ["org.junit", "io.mockk", "klint"],
-            "matchPackageNames": ["org.jetbrains.kotlin:kotlin-test-junit"],
             "groupName": "tests-tools",
+            "automerge": true,
+            "automergeSchedule": ["at any time"],
+            "rebaseWhen": "behind-base-branch"
+        },
+        {
+            "matchPackagePrefixes": ["org.jetbrains.kotlin"],
+            "groupName": "kotlin",
             "automerge": true,
             "automergeSchedule": ["at any time"],
             "rebaseWhen": "behind-base-branch"
