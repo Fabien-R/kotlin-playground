@@ -65,6 +65,20 @@
             "automerge": true,
             "automergeSchedule": ["at any time"],
             "rebaseWhen": "behind-base-branch"
+        },
+        {
+            "matchPackageNames": ["org.jetbrains.kotlinx:kotlinx-datetime"],
+            "groupName": "date",
+            "automerge": true,
+            "automergeSchedule": ["at any time"],
+            "rebaseWhen": "behind-base-branch"
+        },
+        {
+            "matchPackagePrefixes": ["com.sksamuel.hoplite"],
+            "groupName": "hoplite",
+            "automerge": false,
+            "automergeSchedule": ["at any time"],
+            "rebaseWhen": "behind-base-branch"
         }
     ]
 }
