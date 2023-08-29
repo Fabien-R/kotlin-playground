@@ -14,7 +14,7 @@ logback = "1.4.11"
 mindee="4.2.0"
 mockk = "1.13.7"
 postgresql = "42.6.0"
-spotless = "6.20.0"
+spotless = "6.21.0"
 sqldelight = "2.0.0"
 
 [libraries]
