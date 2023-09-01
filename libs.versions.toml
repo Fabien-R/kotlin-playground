@@ -2,7 +2,7 @@
 arrow = "1.2.0"
 aws-sdk-kotlin = "0.19.5-beta"
 coroutines = "1.7.3"
-datetime = "0.4.0"
+datetime = "0.4.1"
 hikari = "5.0.1"
 hoplite = "2.7.5"
 jupiter = "5.10.0"
