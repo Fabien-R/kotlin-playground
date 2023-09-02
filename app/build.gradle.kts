@@ -48,7 +48,11 @@ tasks {
         }
     }
     test {
-        useJUnitPlatform()
+        useJUnitPlatform {
+            if (System.getProperty("includeTags") == null) {
+                excludeTags("mindeeApiCost")
+            }
+        }
     }
 }
 
