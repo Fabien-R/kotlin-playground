@@ -43,13 +43,13 @@ They provide several APIs at their [API-store](https://api.insee.fr/catalogue/).
 
 I use the SIREN API to retrieve the flat list of establishments of legal entities (enterprises).
 
-To be able to query the service I have created an account and retrieve the consumer key and secret to fill `base64ConsumerKeySecret` of [application.yaml](src/main/resources/application.yaml) as explained [here](https://api.insee.fr/catalogue/site/themes/wso2/subthemes/insee/pages/help.jag)
+To be able to query the service I have created an account and retrieve the consumer key and secret to fill `base64ConsumerKeySecret` of [application.yaml](app/src/main/resources/application.yaml) as explained [here](https://api.insee.fr/catalogue/site/themes/wso2/subthemes/insee/pages/help.jag)
 
 ### Mindee
 
 [Mindee](https://developers.mindee.com/docs/java-ocr-sdk) is  a French/US company that provides an OCR API to help software product teams build accurate and robust document processing automation features in their application.
 
-They have a [developer plan](https://mindee.com/pricing) that allows to extract 250 pages per month for free. You need to create an account, subscribe to the Invoice API and retrieve the API key to fill `mindeeApiKey` of [application.yaml](src/main/resources/application.yaml).
+They have a [developer plan](https://mindee.com/pricing) that allows to extract 250 pages per month for free. You need to create an account, subscribe to the Invoice API and retrieve the API key to fill `mindeeApiKey` of [application.yaml](app/src/main/resources/application.yaml).
 
 Current limitations:
 * line item total excl. seems to be quantity * unit price. /!\ if the quantity is miss-extracted both are wrong.
@@ -62,7 +62,7 @@ Current limitations:
 * the past trend of the metrics for each project
 
 ## DSL
-I have created a simple DSL for querying the INSEE SIREN API [here](src/main/kotlin/com/fabien/organisationIdentity/insee/InseeQueryDsl.kt).
+I have created a simple DSL for querying the INSEE SIREN API [here](app/src/main/kotlin/com/fabien/organisationIdentity/insee/InseeQueryDsl.kt).
 The goal is to search establishments matching its nationalId or its name.
 1. The nationalId search retrieves all establishments whose nationalId wraps the wanted one.
 2. The name search uses a set of different INSEE fields: it retrieves all establishments whose at least one of these fields is approximately the name we search for.
@@ -107,10 +107,10 @@ Remaining steps:
   
 
 ## Tests
-Tests are located [here](src/test/kotlin/com/fabien)
+Tests are located [here](app/src/test/kotlin/com/fabien)
 
 I use Junit5 and its integrated framework jupiter  and [MockK](https://mockk.io/) for the mock library as it offers to write idiomatic Kotlin test code.
-API tests use (for now) the [Ktor TestApplication utility](https://ktor.io/docs/testing.html#overview). You can find them [here](src/test/kotlin/com/fabien/organisationIdentity/insee/OrganizationIdentityTest.kt).
+API tests use (for now) the [Ktor TestApplication utility](https://ktor.io/docs/testing.html#overview). You can find them [here](app/src/test/kotlin/com/fabien/organisationIdentity/insee/OrganizationIdentityTest.kt).
 
 I also added [Kover plugin](https://github.com/Kotlin/kotlinx-kover) to generate code coverage and then send it to third party [codecov](#Codecov): a [coverage dashboard](https://app.codecov.io/github/Fabien-R/kotlin-playground) is privately available.
 

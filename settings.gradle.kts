@@ -1,5 +1,9 @@
 rootProject.name = "kotlin-playground"
 
+include(
+    "app"
+)
+
 dependencyResolutionManagement {
     versionCatalogs {
         create("libs") {
