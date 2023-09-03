@@ -43,7 +43,13 @@ jobs:
         uses: gradle/gradle-build-action@v2
         with:
           gradle-version: 8.1.1
-          arguments: build -x koverVerify # skipping koverVerify to not fail if the coverage has lowered
+          arguments: build -x test -x mindeeTest -x koverGenerateArtifact -x koverXmlReport -x koverVerify
+      - name: Test
+        if: ${{ !contains(github.event.head_commit.message, 'mindee') }}
+        uses: gradle/gradle-build-action@v2
+        with:
+          gradle-version: 8.1.1
+          arguments: test
         env:
           INSEE_BASE_API: ${{vars.INSEE_BASE_API}}
           INSEE_SIRET_API: ${{vars.INSEE_SIRET_API}}
@@ -59,18 +65,29 @@ jobs:
           STAFF_PASSWORD: ${{secrets.STAFF_PASSWORD}}
           USER_MAIL: ${{secrets.USER_MAIL}}
           USER_PASSWORD: ${{secrets.USER_PASSWORD}}
-      - name: Test
-        if: ${{ !contains(github.event.head_commit.message, 'mindee') }}
-        uses: gradle/gradle-build-action@v2
-        with:
-          gradle-version: 8.1.1
-          arguments: test
       - name: Test with mindee
         if: ${{ contains(github.event.head_commit.message, 'mindee') }}
         uses: gradle/gradle-build-action@v2
         with:
           gradle-version: 8.1.1
-          arguments: test -DincludeTags='mindeeApiCost'
+          arguments: |
+            mindeeTest
+            --stacktrace
+        env:
+          INSEE_BASE_API: ${{vars.INSEE_BASE_API}}
+          INSEE_SIRET_API: ${{vars.INSEE_SIRET_API}}
+          INSEE_AUTHENTICATION_API: ${{vars.INSEE_AUTHENTICATION_API}}
+          INSEE_BASE64_CONSUMER_KEY_SECRET: ${{secrets.INSEE_BASE64_CONSUMER_KEY_SECRET}}
+          JWT_DOMAIN: ${{secrets.JWT_DOMAIN}}
+          JWT_AUDIENCE: ${{secrets.JWT_AUDIENCE}}
+          MINDEE_API_KEY: ${{secrets.MINDEE_API_KEY}}
+          # only for tests
+          JWT_CLIENT_ID: ${{secrets.JWT_CLIENT_ID}}
+          JWT_CLIENT_SECRET: ${{secrets.JWT_CLIENT_SECRET}}
+          STAFF_MAIL: ${{secrets.STAFF_MAIL}}
+          STAFF_PASSWORD: ${{secrets.STAFF_PASSWORD}}
+          USER_MAIL: ${{secrets.USER_MAIL}}
+          USER_PASSWORD: ${{secrets.USER_PASSWORD}}
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v3
         with:

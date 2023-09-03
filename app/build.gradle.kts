@@ -49,11 +49,16 @@ tasks {
     }
     test {
         useJUnitPlatform {
-            if (System.getProperty("includeTags") == null) {
-                excludeTags("mindeeApiCost")
-            }
+            excludeTags("mindeeApiCost")
         }
+        finalizedBy(findByName("koverXmlReport")!!.path)
     }
+}
+
+tasks.register<Test>("mindeeTest") {
+    useJUnitPlatform {
+    }
+    finalizedBy(tasks.findByName("koverXmlReport")!!.path)
 }
 
 spotless {
