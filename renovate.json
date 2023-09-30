@@ -57,6 +57,8 @@
         {
             "matchPackagePrefixes": ["com.mindee.sdk"],
             "groupName": "mindee",
+            "automerge": true,
+            "automergeSchedule": ["at any time"],
             "rebaseWhen": "behind-base-branch"
         },
         {
