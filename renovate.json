@@ -15,6 +15,13 @@
             "groupName": "github"
         },
         {
+            "matchDatasources": ["gradle-version"],
+            "groupName": "gradle",
+            "automerge": true,
+            "automergeSchedule": ["at any time"],
+            "rebaseWhen": "behind-base-branch"
+        },
+        {
             "matchPackagePrefixes": ["com.zaxxer:HikariCP", "org.postgresql", "app.cash.sqldelight"],
             "groupName": "database",
             "rebaseWhen": "behind-base-branch"

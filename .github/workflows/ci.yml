@@ -33,22 +33,22 @@ jobs:
       - name: Setup Gradle
         uses: gradle/gradle-build-action@v2
         with:
-          gradle-version: 8.1.1
+          gradle-version: wrapper
       - name: Linter check
         uses: gradle/gradle-build-action@v2
         with:
-          gradle-version: 8.1.1
+          gradle-version: wrapper
           arguments: spotlessCheck
       - name: Build
         uses: gradle/gradle-build-action@v2
         with:
-          gradle-version: 8.1.1
+          gradle-version: wrapper
           arguments: build -x test -x mindeeTest -x koverGenerateArtifact -x koverXmlReport -x koverVerify
       - name: Test
         if: ${{ !contains(github.event.head_commit.message, 'mindee') }}
         uses: gradle/gradle-build-action@v2
         with:
-          gradle-version: 8.1.1
+          gradle-version: wrapper
           arguments: test
         env:
           INSEE_BASE_API: ${{vars.INSEE_BASE_API}}
@@ -69,7 +69,7 @@ jobs:
         if: ${{ contains(github.event.head_commit.message, 'mindee') }}
         uses: gradle/gradle-build-action@v2
         with:
-          gradle-version: 8.1.1
+          gradle-version: wrapper
           arguments: |
             mindeeTest
             --stacktrace
