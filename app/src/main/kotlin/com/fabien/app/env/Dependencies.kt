@@ -20,7 +20,6 @@ class Dependencies(
 
 fun dependencies(inseeParams: Insee, jwtParams: Jwt, mindeeParams: Mindee): Dependencies {
     val inseeHttpEngine = CIO.create {
-        threadsCount = 20
         requestTimeout = 3000
         maxConnectionsCount = 20
         endpoint {
