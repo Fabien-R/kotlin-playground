@@ -10,6 +10,15 @@ data class InseeOtherError(val status: HttpStatusCode, val description: String) 
 object InseeNotFound : OrganizationIdentityError
 object MissingNationalIdOrSearchText : OrganizationIdentityError
 
+sealed interface OrganizationError : DomainError
+
+data class OrganizationCreationErrorList(val errors: List<OrganizationCreationError>) : OrganizationError, List<OrganizationCreationError> by errors
+
+sealed class OrganizationCreationError
+object MissingName : OrganizationCreationError()
+object MissingNationalId : OrganizationCreationError()
+object MissingCountry : OrganizationCreationError()
+
 sealed interface InvoiceExtractionError : DomainError
 sealed class MindeeError(val status: HttpStatusCode = HttpStatusCode.InternalServerError, val description: String) : InvoiceExtractionError
 data class MindeeUnAuthorizedError(val message: String) : MindeeError(description = message)
