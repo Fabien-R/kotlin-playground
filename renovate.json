@@ -24,6 +24,8 @@
         {
             "matchPackagePrefixes": ["com.zaxxer:HikariCP", "org.postgresql", "app.cash.sqldelight"],
             "groupName": "database",
+            "automerge": true,
+            "automergeSchedule": ["at any time"],
             "rebaseWhen": "behind-base-branch"
         },
         {
