@@ -11,6 +11,8 @@ import java.lang.Boolean.FALSE
 import java.util.*
 
 const val FAKE_UUID = "3068da80-d903-4ad4-bfc6-ce3a5123b88"
+
+fun String.toUUID(): UUID = UUID.fromString(this)
 fun addOrganizationCommandHandler() = AddOrganizationCommandHandler { addCommand ->
     val (name, nationalId, zipCode, country, city, address, active) = addCommand
     either<NonEmptyList<OrganizationCreationError>, Organization> {
@@ -20,14 +22,14 @@ fun addOrganizationCommandHandler() = AddOrganizationCommandHandler { addCommand
             { ensure(!country.isNullOrEmpty()) { MissingCountry } },
         ) { _, _, _ ->
             Organization(
-                id = UUID.fromString(FAKE_UUID),
+                id = FAKE_UUID.toUUID(),
                 name = name!!,
                 nationalId = nationalId!!,
                 zipCode = zipCode,
                 country = country!!,
                 city = city,
                 address = address,
-                active = FALSE.equals(active),
+                active = !FALSE.equals(active),
             )
         }
     }.mapLeft { errors -> OrganizationCreationErrorList(errors) }

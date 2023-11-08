@@ -5,6 +5,8 @@ import com.fabien.app.MissingName
 import com.fabien.app.MissingNationalId
 import com.fabien.app.OrganizationCreationError
 import com.fabien.app.organization.AddOrganizationCommand
+import com.fabien.app.organization.Organization
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
@@ -49,25 +51,81 @@ class AddOrganizationCommandHandlerTest {
             }
         }
     }
-    // TODO test mapper
-    // Test uuid
-//    private fun mapper(): List<Arguments> {
-//        val name = "EAU DU GRAND LYON"
-//        val nationalId = "79936588700048"
-//        val zipCode = "69140"
-//        val country = "FRANCE"
-//        val city = "RILLIEUX-LA-PAPE"
-//        val address = "749 CHE DE VIRALAMANDE"
-//        val active = true
-//        return listOf(
-//            // message, condition, expected
-//            Arguments.of(), //
-//        )
-//    }
 
-//    @ParameterizedTest
-//    @MethodSource("comparisonConditions")
-//    fun `Test comparison condition formatting`(message: String, condition: ComparisonCondition, expected: String) {
-//        assertEquals(expected, condition.toString(), message)
-//    }
+    private fun addOrganizationMapper(): List<Arguments> {
+        val name = "EAU DU GRAND LYON"
+        val nationalId = "79936588700048"
+        val zipCode = "69140"
+        val country = "FRANCE"
+        val city = "RILLIEUX-LA-PAPE"
+        val address = "749 CHE DE VIRALAMANDE"
+        val active = true
+        return listOf(
+            // message, name, nationalId, zipCode, country, city, address, active, expected organization
+            Arguments.of(
+                "uuid is hardcoded for now",
+                name,
+                nationalId,
+                zipCode,
+                country,
+                city,
+                address,
+                active,
+                Organization(FAKE_UUID.toUUID(), name, nationalId, zipCode, country, city, address, active),
+            ), //
+            Arguments.of(
+                "active null",
+                name,
+                nationalId,
+                zipCode,
+                country,
+                city,
+                address,
+                null,
+                Organization(FAKE_UUID.toUUID(), name, nationalId, zipCode, country, city, address, true),
+            ), //
+            Arguments.of(
+                "active false",
+                name,
+                nationalId,
+                zipCode,
+                country,
+                city,
+                address,
+                false,
+                Organization(FAKE_UUID.toUUID(), name, nationalId, zipCode, country, city, address, false),
+            ), //
+            Arguments.of(
+                "address null",
+                name,
+                nationalId,
+                null,
+                country,
+                null,
+                null,
+                active,
+                Organization(FAKE_UUID.toUUID(), name, nationalId, null, country, null, null, active),
+            ), //
+        )
+    }
+
+    @ParameterizedTest
+    @MethodSource("addOrganizationMapper")
+    fun `when receiving valid organization add command, should return the organization`(
+        message: String,
+        name: String,
+        nationalId: String,
+        zipCode: String?,
+        country: String,
+        city: String?,
+        address: String?,
+        active: Boolean?,
+        expected: Organization,
+    ) {
+        AddOrganizationCommand(name, nationalId, zipCode, country, city, address, active).let {
+            with(addOrganizationCommandHandler(it).getOrNull()) {
+                assertEquals(expected, this, message)
+            }
+        }
+    }
 }
