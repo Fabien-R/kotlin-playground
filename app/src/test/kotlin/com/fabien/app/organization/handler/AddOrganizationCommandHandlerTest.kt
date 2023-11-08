@@ -71,7 +71,7 @@ class AddOrganizationCommandHandlerTest {
                 city,
                 address,
                 active,
-                Organization(FAKE_UUID.toUUID(), name, nationalId, zipCode, country, city, address, active),
+                Organization(FAKE_UUID.toUUID(), name, nationalId, country, zipCode, city, address, active),
             ), //
             Arguments.of(
                 "active null",
@@ -82,7 +82,7 @@ class AddOrganizationCommandHandlerTest {
                 city,
                 address,
                 null,
-                Organization(FAKE_UUID.toUUID(), name, nationalId, zipCode, country, city, address, true),
+                Organization(FAKE_UUID.toUUID(), name, nationalId, country, zipCode, city, address, true),
             ), //
             Arguments.of(
                 "active false",
@@ -93,7 +93,7 @@ class AddOrganizationCommandHandlerTest {
                 city,
                 address,
                 false,
-                Organization(FAKE_UUID.toUUID(), name, nationalId, zipCode, country, city, address, false),
+                Organization(FAKE_UUID.toUUID(), name, nationalId, country, zipCode, city, address, false),
             ), //
             Arguments.of(
                 "address null",
@@ -104,7 +104,7 @@ class AddOrganizationCommandHandlerTest {
                 null,
                 null,
                 active,
-                Organization(FAKE_UUID.toUUID(), name, nationalId, null, country, null, null, active),
+                Organization(FAKE_UUID.toUUID(), name, nationalId, country, null, null, null, active),
             ), //
         )
     }

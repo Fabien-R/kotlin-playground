@@ -11,11 +11,12 @@ kotlin = "1.9.20"
 kover = "0.7.4"
 ktor = "2.3.5"
 logback = "1.4.11"
-mindee="4.4.1"
+mindee = "4.4.1"
 mockk = "1.13.8"
 postgresql = "42.6.0"
 spotless = "6.22.0"
 sqldelight = "2.0.0"
+testcontainers = "1.19.1"
 
 [libraries]
 arrow-core = { module = "io.arrow-kt:arrow-core", version.ref = "arrow" }
@@ -25,32 +26,32 @@ coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", ve
 coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutines" }
 
 kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "datetime" }
-hikari = { module = "com.zaxxer:HikariCP", version.ref="hikari" }
+hikari = { module = "com.zaxxer:HikariCP", version.ref = "hikari" }
 hoplite-core = { module = "com.sksamuel.hoplite:hoplite-core", version.ref = "hoplite" }
 hoplite-json = { module = "com.sksamuel.hoplite:hoplite-json", version.ref = "hoplite" }
 
-jupiter-junit = { module = "org.junit.jupiter:junit-jupiter", version.ref = "jupiter"}
-kotlin-test-junit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlin"}
+jupiter-junit = { module = "org.junit.jupiter:junit-jupiter", version.ref = "jupiter" }
+kotlin-test-junit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlin" }
 
 ktor-serialization-json-jvm = { module = "io.ktor:ktor-serialization-kotlinx-json-jvm", version.ref = "ktor" }
 ktor-serialization-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
 ktor-serialization-xml = { module = "io.ktor:ktor-serialization-kotlinx-xml", version.ref = "ktor" }
 
-ktor-server-auth-jvm = { module = "io.ktor:ktor-server-auth-jvm", version.ref = "ktor"}
-ktor-server-auth-jwt-jvm = { module = "io.ktor:ktor-server-auth-jwt-jvm", version.ref = "ktor"}
-ktor-server-cio-jvm = { module = "io.ktor:ktor-server-cio-jvm", version.ref = "ktor"}
-ktor-server-config-yaml = { module = "io.ktor:ktor-server-config-yaml", version.ref = "ktor"}
-ktor-server-core-jvm = { module = "io.ktor:ktor-server-core-jvm", version.ref = "ktor"}
+ktor-server-auth-jvm = { module = "io.ktor:ktor-server-auth-jvm", version.ref = "ktor" }
+ktor-server-auth-jwt-jvm = { module = "io.ktor:ktor-server-auth-jwt-jvm", version.ref = "ktor" }
+ktor-server-cio-jvm = { module = "io.ktor:ktor-server-cio-jvm", version.ref = "ktor" }
+ktor-server-config-yaml = { module = "io.ktor:ktor-server-config-yaml", version.ref = "ktor" }
+ktor-server-core-jvm = { module = "io.ktor:ktor-server-core-jvm", version.ref = "ktor" }
 ktor-server-content-negotiation-jvm = { module = "io.ktor:ktor-server-content-negotiation-jvm", version.ref = "ktor" }
 ktor-server-defaultheaders-jvm = { module = "io.ktor:ktor-server-default-headers-jvm", version.ref = "ktor" }
 ktor-server-status-pages-jvm = { module = "io.ktor:ktor-server-status-pages-jvm", version.ref = "ktor" }
-ktor-server-tests-jvm = { module = "io.ktor:ktor-server-tests-jvm", version.ref = "ktor"}
+ktor-server-tests-jvm = { module = "io.ktor:ktor-server-tests-jvm", version.ref = "ktor" }
 
-ktor-client-auth = { module = "io.ktor:ktor-client-auth", version.ref = "ktor"}
+ktor-client-auth = { module = "io.ktor:ktor-client-auth", version.ref = "ktor" }
 ktor-client-cio-jvm = { module = "io.ktor:ktor-client-cio-jvm", version.ref = "ktor" }
 ktor-client-content-negotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktor" }
 ktor-client-login = { module = "io.ktor:ktor-client-logging", version.ref = "ktor" }
-ktor-client-mock = { module = "io.ktor:ktor-client-mock", version.ref = "ktor"}
+ktor-client-mock = { module = "io.ktor:ktor-client-mock", version.ref = "ktor" }
 
 ktor-client-serialization = { module = "io.ktor:ktor-client-serialization", version.ref = "ktor" }
 
@@ -58,9 +59,12 @@ logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "lo
 mindee-java = { module = "com.mindee.sdk:mindee-api-java", version.ref = "mindee" }
 mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
 
-postgresql = { module="org.postgresql:postgresql", version.ref = "postgresql" }
+postgresql = { module = "org.postgresql:postgresql", version.ref = "postgresql" }
 sqldelight-jdbc = { module = "app.cash.sqldelight:jdbc-driver", version.ref = "sqldelight" }
 sqldelight-postgresql = { module = "app.cash.sqldelight:postgresql-dialect", version.ref = "sqldelight" }
+
+testcontainers-jupiter = { module = "org.testcontainers:junit-jupiter", version.ref = "testcontainers" }
+testcontainers-postgres = { module = "org.testcontainers:postgresql", version.ref = "testcontainers" }
 
 [bundles]
 arrow = ["arrow-core", "arrow-fx"]
@@ -85,6 +89,8 @@ ktor-client = [
     "ktor-client-content-negotiation",
     "ktor-client-login"
 ]
+testcontainers = ["testcontainers-jupiter", "testcontainers-postgres"]
+database = ["hikari", "postgresql", "sqldelight-jdbc", "sqldelight-postgresql"]
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }

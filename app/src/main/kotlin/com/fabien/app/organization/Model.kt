@@ -11,13 +11,23 @@ import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import java.util.*
 
+data class NewOrganization(
+    val name: String,
+    val nationalId: String,
+    val zipCode: String?,
+    val country: String,
+    val city: String?,
+    val address: String?,
+    val active: Boolean,
+)
+
 @Serializable
 data class Organization(
     @Serializable(with = UUIDdSerializer::class) val id: UUID,
     val name: String,
     val nationalId: String,
-    val zipCode: String?,
     val country: String,
+    val zipCode: String?,
     val city: String?,
     val address: String?,
     val active: Boolean,
@@ -45,4 +55,10 @@ data class AddOrganizationCommand(
 
 fun interface AddOrganizationCommandHandler {
     operator fun invoke(command: AddOrganizationCommand): Either<OrganizationCreationErrorList, Organization>
+}
+
+interface OrganizationRepository {
+    fun save(organization: NewOrganization): Organization
+
+    fun get(id: UUID): Organization
 }
