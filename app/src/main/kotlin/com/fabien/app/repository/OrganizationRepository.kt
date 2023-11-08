@@ -10,6 +10,7 @@ import java.util.*
 fun organizationRepository(
     queries: OrganizationsQueries,
 ) = object : OrganizationRepository {
+    // TODO handle duplication error via arrow domain error + other DB related error
     override fun save(organization: NewOrganization): Organization =
         queries.insertOrganization(
             name = organization.name,
@@ -22,11 +23,11 @@ fun organizationRepository(
             mapper = toOrganization(),
         ).executeAsOne()
 
-    override fun get(id: UUID): Organization =
+    override fun get(id: UUID): Organization? =
         queries.getOrganizationFromUUID(
             id = id,
             mapper = toOrganization(),
-        ).executeAsOne()
+        ).executeAsOneOrNull()
 }
 
 fun toOrganization(): (

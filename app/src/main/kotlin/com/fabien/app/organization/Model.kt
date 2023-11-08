@@ -60,5 +60,5 @@ fun interface AddOrganizationCommandHandler {
 interface OrganizationRepository {
     fun save(organization: NewOrganization): Organization
 
-    fun get(id: UUID): Organization
+    fun get(id: UUID): Organization?
 }

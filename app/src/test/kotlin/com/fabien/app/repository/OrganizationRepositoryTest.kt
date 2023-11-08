@@ -10,8 +10,10 @@ import com.fabien.app.organization.OrganizationRepository
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.postgresql.util.PSQLException
+import java.util.*
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 
 class OrganizationRepositoryTest {
 
@@ -81,6 +83,11 @@ class OrganizationRepositoryTest {
                 assertEquals(savedOrganization, this)
             }
         }
+    }
+
+    @Test
+    fun `if not find, should retrieve null`() {
+        assertNull(organizationRepository.get(UUID.randomUUID()))
     }
 
     @Test
