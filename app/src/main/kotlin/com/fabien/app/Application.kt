@@ -5,6 +5,8 @@ import com.fabien.app.env.dependencies
 import com.fabien.app.env.loadConfiguration
 import com.fabien.app.invoiceExtraction.configureExtractionRouting
 import com.fabien.app.organisationIdentity.configureOrganizationIdentityRouting
+import com.fabien.app.organization.configureOrganizationRouting
+import com.fabien.app.organization.handler.addOrganizationCommandHandler
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
@@ -54,4 +56,6 @@ fun Application.module(dependencies: Dependencies) {
     configureOrganizationIdentityRouting(dependencies.organizationIdentityService)
 
     configureExtractionRouting(dependencies.invoiceExtractionApi)
+
+    configureOrganizationRouting(addOrganizationCommandHandler())
 }
