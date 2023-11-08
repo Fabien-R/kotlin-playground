@@ -15,12 +15,16 @@ const val FAKE_UUID = "3068da80-d903-4ad4-bfc6-ce3a5123b88"
 fun String.toUUID(): UUID = UUID.fromString(this)
 fun addOrganizationCommandHandler() = AddOrganizationCommandHandler { addCommand ->
     val (name, nationalId, zipCode, country, city, address, active) = addCommand
+    // TODO TRIM field name, zipcode, country, city, address
+    // TODO remove space from nationalID
     either<NonEmptyList<OrganizationCreationError>, Organization> {
         zipOrAccumulate(
             { ensure(!name.isNullOrEmpty()) { MissingName } },
             { ensure(!nationalId.isNullOrEmpty()) { MissingNationalId } },
             { ensure(!country.isNullOrEmpty()) { MissingCountry } },
+            // TODO add national Id check
         ) { _, _, _ ->
+            // TODO Upper case country, city
             Organization(
                 id = FAKE_UUID.toUUID(),
                 name = name!!,
