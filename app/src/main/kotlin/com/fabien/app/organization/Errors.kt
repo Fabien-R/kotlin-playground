@@ -27,4 +27,14 @@ suspend fun PipelineContext<Unit, ApplicationCall>.respond(error: OrganizationEr
             }.run {
                 call.respond(HttpStatusCode.UnprocessableEntity, "Errors: $this")
             }
+
+        is OrganizationDuplication -> call.respond(
+            HttpStatusCode.Conflict,
+            "Organization with country ${error.country} and national id ${error.nationalId} already exist",
+        )
+
+        is OrganizationDBNotFound -> call.respond(HttpStatusCode.NotFound)
+        is OrganizationOtherDBErrors -> {
+            println("error: ${error.message}") // FIXME Logger
+        }
     }

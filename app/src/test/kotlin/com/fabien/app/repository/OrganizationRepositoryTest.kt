@@ -2,18 +2,19 @@ package com.fabien.app.repository
 
 import app.cash.sqldelight.driver.jdbc.asJdbcDriver
 import com.fabien.Database
+import com.fabien.app.OrganizationDBNotFound
+import com.fabien.app.OrganizationDuplication
 import com.fabien.app.containers.PostgresContainerIT
 import com.fabien.app.env.database
 import com.fabien.app.env.hikari
 import com.fabien.app.organization.NewOrganization
 import com.fabien.app.organization.OrganizationRepository
+import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
-import org.postgresql.util.PSQLException
 import java.util.*
 import kotlin.test.assertEquals
+import kotlin.test.assertIs
 import kotlin.test.assertNotNull
-import kotlin.test.assertNull
 
 class OrganizationRepositoryTest {
 
@@ -29,7 +30,7 @@ class OrganizationRepositoryTest {
     }
 
     @Test
-    fun `when saving a new organization should return the organization`() {
+    fun `when saving a new organization should return the organization`() = runTest {
         val name = "EAU DU GRAND LYON"
         val nationalId = "79936588700048"
         val country = "FRANCE"
@@ -47,7 +48,7 @@ class OrganizationRepositoryTest {
                 address = address,
                 active = active,
             ),
-        ).let {
+        ).getOrNull()!!.let {
             assertEquals(name, it.name)
             assertEquals(nationalId, it.nationalId)
             assertEquals(country, it.country)
@@ -60,7 +61,7 @@ class OrganizationRepositoryTest {
     }
 
     @Test
-    fun `after saving a new organization, should retrieve it via its id`() {
+    fun `after saving a new organization, should retrieve it via its id`() = runTest {
         val name = "EFG"
         val nationalId = "55208131766522"
         val country = "FRANCE"
@@ -78,20 +79,22 @@ class OrganizationRepositoryTest {
                 address = address,
                 active = active,
             ),
-        ).let { savedOrganization ->
+        ).getOrNull()!!.let { savedOrganization ->
             with(organizationRepository.get(savedOrganization.id)) {
-                assertEquals(savedOrganization, this)
+                assertEquals(savedOrganization, this.getOrNull())
             }
         }
     }
 
     @Test
-    fun `if not find, should retrieve null`() {
-        assertNull(organizationRepository.get(UUID.randomUUID()))
+    fun `if not find, should retrieve null`() = runTest {
+        with(organizationRepository.get(UUID.randomUUID())) {
+            assertIs<OrganizationDBNotFound>(this.leftOrNull())
+        }
     }
 
     @Test
-    fun `when saving a new organization with the same national id and country, should throw an exception`() {
+    fun `when saving a new organization with the same national id and country, should throw an exception`() = runTest {
         val name = "ENGIE"
         val nationalId = "54210765113030"
         val country = "FRANCE"
@@ -110,18 +113,19 @@ class OrganizationRepositoryTest {
                 active = active,
             ),
         )
-        assertThrows<PSQLException>("duplicate key value violates unique constraint \"organizations_country_national_id_key\"") {
-            organizationRepository.save(
-                NewOrganization(
-                    name = name,
-                    nationalId = nationalId,
-                    country = country,
-                    zipCode = zipCode,
-                    city = city,
-                    address = address,
-                    active = active,
-                ),
-            )
+
+        organizationRepository.save(
+            NewOrganization(
+                name = name,
+                nationalId = nationalId,
+                country = country,
+                zipCode = zipCode,
+                city = city,
+                address = address,
+                active = active,
+            ),
+        ).leftOrNull().let {
+            assertIs<OrganizationDuplication>(it)
         }
     }
 }
