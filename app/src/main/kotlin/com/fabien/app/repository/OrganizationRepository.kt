@@ -40,7 +40,7 @@ fun toOrganization(): (
     String?,
     Boolean,
     OffsetDateTime,
-//    OffsetDateTime,
+    OffsetDateTime,
 ) -> Organization = {
         id,
         name,
@@ -51,7 +51,7 @@ fun toOrganization(): (
         address,
         active,
         createdAt,
-//        updateAt,
+        updateAt,
     ->
     Organization(
         id = id,
