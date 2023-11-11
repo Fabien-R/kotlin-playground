@@ -1,8 +1,8 @@
 package com.fabien.app.organization
 
 import arrow.core.Either
-import com.fabien.app.OrganizationCreationErrorList
 import com.fabien.app.OrganizationDBError
+import com.fabien.app.OrganizationError
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.descriptors.PrimitiveKind
@@ -55,7 +55,7 @@ data class AddOrganizationCommand(
 )
 
 fun interface AddOrganizationCommandHandler {
-    operator fun invoke(command: AddOrganizationCommand): Either<OrganizationCreationErrorList, Organization>
+    suspend operator fun invoke(command: AddOrganizationCommand): Either<OrganizationError, Organization>
 }
 
 interface OrganizationRepository {

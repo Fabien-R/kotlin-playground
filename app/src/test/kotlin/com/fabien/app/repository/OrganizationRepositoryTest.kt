@@ -1,12 +1,9 @@
 package com.fabien.app.repository
 
-import app.cash.sqldelight.driver.jdbc.asJdbcDriver
-import com.fabien.Database
 import com.fabien.app.OrganizationDBNotFound
 import com.fabien.app.OrganizationDuplication
 import com.fabien.app.containers.PostgresContainerIT
 import com.fabien.app.env.database
-import com.fabien.app.env.hikari
 import com.fabien.app.organization.NewOrganization
 import com.fabien.app.organization.OrganizationRepository
 import kotlinx.coroutines.test.runTest
@@ -22,10 +19,7 @@ class OrganizationRepositoryTest {
     private val organizationRepository: OrganizationRepository
 
     init {
-        val hikari = hikari(postgresContainerIT.env)
-        val database = database(hikari)
-        // create tables
-        Database.Schema.create(hikari.asJdbcDriver())
+        val database = database(postgresContainerIT.hikari)
         organizationRepository = organizationRepository(database.organizationsQueries)
     }
 

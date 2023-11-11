@@ -194,7 +194,7 @@ class OrganizationIdentityTest {
 context(ApplicationTestBuilder)
 private fun parametrizeApplicationTest(env: Env = loadConfiguration(ApplicationConfig("application.yaml"))) {
     application {
-        val dependencies = dependencies(env.insee, env.jwt, env.mindee)
+        val dependencies = dependencies(env.insee, env.jwt, env.mindee, env.postgres)
         module(dependencies)
     }
 }

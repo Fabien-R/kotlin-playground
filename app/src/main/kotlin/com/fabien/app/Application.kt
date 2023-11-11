@@ -25,7 +25,7 @@ fun main() {
     // /!\ Using EngineMain does not allow loading module with params...
     ApplicationConfig("application.yaml").let { applicationConfig ->
         loadConfiguration(applicationConfig).also { env ->
-            val dependencies = dependencies(env.insee, env.jwt, env.mindee)
+            val dependencies = dependencies(env.insee, env.jwt, env.mindee, env.postgres)
             val applicationEngineEnvironment = commandLineEnvironment(emptyArray()) {
                 module { module(dependencies) }
             }
@@ -57,5 +57,7 @@ fun Application.module(dependencies: Dependencies) {
 
     configureExtractionRouting(dependencies.invoiceExtractionApi)
 
-    configureOrganizationRouting(addOrganizationCommandHandler())
+    dependencies.organizationRepository?.let {
+        configureOrganizationRouting(addOrganizationCommandHandler(it))
+    }
 }

@@ -36,5 +36,6 @@ suspend fun PipelineContext<Unit, ApplicationCall>.respond(error: OrganizationEr
         is OrganizationDBNotFound -> call.respond(HttpStatusCode.NotFound)
         is OrganizationOtherDBErrors -> {
             println("error: ${error.message}") // FIXME Logger
+            call.respond(HttpStatusCode.InternalServerError)
         }
     }
