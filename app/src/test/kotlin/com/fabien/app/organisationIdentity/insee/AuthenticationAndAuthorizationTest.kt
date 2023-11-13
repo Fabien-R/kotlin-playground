@@ -110,7 +110,7 @@ class AuthenticationAndAuthorizationTest {
 context(ApplicationTestBuilder)
 private fun parametrizeApplicationTest(env: Env) {
     application {
-        val dependencies = dependencies(env.insee, env.jwt, env.mindee)
+        val dependencies = dependencies(env.insee, env.jwt, env.mindee, env.postgres)
         module(dependencies)
         // DUMMY
         routing {

@@ -1,0 +1,41 @@
+CREATE TABLE IF NOT EXISTS organizations
+(
+    id          uuid                                   NOT NULL
+        CONSTRAINT organizations_pkey PRIMARY KEY,
+    name        varchar                                NOT NULL,
+    national_id varchar                                NOT NULL,
+    country     varchar(50)                            NOT NULL,
+    zip_code    varchar(20),
+    city        varchar(50),
+    address     varchar,
+    active      boolean                                NOT NULL,
+    created_at  TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL,
+    updated_at  TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL,
+    CONSTRAINT organizations_country_national_id_key
+        UNIQUE (country, national_id)
+);
+
+-- TODO Create function not supported ?
+-- CREATE FUNCTION trigger_set_timestamp()
+-- RETURNS TRIGGER AS $$
+-- BEGIN
+--   NEW.updated_at = NOW();
+--   RETURN NEW;
+-- END;
+-- $$ LANGUAGE plpgsql;
+--
+-- CREATE TRIGGER set_timestamp_organizations
+-- BEFORE UPDATE ON organizations
+-- FOR EACH ROW
+-- EXECUTE PROCEDURE trigger_set_timestamp();
+
+
+insertOrganization:
+INSERT INTO organizations (id, name, national_id, country, zip_code, city, address, active, updated_at)
+VALUES (gen_random_uuid(),?, ?, ?, ?, ?, ?, ?, now())
+RETURNING *;
+
+getOrganizationFromUUID:
+SELECT *
+FROM organizations
+WHERE id = :id;

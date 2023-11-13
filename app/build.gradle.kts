@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.serialization)
     alias(libs.plugins.spotless)
     alias(libs.plugins.kover)
+    alias(libs.plugins.sqldelight)
 }
 
 application {
@@ -27,6 +28,7 @@ dependencies {
     implementation(libs.bundles.ktor.server)
     implementation(libs.logback.classic)
     implementation(libs.mindee.java)
+    implementation(libs.bundles.database)
 
     testImplementation(libs.coroutines.test)
     testImplementation(libs.jupiter.junit)
@@ -34,10 +36,20 @@ dependencies {
     testImplementation(libs.mockk)
     testImplementation(libs.ktor.client.mock)
     testImplementation(libs.ktor.server.tests.jvm)
+    testImplementation(libs.bundles.testcontainers)
 
 //    implementation("io.ktor:ktor-server-host-common-jvm:$ktor_version")
 //    implementation("io.ktor:ktor-server-swagger:$ktor_version")
 //    implementation("io.ktor:ktor-server-call-logging-jvm:$ktor_version")
+}
+
+sqldelight {
+    databases {
+        create("Database") {
+            packageName.set("com.fabien")
+            dialect(libs.sqldelight.postgresql.get())
+        }
+    }
 }
 
 tasks {

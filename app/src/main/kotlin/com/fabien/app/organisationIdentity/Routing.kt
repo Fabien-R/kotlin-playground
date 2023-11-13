@@ -7,7 +7,7 @@ import io.ktor.server.routing.*
 
 fun Application.configureOrganizationIdentityRouting(organizationIdentityService: OrganizationIdentityService) {
     routing {
-        get("/organization/search") {
+        get("/organization/extract") {
             val nationalId = call.parameters["nationalId"]
             val searchText = call.parameters["searchText"]
             val zipCode = call.parameters["zipCode"]

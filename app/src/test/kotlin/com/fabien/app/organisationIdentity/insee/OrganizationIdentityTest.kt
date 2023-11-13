@@ -25,7 +25,7 @@ class OrganizationIdentityTest {
     @Test
     fun searchOrganizationWithoutNationalIdNorSearchText() = testApplication {
         parametrizeApplicationTest()
-        client.get("/organization/search").apply {
+        client.get("/organization/extract").apply {
             assertEquals(HttpStatusCode.UnprocessableEntity, status)
             assertEquals("Require at least one of the nationalId or searchText parameters", bodyAsText())
         }
@@ -34,7 +34,7 @@ class OrganizationIdentityTest {
     @Test
     fun noOrganizationFound() = testApplication {
         parametrizeApplicationTest()
-        createClientWithJsonNegotiation().get("/organization/search?searchText=plopi&zipCode=6666").apply {
+        createClientWithJsonNegotiation().get("/organization/extract?searchText=plopi&zipCode=6666").apply {
             assertEquals(HttpStatusCode.NotFound, status)
             assertEquals(PaginatedOrganizations(emptyList(), 0, 0), body())
         }
@@ -43,7 +43,7 @@ class OrganizationIdentityTest {
     @Test
     fun searchOrganizationWithSearchText() = testApplication {
         parametrizeApplicationTest()
-        createClientWithJsonNegotiation().get("/organization/search?searchText=touten action").apply {
+        createClientWithJsonNegotiation().get("/organization/extract?searchText=touten action").apply {
             assertEquals(HttpStatusCode.OK, status)
             Organization(
                 name = "TOUTEN ACTION",
@@ -62,7 +62,7 @@ class OrganizationIdentityTest {
     @Test
     fun searchOrganizationWithNationalId() = testApplication {
         parametrizeApplicationTest()
-        createClientWithJsonNegotiation().get("/organization/search?nationalId=00792667800017").apply {
+        createClientWithJsonNegotiation().get("/organization/extract?nationalId=00792667800017").apply {
             assertEquals(HttpStatusCode.OK, status)
             Organization(
                 name = "COPROPRIETE FONTAINE",
@@ -81,7 +81,7 @@ class OrganizationIdentityTest {
     @Test
     fun searchOrganizationWithZipCodeAndSearchText() = testApplication {
         parametrizeApplicationTest()
-        createClientWithJsonNegotiation().get("/organization/search?zipCode=33800&searchText=plop").apply {
+        createClientWithJsonNegotiation().get("/organization/extract?zipCode=33800&searchText=plop").apply {
             assertEquals(HttpStatusCode.OK, status)
             Organization(
                 name = "PLOP",
@@ -100,7 +100,7 @@ class OrganizationIdentityTest {
     @Test
     fun searchOrganizationWithZipCodeAndNationalId() = testApplication {
         parametrizeApplicationTest()
-        createClientWithJsonNegotiation().get("/organization/search?zipCode=69003&nationalId=82454312800022").apply {
+        createClientWithJsonNegotiation().get("/organization/extract?zipCode=69003&nationalId=82454312800022").apply {
             assertEquals(HttpStatusCode.OK, status)
             Organization(
                 name = "EDF HYDRO DEVELOPPEMENT",
@@ -119,7 +119,7 @@ class OrganizationIdentityTest {
     @Test
     fun searchOrganizationWithZipCodeAndNationalIdAndSearchText() = testApplication {
         parametrizeApplicationTest()
-        createClientWithJsonNegotiation().get("/organization/search?zipCode=69003&searchText=auchan&nationalId=39406971000090").apply {
+        createClientWithJsonNegotiation().get("/organization/extract?zipCode=69003&searchText=auchan&nationalId=39406971000090").apply {
             assertEquals(HttpStatusCode.OK, status)
             body<PaginatedOrganizations>().let {
                 assertEquals(5, it.organizations.size, "as size")
@@ -134,14 +134,14 @@ class OrganizationIdentityTest {
     @Test
     fun searchOrganizationWithDifferentPageSize() = testApplication {
         parametrizeApplicationTest()
-        createClientWithJsonNegotiation().get("/organization/search?searchText=auchan").apply {
+        createClientWithJsonNegotiation().get("/organization/extract?searchText=auchan").apply {
             assertEquals(HttpStatusCode.OK, status)
             body<PaginatedOrganizations>().let {
                 assertEquals(5, it.organizations.size, "as default page size")
             }
         }
         val newPageSize = 10
-        createClientWithJsonNegotiation().get("/organization/search?searchText=auchan&pageSize=$newPageSize").apply {
+        createClientWithJsonNegotiation().get("/organization/extract?searchText=auchan&pageSize=$newPageSize").apply {
             assertEquals(HttpStatusCode.OK, status)
             body<PaginatedOrganizations>().let {
                 assertEquals(newPageSize, it.organizations.size, "modified page size")
@@ -152,12 +152,12 @@ class OrganizationIdentityTest {
     @Test
     fun searchOrganizationPagination() = testApplication {
         parametrizeApplicationTest()
-        val page1 = createClientWithJsonNegotiation().get("/organization/search?searchText=auchan&page=1").run {
+        val page1 = createClientWithJsonNegotiation().get("/organization/extract?searchText=auchan&page=1").run {
             assertEquals(HttpStatusCode.OK, status)
             body<PaginatedOrganizations>()
         }
 
-        val page2 = createClientWithJsonNegotiation().get("/organization/search?searchText=auchan&page=2").run {
+        val page2 = createClientWithJsonNegotiation().get("/organization/extract?searchText=auchan&page=2").run {
             assertEquals(HttpStatusCode.OK, status)
             body<PaginatedOrganizations>()
         }
@@ -173,7 +173,7 @@ class OrganizationIdentityTest {
         with(loadConfiguration(ApplicationConfig("application.yaml"))) {
             parametrizeApplicationTest(this.copy(insee = this.insee.copy(base64ConsumerKeySecret = "wrongKeySecret")))
         }
-        createClientWithJsonNegotiation().get("/organization/search?nationalId=00792667800017").apply {
+        createClientWithJsonNegotiation().get("/organization/extract?nationalId=00792667800017").apply {
             assertEquals(HttpStatusCode.InternalServerError, status)
             assertContains(bodyAsText(), "401")
         }
@@ -184,7 +184,7 @@ class OrganizationIdentityTest {
         with(loadConfiguration(ApplicationConfig("application.yaml"))) {
             parametrizeApplicationTest(this.copy(insee = this.insee.copy(siretApi = "wrongSiretApi")))
         }
-        createClientWithJsonNegotiation().get("/organization/search?nationalId=00792667800017").apply {
+        createClientWithJsonNegotiation().get("/organization/extract?nationalId=00792667800017").apply {
             assertEquals(HttpStatusCode.InternalServerError, status)
             assertContains(bodyAsText(), "404")
         }
@@ -194,7 +194,7 @@ class OrganizationIdentityTest {
 context(ApplicationTestBuilder)
 private fun parametrizeApplicationTest(env: Env = loadConfiguration(ApplicationConfig("application.yaml"))) {
     application {
-        val dependencies = dependencies(env.insee, env.jwt, env.mindee)
+        val dependencies = dependencies(env.insee, env.jwt, env.mindee, env.postgres)
         module(dependencies)
     }
 }
