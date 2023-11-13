@@ -9,11 +9,7 @@ import com.fabien.app.organization.AddOrganizationCommandHandler
 import com.fabien.app.organization.NewOrganization
 import com.fabien.app.organization.OrganizationRepository
 import java.lang.Boolean.FALSE
-import java.util.*
 
-const val FAKE_UUID = "3068da80-d903-4ad4-bfc6-ce3a5123b88"
-
-fun String.toUUID(): UUID = UUID.fromString(this)
 fun addOrganizationCommandHandler(organizationRepository: OrganizationRepository) = AddOrganizationCommandHandler { addCommand ->
     either {
         val (name, nationalId, zipCode, country, city, address, active) = addCommand
