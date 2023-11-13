@@ -1,14 +1,19 @@
 package com.fabien.app.repository
 
+import com.fabien.OrganizationsQueries
 import com.fabien.app.OrganizationDBNotFound
 import com.fabien.app.OrganizationDuplication
+import com.fabien.app.OrganizationOtherDBErrors
 import com.fabien.app.containers.PostgresContainerIT
 import com.fabien.app.env.database
 import com.fabien.app.organization.NewOrganization
 import com.fabien.app.organization.OrganizationRepository
+import io.mockk.every
+import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Test
 import java.util.*
+import java.util.concurrent.TimeoutException
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlin.test.assertNotNull
@@ -84,6 +89,19 @@ class OrganizationRepositoryTest {
     fun `if not find, should retrieve null`() = runTest {
         with(organizationRepository.get(UUID.randomUUID())) {
             assertIs<OrganizationDBNotFound>(this.leftOrNull())
+        }
+    }
+
+    @Test
+    fun `when the query throws an exception, should return generic DB error`() = runTest {
+        val mock = mockk<OrganizationsQueries>()
+
+        every {
+            mock.getOrganizationFromUUID(UUID.randomUUID())
+        } throws TimeoutException()
+
+        with(organizationRepository(mock).get(UUID.randomUUID())) {
+            assertIs<OrganizationOtherDBErrors>(this.leftOrNull())
         }
     }
 
