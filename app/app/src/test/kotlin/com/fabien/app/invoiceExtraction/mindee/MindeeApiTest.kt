@@ -1,8 +1,9 @@
 package com.fabien.app.invoiceExtraction.mindee
 
 import arrow.core.Either
-import com.fabien.app.*
 import com.fabien.app.invoiceExtraction.*
+import com.fabien.domain.*
+import com.fabien.domain.model.*
 import com.mindee.MindeeClient
 import com.mindee.MindeeException
 import com.mindee.input.LocalInputSource

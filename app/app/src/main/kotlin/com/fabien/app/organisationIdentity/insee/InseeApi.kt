@@ -3,10 +3,10 @@ package com.fabien.app.organisationIdentity.insee
 import arrow.core.Either
 import arrow.core.raise.either
 import arrow.core.raise.ensure
-import com.fabien.app.InseeError
-import com.fabien.app.InseeException
-import com.fabien.app.InseeNotFound
-import com.fabien.app.InseeOtherError
+import com.fabien.domain.InseeError
+import com.fabien.domain.InseeException
+import com.fabien.domain.InseeNotFound
+import com.fabien.domain.InseeOtherError
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.engine.*
@@ -67,19 +67,19 @@ class InseeApi(
                                 if (it.status == HttpStatusCode.NotFound && it.status.description.isEmpty()) {
                                     InseeNotFound
                                 } else {
-                                    InseeError(it.status)
+                                    InseeError(it.status.value, it.status.description)
                                 }
                             } else {
                                 // Insee API Manager return xml error
                                 val body = it.body<Fault>()
-                                InseeOtherError(it.status, body.description)
+                                InseeOtherError(it.status.value, body.description)
                             }
-                        } ?: InseeOtherError(it.status, "Impossible to deserialize Insee error")
+                        } ?: InseeOtherError(it.status.value, "Impossible to deserialize Insee error")
                     }
                 }.body()
             }.mapLeft { inseeTokenException ->
                 // Client authentication is handled via ktor plugins. We can not wrap their response with arrow type error handling framework before here
-                InseeError(inseeTokenException.status)
+                InseeError(inseeTokenException.statusCode, inseeTokenException.description)
                 // FIXME should treat insee error when querying the token at a finer granularity and oustide the error of the fetch
                 // we have a not found when the token api is wrong which is different of Not found for the fetch case when no etab is found...
             }.bind()

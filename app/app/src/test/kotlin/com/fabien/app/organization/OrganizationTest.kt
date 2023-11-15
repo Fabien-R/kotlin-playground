@@ -5,6 +5,7 @@ import com.fabien.app.env.Env
 import com.fabien.app.env.dependencies
 import com.fabien.app.env.loadConfiguration
 import com.fabien.app.module
+import com.fabien.domain.model.Organization
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.plugins.contentnegotiation.*

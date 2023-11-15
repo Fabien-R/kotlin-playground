@@ -1,6 +1,6 @@
 package com.fabien.app.organisationIdentity.insee
 
-import com.fabien.app.InseeException
+import com.fabien.domain.InseeException
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.engine.cio.*
@@ -52,7 +52,7 @@ fun inseeAuthLoadToken(host: String, authenticationAPI: String, consumerKeySecre
         tokenClient.queryTokenEndpoint { block() }
             .also { response ->
                 if (!response.status.isSuccess()) {
-                    throw InseeException(response.status)
+                    throw InseeException(response.status.value, response.status.description)
                 }
             }.body<TokenInfo>()
             .run { bearerTokenStorage.add(BearerTokens(this.accessToken, this.accessToken)) }

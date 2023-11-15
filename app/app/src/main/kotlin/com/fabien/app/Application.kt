@@ -55,7 +55,7 @@ fun Application.module(dependencies: Dependencies) {
 
     configureOrganizationIdentityRouting(dependencies.organizationIdentityService)
 
-    configureExtractionRouting(dependencies.invoiceExtractionApi)
+    configureExtractionRouting(dependencies.invoiceExtractionService)
 
     dependencies.organizationRepository?.let {
         configureOrganizationRouting(addOrganizationCommandHandler(it))

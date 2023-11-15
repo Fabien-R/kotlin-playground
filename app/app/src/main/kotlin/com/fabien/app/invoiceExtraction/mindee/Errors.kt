@@ -1,8 +1,8 @@
 package com.fabien.app.invoiceExtraction.mindee
 
 import arrow.core.Either
-import com.fabien.app.InvoiceExtractionError
-import com.fabien.app.MindeeError
+import com.fabien.domain.InvoiceExtractionError
+import com.fabien.domain.MindeeError
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*
@@ -18,7 +18,7 @@ suspend inline fun <reified A : Any> Either<InvoiceExtractionError, A>.respond(s
 @Suppress("ComplexMethod")
 suspend fun PipelineContext<Unit, ApplicationCall>.respond(error: InvoiceExtractionError): Unit =
     when (error) {
-        is MindeeError -> call.respond(error.status, "Our supplier is not able to extract the document")
+        is MindeeError -> call.respond(HttpStatusCode.InternalServerError, "Our supplier is not able to extract the document")
     }.also {
         println("error: ${error.description}") // FIXME Logger
     }

@@ -2,22 +2,22 @@ package com.fabien.app.env
 
 import com.fabien.app.authent.JwtService
 import com.fabien.app.authent.configureJwt
-import com.fabien.app.invoiceExtraction.InvoiceExtractionApi
 import com.fabien.app.invoiceExtraction.mindee.mindeeApi
-import com.fabien.app.organisationIdentity.OrganizationIdentityService
 import com.fabien.app.organisationIdentity.insee.InseeApi
 import com.fabien.app.organisationIdentity.insee.inseeAuth
 import com.fabien.app.organisationIdentity.insee.inseeAuthLoadToken
 import com.fabien.app.organisationIdentity.insee.inseeService
-import com.fabien.app.organization.OrganizationRepository
 import com.fabien.app.repository.organizationRepository
+import com.fabien.domain.repositories.OrganizationRepository
+import com.fabien.domain.services.InvoiceExtractionService
+import com.fabien.domain.services.OrganizationIdentityService
 import com.mindee.MindeeClient
 import io.ktor.client.engine.cio.*
 
 class Dependencies(
     val organizationIdentityService: OrganizationIdentityService,
     val jwtService: JwtService,
-    val invoiceExtractionApi: InvoiceExtractionApi,
+    val invoiceExtractionService: InvoiceExtractionService,
     val organizationRepository: OrganizationRepository?,
 )
 

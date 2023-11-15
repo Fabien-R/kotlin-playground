@@ -4,8 +4,8 @@ import com.fabien.app.env.Env
 import com.fabien.app.env.dependencies
 import com.fabien.app.env.loadConfiguration
 import com.fabien.app.module
-import com.fabien.app.organisationIdentity.Organization
-import com.fabien.app.organisationIdentity.PaginatedOrganizations
+import com.fabien.domain.model.NewOrganization
+import com.fabien.domain.model.PaginatedOrganizations
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.plugins.contentnegotiation.*
@@ -45,7 +45,7 @@ class OrganizationIdentityTest {
         parametrizeApplicationTest()
         createClientWithJsonNegotiation().get("/organization/extract?searchText=touten action").apply {
             assertEquals(HttpStatusCode.OK, status)
-            Organization(
+            NewOrganization(
                 name = "TOUTEN ACTION",
                 nationalId = "33445719900019",
                 zipCode = "45270",
@@ -64,7 +64,7 @@ class OrganizationIdentityTest {
         parametrizeApplicationTest()
         createClientWithJsonNegotiation().get("/organization/extract?nationalId=00792667800017").apply {
             assertEquals(HttpStatusCode.OK, status)
-            Organization(
+            NewOrganization(
                 name = "COPROPRIETE FONTAINE",
                 nationalId = "00792667800017",
                 zipCode = "19100",
@@ -83,7 +83,7 @@ class OrganizationIdentityTest {
         parametrizeApplicationTest()
         createClientWithJsonNegotiation().get("/organization/extract?zipCode=33800&searchText=plop").apply {
             assertEquals(HttpStatusCode.OK, status)
-            Organization(
+            NewOrganization(
                 name = "PLOP",
                 nationalId = "78870646300015",
                 zipCode = "33800",
@@ -102,7 +102,7 @@ class OrganizationIdentityTest {
         parametrizeApplicationTest()
         createClientWithJsonNegotiation().get("/organization/extract?zipCode=69003&nationalId=82454312800022").apply {
             assertEquals(HttpStatusCode.OK, status)
-            Organization(
+            NewOrganization(
                 name = "EDF HYDRO DEVELOPPEMENT",
                 nationalId = "82454312800022",
                 zipCode = "69003",

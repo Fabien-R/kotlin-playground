@@ -4,10 +4,10 @@ import arrow.core.NonEmptyList
 import arrow.core.raise.either
 import arrow.core.raise.ensure
 import arrow.core.raise.zipOrAccumulate
-import com.fabien.app.*
-import com.fabien.app.organization.AddOrganizationCommandHandler
-import com.fabien.app.organization.NewOrganization
-import com.fabien.app.organization.OrganizationRepository
+import com.fabien.domain.*
+import com.fabien.domain.handlers.AddOrganizationCommandHandler
+import com.fabien.domain.model.NewOrganization
+import com.fabien.domain.repositories.OrganizationRepository
 import java.lang.Boolean.FALSE
 
 fun addOrganizationCommandHandler(organizationRepository: OrganizationRepository) = AddOrganizationCommandHandler { addCommand ->

@@ -1,8 +1,12 @@
 package com.fabien.app.organization.handler
 
 import arrow.core.Either
-import com.fabien.app.*
-import com.fabien.app.organization.*
+import com.fabien.domain.*
+import com.fabien.domain.handlers.AddOrganizationCommand
+import com.fabien.domain.handlers.AddOrganizationCommandHandler
+import com.fabien.domain.model.NewOrganization
+import com.fabien.domain.model.Organization
+import com.fabien.domain.repositories.OrganizationRepository
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk

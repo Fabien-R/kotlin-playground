@@ -2,13 +2,13 @@ package com.fabien.app.repository
 
 import arrow.core.Either
 import com.fabien.OrganizationsQueries
-import com.fabien.app.OrganizationDBError
-import com.fabien.app.OrganizationDBNotFound
-import com.fabien.app.OrganizationDuplication
-import com.fabien.app.OrganizationOtherDBErrors
-import com.fabien.app.organization.NewOrganization
-import com.fabien.app.organization.Organization
-import com.fabien.app.organization.OrganizationRepository
+import com.fabien.domain.OrganizationDBError
+import com.fabien.domain.OrganizationDBNotFound
+import com.fabien.domain.OrganizationDuplication
+import com.fabien.domain.OrganizationOtherDBErrors
+import com.fabien.domain.model.NewOrganization
+import com.fabien.domain.model.Organization
+import com.fabien.domain.repositories.OrganizationRepository
 import org.postgresql.util.PSQLException
 import java.time.OffsetDateTime
 import java.util.*

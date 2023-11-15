@@ -1,13 +1,13 @@
 package com.fabien.app.repository
 
 import com.fabien.OrganizationsQueries
-import com.fabien.app.OrganizationDBNotFound
-import com.fabien.app.OrganizationDuplication
-import com.fabien.app.OrganizationOtherDBErrors
 import com.fabien.app.containers.PostgresContainerIT
 import com.fabien.app.env.database
-import com.fabien.app.organization.NewOrganization
-import com.fabien.app.organization.OrganizationRepository
+import com.fabien.domain.OrganizationDBNotFound
+import com.fabien.domain.OrganizationDuplication
+import com.fabien.domain.OrganizationOtherDBErrors
+import com.fabien.domain.model.NewOrganization
+import com.fabien.domain.repositories.OrganizationRepository
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.test.runTest

@@ -1,10 +1,12 @@
 package com.fabien.app.invoiceExtraction.mindee
 
 import arrow.core.Either
-import com.fabien.app.MindeeIOError
-import com.fabien.app.MindeeOtherError
-import com.fabien.app.MindeeUnAuthorizedError
 import com.fabien.app.invoiceExtraction.*
+import com.fabien.domain.MindeeIOError
+import com.fabien.domain.MindeeOtherError
+import com.fabien.domain.MindeeUnAuthorizedError
+import com.fabien.domain.model.*
+import com.fabien.domain.services.InvoiceExtractionService
 import com.mindee.MindeeClient
 import com.mindee.MindeeException
 import com.mindee.input.LocalInputSource
@@ -24,7 +26,7 @@ enum class MindeeCompanyRegistrationType(val type: String) {
     VAT_NUMBER("VAT NUMBER"),
 }
 
-internal fun interface MindeeInvoiceExtractionApi : InvoiceExtractionApi {
+internal fun interface MindeeInvoiceExtractionApi : InvoiceExtractionService {
 
     fun InvoiceV4Document.toExtractedInvoice() = ExtractedInvoice(
         invoiceDate = this.invoiceDateField.toExtractedField(),
@@ -67,7 +69,7 @@ internal fun interface MindeeInvoiceExtractionApi : InvoiceExtractionApi {
     private fun CompanyRegistrationField?.toExtractedField() = ExtractedField(this?.value, this?.confidence ?: 0.0)
 }
 
-fun mindeeApi(client: MindeeClient): InvoiceExtractionApi = object : MindeeInvoiceExtractionApi {
+fun mindeeApi(client: MindeeClient): InvoiceExtractionService = object : MindeeInvoiceExtractionApi {
     override suspend fun fetchInvoiceExtraction(file: InputStream) =
         Either.catch {
             runInterruptible(Dispatchers.IO) {

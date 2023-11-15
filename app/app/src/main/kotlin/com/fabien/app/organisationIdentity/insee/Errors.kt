@@ -1,8 +1,8 @@
 package com.fabien.app.organisationIdentity.insee
 
 import arrow.core.Either
-import com.fabien.app.*
-import com.fabien.app.organisationIdentity.PaginatedOrganizations
+import com.fabien.domain.*
+import com.fabien.domain.model.PaginatedOrganizations
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*
@@ -19,8 +19,8 @@ suspend inline fun <reified A : Any> Either<OrganizationIdentityError, A>.respon
 suspend fun PipelineContext<Unit, ApplicationCall>.respond(error: OrganizationIdentityError): Unit =
     when (error) {
         // https://www.sirene.fr/static-resources/htm/codes_retour.html for all Insee return code
-        is InseeError -> call.respond(HttpStatusCode.InternalServerError, "Our suppliers has respond with status ${error.status.value} and fault ${error.status.description}")
-        is InseeOtherError -> call.respond(HttpStatusCode.InternalServerError, "Our suppliers has respond with status ${error.status.value}, fault ${error.status.description} and description ${error.description}")
+        is InseeError -> call.respond(HttpStatusCode.InternalServerError, "Our suppliers has respond with status ${error.statusCode} and fault ${error.description}")
+        is InseeOtherError -> call.respond(HttpStatusCode.InternalServerError, "Our suppliers has respond with status ${error.statusCode}, fault ${error.description} and description ${error.description}")
         is InseeNotFound -> call.respond(HttpStatusCode.NotFound, PaginatedOrganizations(emptyList(), 0, 0))
         is MissingNationalIdOrSearchText -> call.respond(HttpStatusCode.UnprocessableEntity, "Require at least one of the nationalId or searchText parameters")
     }

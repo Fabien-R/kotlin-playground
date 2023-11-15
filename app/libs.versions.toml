@@ -14,6 +14,7 @@ logback = "1.4.14"
 mindee = "4.5.0"
 mockk = "1.13.8"
 postgresql = "42.7.1"
+serialization = "1.6.0"
 spotless = "6.23.3"
 sqldelight = "2.0.1"
 testcontainers = "1.19.3"
@@ -26,6 +27,7 @@ coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", ve
 coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutines" }
 
 kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "datetime" }
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json-jvm", version.ref = "serialization"}
 hikari = { module = "com.zaxxer:HikariCP", version.ref = "hikari" }
 hoplite-core = { module = "com.sksamuel.hoplite:hoplite-core", version.ref = "hoplite" }
 hoplite-json = { module = "com.sksamuel.hoplite:hoplite-json", version.ref = "hoplite" }
@@ -72,7 +74,7 @@ hoplite = ["hoplite-core", "hoplite-json"]
 ktor-json = [
     "ktor-serialization-json-jvm",
     "ktor-serialization-json"
-]
+] # TODO do we still need them?
 ktor-server = [
     "ktor-server-auth-jvm",
     "ktor-server-auth-jwt-jvm",

@@ -19,7 +19,7 @@ repositories {
 }
 
 dependencies {
-
+    implementation(project(":kotlin-playground-domain"))
     implementation(libs.arrow.core)
     implementation(libs.kotlinx.datetime)
     implementation(libs.bundles.ktor.client)

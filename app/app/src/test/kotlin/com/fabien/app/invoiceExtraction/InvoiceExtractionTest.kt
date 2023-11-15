@@ -1,8 +1,10 @@
 package com.fabien.app.invoiceExtraction
 
 import arrow.core.Either
-import com.fabien.app.InvoiceExtractionError
-import com.fabien.app.MindeeOtherError
+import com.fabien.domain.InvoiceExtractionError
+import com.fabien.domain.MindeeOtherError
+import com.fabien.domain.model.*
+import com.fabien.domain.services.InvoiceExtractionService
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.plugins.contentnegotiation.*
@@ -62,7 +64,7 @@ class InvoiceExtractionTest {
         ),
     )
 
-    private val successfulInvoiceExtractionApi = object : InvoiceExtractionApi {
+    private val successfulInvoiceExtractionApi = object : InvoiceExtractionService {
         override suspend fun fetchInvoiceExtraction(file: InputStream): Either<InvoiceExtractionError, ExtractedInvoice> {
             return Either.Right(
                 extractedInvoice,
@@ -70,7 +72,7 @@ class InvoiceExtractionTest {
         }
     }
 
-    private val errorInvoiceExtractionApi = object : InvoiceExtractionApi {
+    private val errorInvoiceExtractionApi = object : InvoiceExtractionService {
         override suspend fun fetchInvoiceExtraction(file: InputStream): Either<InvoiceExtractionError, ExtractedInvoice> {
             return Either.Left(
                 MindeeOtherError("Simulated error"),

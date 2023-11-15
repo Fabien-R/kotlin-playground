@@ -3,12 +3,12 @@ package com.fabien.app.organisationIdentity.insee
 import arrow.core.Either
 import arrow.core.raise.either
 import arrow.core.raise.ensure
-import com.fabien.app.MissingNationalIdOrSearchText
-import com.fabien.app.OrganizationIdentityError
-import com.fabien.app.organisationIdentity.Organization
-import com.fabien.app.organisationIdentity.OrganizationIdentityService
-import com.fabien.app.organisationIdentity.PaginatedOrganizations
 import com.fabien.app.organisationIdentity.insee.InseeQueryFields.*
+import com.fabien.domain.MissingNationalIdOrSearchText
+import com.fabien.domain.OrganizationIdentityError
+import com.fabien.domain.model.NewOrganization
+import com.fabien.domain.model.PaginatedOrganizations
+import com.fabien.domain.services.OrganizationIdentityService
 
 fun inseeService(inseeApi: InseeApi) = object : OrganizationIdentityService {
 
@@ -62,7 +62,7 @@ fun inseeService(inseeApi: InseeApi) = object : OrganizationIdentityService {
 
     fun formatToInseeParams(nationalId: String?, searchText: String?, zipCode: String?, pageSize: Int, page: Int) = mapOf(
         "q" to mapToInseeSearch(nationalId, searchText, zipCode),
-        "champs" to InseeQueryFields.values().joinToString(separator = ",") { it.field },
+        "champs" to entries.joinToString(separator = ",") { it.field },
         "nombre" to pageSize.toString(),
         "debut" to (page * pageSize).toString(),
         "tri" to "siret",
@@ -71,7 +71,7 @@ fun inseeService(inseeApi: InseeApi) = object : OrganizationIdentityService {
 
 const val COUNTRY_FRANCE = "FRANCE"
 
-fun Etablissement.toOrganization() = Organization(
+fun Etablissement.toOrganization() = NewOrganization(
     name = uniteLegale.getName(),
     nationalId = siret,
     active = isActive(),

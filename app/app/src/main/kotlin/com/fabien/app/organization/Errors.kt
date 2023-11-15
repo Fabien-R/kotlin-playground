@@ -1,7 +1,7 @@
 package com.fabien.app.organization
 
 import arrow.core.Either
-import com.fabien.app.*
+import com.fabien.domain.*
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*

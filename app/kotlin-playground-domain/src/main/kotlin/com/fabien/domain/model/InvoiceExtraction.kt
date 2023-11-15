@@ -1,10 +1,7 @@
-package com.fabien.app.invoiceExtraction
+package com.fabien.domain.model
 
-import arrow.core.Either
-import com.fabien.app.InvoiceExtractionError
 import kotlinx.datetime.LocalDate
 import kotlinx.serialization.Serializable
-import java.io.InputStream
 
 @Serializable
 data class ExtractedField<T>(
@@ -46,7 +43,3 @@ data class ExtractedTax(
     val rate: ExtractedField<Double>,
     val amount: ExtractedField<Double>,
 )
-
-interface InvoiceExtractionApi {
-    suspend fun fetchInvoiceExtraction(file: InputStream): Either<InvoiceExtractionError, ExtractedInvoice>
-}
