@@ -1,9 +1,9 @@
 rootProject.name = "kotlin-playground"
 
 include(
-    "kotlin-playground-domain",
-    "adapaters:kotlin-playground-repositories",
     "app",
+    "kotlin-playground-domain",
+    "adapters:kotlin-playground-repositories",
 )
 
 dependencyResolutionManagement {

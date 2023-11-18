@@ -1,11 +1,11 @@
 package com.fabien.app.organization
 
-import com.fabien.app.containers.PostgresContainerIT
 import com.fabien.app.env.Env
 import com.fabien.app.env.dependencies
 import com.fabien.app.env.loadConfiguration
 import com.fabien.app.module
 import com.fabien.domain.model.Organization
+import com.fabien.repositories.containers.PostgresContainerIT
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.plugins.contentnegotiation.*

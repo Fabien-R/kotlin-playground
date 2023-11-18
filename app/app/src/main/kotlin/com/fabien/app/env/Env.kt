@@ -1,27 +1,12 @@
 package com.fabien.app.env
 
+import com.fabien.domain.Insee
+import com.fabien.domain.Jwt
+import com.fabien.domain.Mindee
+import com.fabien.domain.Postgres
 import io.ktor.server.config.*
 
 data class Env(val jwt: Jwt, val insee: Insee, val mindee: Mindee, val postgres: Postgres)
-data class Jwt(val domain: String, val audience: String)
-data class Insee(
-    val baseApi: String,
-    val siretApi: String,
-    val authenticationApi: String,
-    val base64ConsumerKeySecret: String,
-    val tokenValiditySeconds: String,
-)
-
-data class Mindee(val apiKey: String)
-
-data class Postgres(
-    val port: Int,
-    val host: String,
-    val database: String,
-    val user: String,
-    val password: String,
-    val enabled: Boolean = false,
-)
 
 @Suppress("ComplexRedundantLet")
 fun loadConfiguration(applicationConfig: ApplicationConfig): Env {

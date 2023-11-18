@@ -1,13 +1,13 @@
-package com.fabien.app.containers
+package com.fabien.repositories.containers
 
 import app.cash.sqldelight.driver.jdbc.asJdbcDriver
 import com.fabien.Database
-import com.fabien.app.env.Postgres
-import com.fabien.app.env.hikari
-import com.zaxxer.hikari.HikariDataSource
+import com.fabien.domain.Postgres
+import com.fabien.repositories.hikari
 import org.testcontainers.containers.PostgreSQLContainer
 import org.testcontainers.junit.jupiter.Testcontainers
 import org.testcontainers.utility.DockerImageName
+import javax.sql.DataSource
 
 @Testcontainers
 class PostgresContainerIT {
@@ -17,7 +17,7 @@ class PostgresContainerIT {
         .withPassword("password")
 
     val env: Postgres
-    val hikari: HikariDataSource
+    val hikari: DataSource
 
     init {
         container.start()

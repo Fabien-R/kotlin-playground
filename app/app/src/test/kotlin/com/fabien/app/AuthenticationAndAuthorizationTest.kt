@@ -1,12 +1,11 @@
-package com.fabien.app.organisationIdentity.insee
+package com.fabien.app
 
 import com.fabien.app.authent.REGISTERED_AUTHORIZATION
 import com.fabien.app.authent.STAFF_AUTHORIZATION
 import com.fabien.app.env.Env
-import com.fabien.app.env.Jwt
 import com.fabien.app.env.dependencies
 import com.fabien.app.env.loadConfiguration
-import com.fabien.app.module
+import com.fabien.domain.Jwt
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.plugins.contentnegotiation.*

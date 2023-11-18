@@ -1,4 +1,4 @@
-package com.fabien.app.repository
+package com.fabien.repositories
 
 import arrow.core.Either
 import com.fabien.OrganizationsQueries

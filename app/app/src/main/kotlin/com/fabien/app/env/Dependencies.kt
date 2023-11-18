@@ -7,10 +7,16 @@ import com.fabien.app.organisationIdentity.insee.InseeApi
 import com.fabien.app.organisationIdentity.insee.inseeAuth
 import com.fabien.app.organisationIdentity.insee.inseeAuthLoadToken
 import com.fabien.app.organisationIdentity.insee.inseeService
-import com.fabien.app.repository.organizationRepository
+import com.fabien.domain.Insee
+import com.fabien.domain.Jwt
+import com.fabien.domain.Mindee
+import com.fabien.domain.Postgres
 import com.fabien.domain.repositories.OrganizationRepository
 import com.fabien.domain.services.InvoiceExtractionService
 import com.fabien.domain.services.OrganizationIdentityService
+import com.fabien.repositories.database
+import com.fabien.repositories.hikari
+import com.fabien.repositories.organizationRepository
 import com.mindee.MindeeClient
 import io.ktor.client.engine.cio.*
 
