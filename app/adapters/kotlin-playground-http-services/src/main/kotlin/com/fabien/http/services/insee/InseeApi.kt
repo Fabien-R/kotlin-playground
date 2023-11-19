@@ -1,4 +1,4 @@
-package com.fabien.app.organisationIdentity.insee
+package com.fabien.http.services.insee
 
 import arrow.core.Either
 import arrow.core.raise.either
@@ -10,6 +10,7 @@ import com.fabien.domain.InseeOtherError
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.engine.*
+import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.*
 import io.ktor.client.plugins.auth.*
 import io.ktor.client.plugins.contentnegotiation.*
@@ -20,11 +21,11 @@ import io.ktor.serialization.kotlinx.json.*
 import io.ktor.serialization.kotlinx.xml.*
 import kotlinx.serialization.json.Json
 
-class InseeApi(
+open class InseeApi(
     httpClientEngine: HttpClientEngine,
     inseeAuth: AuthProvider,
-    val host: String,
-    val siretAPI: String,
+    private val host: String,
+    private val siretAPI: String,
 ) {
     private val client = HttpClient(httpClientEngine) {
         install(Logging) {
@@ -85,3 +86,34 @@ class InseeApi(
             }.bind()
         }
 }
+
+
+fun inseeApi(
+    host: String,
+    siretAPI: String,
+    authenticationAPI: String,
+    consumerKeySecret: String,
+    tokenValiditySeconds: String
+) =
+    InseeApi(
+        CIO.create {
+            requestTimeout = 3000
+            maxConnectionsCount = 20
+            endpoint {
+                maxConnectionsPerRoute = 4
+                keepAliveTime = 5000
+                connectTimeout = 4000
+                connectAttempts = 1
+            }
+        },
+        inseeAuth(
+            inseeAuthLoadToken(
+                host = host,
+                authenticationAPI = authenticationAPI,
+                consumerKeySecret = consumerKeySecret,
+                tokenValiditySeconds = tokenValiditySeconds,
+            )
+        ),
+        host,
+        siretAPI,
+    )

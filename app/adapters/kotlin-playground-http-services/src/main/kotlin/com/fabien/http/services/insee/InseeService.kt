@@ -1,9 +1,9 @@
-package com.fabien.app.organisationIdentity.insee
+package com.fabien.http.services.insee
 
 import arrow.core.Either
 import arrow.core.raise.either
 import arrow.core.raise.ensure
-import com.fabien.app.organisationIdentity.insee.InseeQueryFields.*
+import com.fabien.http.services.insee.InseeQueryFields.*
 import com.fabien.domain.MissingNationalIdOrSearchText
 import com.fabien.domain.OrganizationIdentityError
 import com.fabien.domain.model.NewOrganization

@@ -1,7 +1,6 @@
-package com.fabien.app.invoiceExtraction.mindee
+package com.fabien.http.services.mindee
 
 import arrow.core.Either
-import com.fabien.app.invoiceExtraction.*
 import com.fabien.domain.MindeeIOError
 import com.fabien.domain.MindeeOtherError
 import com.fabien.domain.MindeeUnAuthorizedError
@@ -54,7 +53,8 @@ internal fun interface MindeeInvoiceExtractionApi : InvoiceExtractionService {
         name = this.supplierName.toExtractedField(),
         address = this.supplierAddress.toExtractedField(),
         nationalId = this.supplierCompanyRegistrations.toNationalId(),
-        vatNumber = this.supplierCompanyRegistrations.firstOrNull { it.type == MindeeCompanyRegistrationType.VAT_NUMBER.type }.toExtractedField(),
+        vatNumber = this.supplierCompanyRegistrations.firstOrNull { it.type == com.fabien.http.services.mindee.MindeeCompanyRegistrationType.VAT_NUMBER.type }
+            .toExtractedField(),
     )
 
     fun List<CompanyRegistrationField>.toNationalId() =
@@ -94,3 +94,5 @@ fun mindeeApi(client: MindeeClient): InvoiceExtractionService = object : MindeeI
             }
         }
 }
+
+fun mindeeApi(apiKey: String): InvoiceExtractionService = mindeeApi(MindeeClient(apiKey))

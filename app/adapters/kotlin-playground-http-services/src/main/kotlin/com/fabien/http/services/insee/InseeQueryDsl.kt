@@ -1,4 +1,4 @@
-package com.fabien.app.organisationIdentity.insee
+package com.fabien.http.services.insee
 
 class InseeQueryBuilder(private val condition: Condition) {
     fun build() = condition.toString()

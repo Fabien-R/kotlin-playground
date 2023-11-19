@@ -1,4 +1,4 @@
-package com.fabien.app.organisationIdentity.insee
+package com.fabien.http.services.insee
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

@@ -1,4 +1,4 @@
-package com.fabien.app.organisationIdentity.insee
+package com.fabien.http.services.insee
 
 import io.ktor.client.engine.mock.*
 import io.ktor.client.plugins.auth.providers.*

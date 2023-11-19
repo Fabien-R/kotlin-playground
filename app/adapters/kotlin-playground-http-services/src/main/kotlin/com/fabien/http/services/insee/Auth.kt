@@ -1,4 +1,4 @@
-package com.fabien.app.organisationIdentity.insee
+package com.fabien.http.services.insee
 
 import com.fabien.domain.InseeException
 import io.ktor.client.*

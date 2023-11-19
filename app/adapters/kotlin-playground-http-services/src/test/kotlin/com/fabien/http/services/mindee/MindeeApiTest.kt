@@ -1,7 +1,6 @@
-package com.fabien.app.invoiceExtraction.mindee
+package com.fabien.http.services.mindee
 
 import arrow.core.Either
-import com.fabien.app.invoiceExtraction.*
 import com.fabien.domain.*
 import com.fabien.domain.model.*
 import com.mindee.MindeeClient
@@ -18,6 +17,7 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.toKotlinLocalDate
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
@@ -31,6 +31,7 @@ data class ExtractedStringTest(val value: String?, val confidence: Double)
 data class ExtractedDateTest(val value: LocalDate?, val confidence: Double)
 data class ExtractedDoubleTest(val value: Double?, val confidence: Double)
 
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ExtendWith(MockKExtension::class)
 internal class MindeeApiTest {
 

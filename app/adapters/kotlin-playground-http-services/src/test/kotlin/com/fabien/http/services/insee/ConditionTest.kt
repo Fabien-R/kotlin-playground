@@ -1,11 +1,12 @@
-package com.fabien.app.organisationIdentity.insee
+package com.fabien.http.services.insee
 
-import com.fabien.app.organisationIdentity.insee.CompositeCondition.And
-import com.fabien.app.organisationIdentity.insee.CompositeCondition.Or
+import com.fabien.http.services.insee.CompositeCondition.And
+import com.fabien.http.services.insee.CompositeCondition.Or
 import io.mockk.*
 import io.mockk.junit5.MockKExtension
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.params.ParameterizedTest
@@ -14,6 +15,7 @@ import org.junit.jupiter.params.provider.MethodSource
 import kotlin.reflect.KClass
 import kotlin.test.assertEquals
 
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ExtendWith(MockKExtension::class)
 internal class ConditionTest {
     @BeforeEach

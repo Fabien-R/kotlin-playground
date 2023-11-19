@@ -1,14 +1,16 @@
-package com.fabien.app.organisationIdentity.insee
+package com.fabien.http.services.insee
 
 import io.mockk.*
 import io.mockk.junit5.MockKExtension
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
 import kotlin.test.assertEquals
 
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ExtendWith(MockKExtension::class)
 class InseeServiceTest {
 
