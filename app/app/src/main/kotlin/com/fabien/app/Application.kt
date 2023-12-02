@@ -6,7 +6,7 @@ import com.fabien.app.env.loadConfiguration
 import com.fabien.app.invoiceExtraction.configureExtractionRouting
 import com.fabien.app.organisationIdentity.configureOrganizationIdentityRouting
 import com.fabien.app.organization.configureOrganizationRouting
-import com.fabien.app.organization.handler.addOrganizationCommandHandler
+import com.fabien.domain.handlers.addOrganizationCommandHandler
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*

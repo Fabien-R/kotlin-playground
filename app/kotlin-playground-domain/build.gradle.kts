@@ -30,6 +30,10 @@ tasks {
             freeCompilerArgs = freeCompilerArgs + "-Xcontext-receivers"
         }
     }
+    test {
+        useJUnitPlatform()
+        finalizedBy(findByName("koverXmlReport")!!.path)
+    }
 }
 
 spotless {
@@ -57,13 +61,5 @@ spotless {
                 "max_line_length" to "160",
             ),
         )
-    }
-}
-
-koverReport {
-    defaults {
-        xml {
-            onCheck = true
-        }
     }
 }

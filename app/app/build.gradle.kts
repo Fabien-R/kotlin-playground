@@ -40,6 +40,10 @@ dependencies {
 //    implementation("io.ktor:ktor-server-host-common-jvm:$ktor_version")
 //    implementation("io.ktor:ktor-server-swagger:$ktor_version")
 //    implementation("io.ktor:ktor-server-call-logging-jvm:$ktor_version")
+
+    kover(project(":kotlin-playground-domain"))
+    kover(project(":adapters:kotlin-playground-repositories"))
+    kover(project(":adapters:kotlin-playground-http-services"))
 }
 
 tasks {
@@ -88,13 +92,5 @@ spotless {
                 "max_line_length" to "160",
             ),
         )
-    }
-}
-
-koverReport {
-    defaults {
-        xml {
-            onCheck = true
-        }
     }
 }

@@ -1,9 +1,7 @@
-package com.fabien.app.organization.handler
+package com.fabien.domain.handlers
 
 import arrow.core.Either
 import com.fabien.domain.*
-import com.fabien.domain.handlers.AddOrganizationCommand
-import com.fabien.domain.handlers.AddOrganizationCommandHandler
 import com.fabien.domain.model.NewOrganization
 import com.fabien.domain.model.Organization
 import com.fabien.domain.repositories.OrganizationRepository
@@ -14,6 +12,7 @@ import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
@@ -21,6 +20,7 @@ import java.util.*
 import kotlin.test.assertContentEquals
 import kotlin.test.assertIs
 
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @Suppress("ComplexRedundantLet")
 class AddOrganizationCommandHandlerTest {
 

@@ -27,6 +27,8 @@ dependencies {
     testImplementation(libs.mockk)
     testImplementation(libs.coroutines.test)
     testImplementation(libs.ktor.client.mock)
+
+    kover(project(":kotlin-playground-domain"))
 }
 
 tasks {
@@ -37,15 +39,7 @@ tasks {
         }
     }
     test {
-        useJUnitPlatform {
-            excludeTags("mindeeApiCost")
-        }
+        useJUnitPlatform()
         finalizedBy(findByName("koverXmlReport")!!.path)
     }
-}
-
-tasks.register<Test>("mindeeTest") {
-    useJUnitPlatform {
-    }
-    finalizedBy(tasks.findByName("koverXmlReport")!!.path)
 }

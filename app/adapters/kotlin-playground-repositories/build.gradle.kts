@@ -23,6 +23,8 @@ dependencies {
     testImplementation(libs.kotlin.test.junit)
     testImplementation(libs.mockk)
     testFixturesImplementation(libs.bundles.testcontainers)
+
+    kover(project(":kotlin-playground-domain"))
 }
 
 tasks {
@@ -31,6 +33,10 @@ tasks {
             jvmTarget = "${JavaVersion.VERSION_19}"
             freeCompilerArgs = freeCompilerArgs + "-Xcontext-receivers"
         }
+    }
+    test {
+        useJUnitPlatform()
+        finalizedBy(findByName("koverXmlReport")!!.path)
     }
 }
 
