@@ -1,7 +1,7 @@
 rootProject.name = "kotlin-playground"
 
 include(
-    "app",
+    "kotlin-playground-app",
     "kotlin-playground-domain",
     "adapters:kotlin-playground-repositories",
     "adapters:kotlin-playground-http-services",
