@@ -5,6 +5,8 @@ echo "Running git pre-commit hook"
 
 source .githooks/environment-variables
 
+cd app
 ./gradlew check
+cd ..
 
 echo "Finished running git pre-commit hook"
