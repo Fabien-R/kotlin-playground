@@ -25,7 +25,6 @@ dependencies {
     implementation(libs.kotlinx.datetime)
     implementation(libs.bundles.ktor.client)
     implementation(libs.bundles.ktor.json)
-//    implementation(libs.ktor.serialization.xml)
     implementation(libs.bundles.ktor.server)
     implementation(libs.logback.classic)
 
@@ -34,7 +33,6 @@ dependencies {
     testImplementation(libs.jupiter.junit)
     testImplementation(libs.kotlin.test.junit)
     testImplementation(libs.mockk)
-//    testImplementation(libs.ktor.client.mock)
     testImplementation(libs.ktor.server.tests.jvm)
 
 //    implementation("io.ktor:ktor-server-host-common-jvm:$ktor_version")

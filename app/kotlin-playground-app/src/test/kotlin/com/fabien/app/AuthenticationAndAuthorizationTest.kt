@@ -22,7 +22,6 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.testing.*
 import kotlinx.serialization.Serializable
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.EnumSource
@@ -41,7 +40,6 @@ enum class Users(val email: String, val password: String) {
     REGISTERED(email = System.getenv("USER_MAIL"), password = System.getenv("USER_PASSWORD")),
 }
 
-@Disabled
 class AuthenticationAndAuthorizationTest {
 
     @ParameterizedTest
