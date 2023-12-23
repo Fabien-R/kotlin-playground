@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.serialization)
     alias(libs.plugins.spotless)
     alias(libs.plugins.kover)
+    alias(libs.plugins.jib)
 }
 
 application {
@@ -90,5 +91,22 @@ spotless {
                 "max_line_length" to "160",
             ),
         )
+    }
+}
+
+jib {
+    from {
+        image = "openjdk:19"
+    }
+    container {
+        // Hardcoded due to reproducibility https://github.com/GoogleContainerTools/jib/blob/master/docs/faq.md#please-tell-me-more-about-reproducibility
+//        creationTime.set("2023-12-23T14:15:00+01:00")
+    }
+    to {
+        image = "ghcr.io/fabien-r/${project.parent!!.name}:${System.getenv("DOCKER_REF") ?: "local"}"
+        auth {
+            username = System.getenv("DOCKER_USERNAME")
+            password = System.getenv("DOCKER_PASSWORD")
+        }
     }
 }
