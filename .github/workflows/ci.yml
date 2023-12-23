@@ -19,6 +19,9 @@ on:
 #        default: false
 #        required: false
 
+permissions:
+  packages: write
+
 jobs:
   checks:
     name: Continuous Integration
@@ -43,7 +46,7 @@ jobs:
         with:
           gradle-version: wrapper
           build-root-directory: app
-          arguments: spotlessCheck
+          arguments: spotlessCheck -x jibDockerBuild
       - name: Build
         uses: gradle/gradle-build-action@v2
         with:
@@ -103,3 +106,13 @@ jobs:
           files: build/reports/kover/report.xml
           fail_ci_if_error: true
           verbose: true
+      - name: Build Docker image
+        uses: gradle/gradle-build-action@v2
+        with:
+          gradle-version: wrapper
+          build-root-directory: app
+          arguments: --no-daemon jib
+        env:
+          DOCKER_USERNAME: ${{github.actor}}
+          DOCKER_PASSWORD: ${{secrets.GITHUB_TOKEN}}
+          DOCKER_REF: ${{ github.ref_name == 'main' && 'latest' || format('ci-{0}', github.event.pull_request.number) }}
