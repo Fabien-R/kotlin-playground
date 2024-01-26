@@ -9,6 +9,7 @@
     "commitMessagePrefix": "⬆️",
     "prConcurrentLimit": 5,
     "commitBodyTable": true,
+    "schedule": ["before 4am on Saturday"],
     "packageRules": [
         {
             "matchPaths": [".github/**"],
@@ -50,7 +51,7 @@
             "rebaseWhen": "behind-base-branch"
         },
         {
-            "matchPackagePrefixes": ["org.junit", "io.mockk", "klint"],
+            "matchPackagePrefixes": ["org.junit", "io.mockk", "klint", "org.testcontainers"],
             "groupName": "tests-tools",
             "automerge": true,
             "automergeSchedule": ["at any time"],
@@ -89,6 +90,13 @@
             "groupName": "hoplite",
             "automerge": false,
             "automergeSchedule": ["at any time"],
+            "rebaseWhen": "behind-base-branch"
+        },
+        {
+            "matchPackagePrefixes": ["aws.sdk"],
+            "groupName": "aws",
+            "automerge": false,
+            "schedule": ["before 4am on the first day of the month"],
             "rebaseWhen": "behind-base-branch"
         }
     ]
