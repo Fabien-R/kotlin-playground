@@ -23,9 +23,10 @@ kubectl apply -f "${RESOURCES_DIRECTORY}/postgres-cluster-db.yaml"
 kubectl wait \
   --for=condition=ready pod \
   --selector=app=postgres-cluster-db \
-  --timeout=35s || exit 1
+  --timeout=50s || exit 1
 
 helm install "${CHART_NAME}" "${ROOT_DIRECTORY}/${CHART_DIRECTORY}" \
+  --set image.tag="local" \
   --debug ||
   exit 1
 #  --set image.repository="kotlin-playground" \
