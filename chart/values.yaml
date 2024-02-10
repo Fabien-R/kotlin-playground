@@ -96,3 +96,8 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
+
+postgres:
+  version: 15
+  playground:
+    password:

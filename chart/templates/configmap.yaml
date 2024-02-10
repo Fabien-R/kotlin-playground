@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "configName" . }}
+  labels:
+    {{- include "chart.labels" . | nindent 4 }}
+data:
+  DB_USER: "playground"
+  DB_DATABASE: "playground"

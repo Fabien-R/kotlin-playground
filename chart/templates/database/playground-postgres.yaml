@@ -1,0 +1,58 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: "{{ .Chart.Name }}-db-provisioning"
+  labels:
+    {{- include "chart.labels" . | nindent 4 }}
+spec:
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "chart.labels" . | nindent 8 }}
+        {{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      restartPolicy: OnFailure
+      containers:
+        - name: create-playground-database
+          image: "postgres:{{ .Values.postgres.version }}"
+          command: ["/bin/bash", "-c"]
+          args:
+            - |
+              echo "Checking for cluster availability";
+              count=0;
+              while true;
+              do PGPASSWORD=$DB_PASSWORD psql -U $DB_USER -h $DB_HOSTNAME -p $DB_PORT -c "\l" > /dev/null 2>&1 ;
+              if [ $? -eq 0 ]; then break; fi
+              count=$((count+1));
+              echo "Can not list databases, retrying. #${count}";
+              sleep 3;
+              done;
+              echo "Create database if missing";
+              PGPASSWORD=$DB_PASSWORD psql -U $DB_USER -h $DB_HOSTNAME -p $DB_PORT -c "create database ${APP_DB_DATABASE}";
+              echo "Create user if missing";
+              PGPASSWORD=$DB_PASSWORD psql -U $DB_USER -h $DB_HOSTNAME -p $DB_PORT -c "create user ${APP_DB_USER} with encrypted password '${APP_DB_PASSWORD}'";
+              PGPASSWORD=$DB_PASSWORD psql -U $DB_USER -h $DB_HOSTNAME -p $DB_PORT -c "grant all privileges on database ${APP_DB_DATABASE} to ${APP_DB_USER}";
+          env:
+            # FROM commondb-pguser-postgres.yaml
+            - name: DB_HOSTNAME
+              valueFrom: { secretKeyRef: { name: "commondb-pguser-postgres", key: host }}
+            - name: DB_PORT
+              valueFrom: { secretKeyRef: { name: "commondb-pguser-postgres", key: port }}
+            - name: DB_USER
+              valueFrom: { secretKeyRef: { name: "commondb-pguser-postgres", key: user }}
+            - name: DB_PASSWORD
+              valueFrom: { secretKeyRef: { name: "commondb-pguser-postgres", key: password }}
+              # FROM secret.yaml
+            - name: APP_DB_PASSWORD
+              valueFrom: { secretKeyRef: { name: {{ include "secretName" . }}, key: DB_PASSWORD }}
+              # FROM configmap.yaml
+            - name: APP_DB_DATABASE
+              valueFrom: { configMapKeyRef: { name: {{ include "configName" . }}, key: DB_DATABASE }}
+            - name: APP_DB_USER
+              valueFrom: { configMapKeyRef: { name: {{ include "configName" . }}, key: DB_USER }}

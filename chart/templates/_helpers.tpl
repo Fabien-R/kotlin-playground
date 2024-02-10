@@ -60,3 +60,34 @@ Create the name of the service account to use
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
+
+{{/*
+retrieveOrComputeSecret extract existing secret from a forced value password or use the existing secretData or compute a random one if missing
+This function needs 3 arguments:
+- The current secretData if exists
+- The secret key to search for inside the secretData
+- an override to use a forced value for the secret
+*/}}
+{{- define "retrieveOrComputeSecret" }}
+{{- $existingSecretData := index . 0 -}}
+{{- $secretKey := index . 1 -}}
+{{- $secretObj := index . 2 -}}
+{{- $fallbackValue := (get $existingSecretData $secretKey) | default (randAlphaNum 20 | b64enc) }}
+{{/* workaround for b64enc func that does not support `nil` input */}}
+{{- $secretContent := $secretObj.password | default "" | b64enc | default $fallbackValue }}
+{{- $secretKey }}: {{ $secretContent }}
+{{- end -}}
+
+
+{{/*
+Name of the config
+*/}}
+{{-  define "configName" -}}
+{{ include "chart.name" .}}-config
+{{- end }}
+{{/*
+Name of the secret
+*/}}
+{{-  define "secretName" -}}
+{{ include "chart.name" .}}-secret
+{{- end }}
