@@ -79,12 +79,12 @@ spec:
 {{/*              port: http*/}}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
-          {{- with .Values.volumeMounts }}
           envFrom:
             - configMapRef:
                 name: {{ include "configName" . }}
             - secretRef:
                 name: {{ include "secretName" . }}
+          {{- with .Values.volumeMounts }}
           volumeMounts:
             {{- toYaml . | nindent 12 }}
           {{- end }}

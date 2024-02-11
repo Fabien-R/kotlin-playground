@@ -101,3 +101,12 @@ postgres:
   version: 15
   playground:
     password:
+
+appConfiguration:
+  jwt:
+    domain:
+    audience:
+  insee:
+    consumerKeySecretBase64:
+  mindee:
+    apiKey:

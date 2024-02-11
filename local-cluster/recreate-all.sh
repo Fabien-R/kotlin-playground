@@ -25,7 +25,7 @@ kubectl wait \
   --selector=app=postgres-cluster-db \
   --timeout=50s || exit 1
 
-helm install "${CHART_NAME}" "${ROOT_DIRECTORY}/${CHART_DIRECTORY}" \
+helm install "${CHART_NAME}" "${ROOT_DIRECTORY}/${CHART_DIRECTORY}" -f "${RESOURCES_DIRECTORY}/values.test.yaml" \
   --set image.tag="local" \
   --debug ||
   exit 1
