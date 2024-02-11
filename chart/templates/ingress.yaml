@@ -1,5 +1,5 @@
 {{- if .Values.ingress.enabled -}}
-{{- $fullName := include "chart.fullname" . -}}-ingress
+{{- $fullName := printf "%s-%s" (include "chart.fullname" .) "-ingress" -}}
 {{- $svcPort := .Values.service.port -}}
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -12,6 +12,7 @@ metadata:
     {{- toYaml . | nindent 4 }}
   {{- end }}
 spec:
+  ingressClassName: nginx
   {{- if .Values.ingress.tls }}
   tls:
     {{- range .Values.ingress.tls }}
@@ -23,20 +24,13 @@ spec:
     {{- end }}
   {{- end }}
   rules:
-    {{- range .Values.ingress.hosts }}
-    - host: {{ .host | quote }}
-      http:
+    - http:
         paths:
-          {{- range .paths }}
-          - path: {{ .path }}
-            {{- if and .pathType (semverCompare ">=1.18-0" $.Capabilities.KubeVersion.GitVersion) }}
-            pathType: {{ .pathType }}
-            {{- end }}
+          - path: /playground(/|$)(.*)
+            pathType: Prefix
             backend:
               service:
-                name: {{ $fullName }}
+                name: {{ include "chart.fullname" . }}-service
                 port:
                   number: {{ $svcPort }}
-         {{- end }}
-    {{- end }}
 {{- end }}

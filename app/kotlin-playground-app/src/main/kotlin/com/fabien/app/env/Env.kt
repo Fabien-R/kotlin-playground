@@ -31,7 +31,7 @@ fun loadConfiguration(applicationConfig: ApplicationConfig): Env {
             mindeeConfig.property("apiKey").getString(),
         )
     }
-
+    // TODO Fabien plug postgres DB
     val postgres = Postgres(
         port = 5432,
         host = "dummy",

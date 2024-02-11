@@ -9,3 +9,4 @@ data:
   DB_DATABASE: "playground"
   JWT_AUDIENCE: {{ .Values.appConfiguration.jwt.audience | quote }}
   JWT_DOMAIN: {{ .Values.appConfiguration.jwt.domain | quote }}
+  APP_PORT: {{ .Values.appConfiguration.port | quote }}

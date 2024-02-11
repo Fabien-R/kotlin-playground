@@ -25,8 +25,14 @@ kubectl wait \
   --selector=app=postgres-cluster-db \
   --timeout=50s || exit 1
 
+kubectl apply -f "${RESOURCES_DIRECTORY}/nginx.yaml"
+kubectl wait --namespace ingress-nginx \
+  --for=condition=ready pod \
+  --selector=app.kubernetes.io/component=controller \
+  --timeout=90s || exit 1
+
 helm install "${CHART_NAME}" "${ROOT_DIRECTORY}/${CHART_DIRECTORY}" -f "${RESOURCES_DIRECTORY}/values.test.yaml" \
   --set image.tag="local" \
-  --debug ||
-  exit 1
+   || exit 1
+#  --debug ||
 #  --set image.repository="kotlin-playground" \
