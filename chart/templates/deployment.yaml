@@ -84,6 +84,11 @@ spec:
                 name: {{ include "configName" . }}
             - secretRef:
                 name: {{ include "secretName" . }}
+          env:
+            - name: DB_HOSTNAME
+              valueFrom: { secretKeyRef: { name: "commondb-pguser-postgres", key: host } }
+            - name: DB_PORT
+              valueFrom: { secretKeyRef: { name: "commondb-pguser-postgres", key: port } }
           {{- with .Values.volumeMounts }}
           volumeMounts:
             {{- toYaml . | nindent 12 }}
