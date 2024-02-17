@@ -11,11 +11,15 @@ data class Env(val jwt: Jwt, val insee: Insee, val mindee: Mindee, val postgres:
 @Suppress("ComplexRedundantLet")
 fun loadConfiguration(applicationConfig: ApplicationConfig): Env {
     val insee = applicationConfig.config("insee").let { inseeConfig ->
+        val base64keySecret =
+            "${inseeConfig.property("consumerKey").getString()}:${inseeConfig.property("consumerSecret").getString()}"
+                .toByteArray()
+                .let { java.util.Base64.getEncoder().encodeToString(it) }
         Insee(
             inseeConfig.property("baseApi").getString(),
             inseeConfig.property("siretApi").getString(),
             inseeConfig.property("authenticationApi").getString(),
-            inseeConfig.property("base64ConsumerKeySecret").getString(),
+            base64keySecret,
             inseeConfig.property("tokenValiditySeconds").getString(),
         )
     }
@@ -31,15 +35,17 @@ fun loadConfiguration(applicationConfig: ApplicationConfig): Env {
             mindeeConfig.property("apiKey").getString(),
         )
     }
-    // TODO Fabien plug postgres DB
-    val postgres = Postgres(
-        port = 5432,
-        host = "dummy",
-        database = "dummy",
-        user = "dummy",
-        password = "guess",
-        enabled = false,
-    )
+
+    val postgres = applicationConfig.config("postgres").let { postgresConfig ->
+        Postgres(
+            port = postgresConfig.property("port").getString().toInt(),
+            host = postgresConfig.property("host").getString(),
+            database = postgresConfig.property("database").getString(),
+            user = postgresConfig.property("user").getString(),
+            password = postgresConfig.property("password").getString(),
+            enabled = postgresConfig.property("enabled").getString().toBoolean(),
+        )
+    }
 
     return Env(
         jwt,

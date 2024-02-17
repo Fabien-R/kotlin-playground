@@ -110,6 +110,7 @@ appConfiguration:
     domain:
     audience:
   insee:
-    consumerKeySecretBase64:
+    consumerKey:
+    consumerSecret:
   mindee:
     apiKey:
