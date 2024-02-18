@@ -38,6 +38,7 @@ spec:
               echo "Create user if missing";
               PGPASSWORD=$DB_PASSWORD psql -U $DB_USER -h $DB_HOSTNAME -p $DB_PORT -c "create user ${APP_DB_USER} with encrypted password '${APP_DB_PASSWORD}'";
               PGPASSWORD=$DB_PASSWORD psql -U $DB_USER -h $DB_HOSTNAME -p $DB_PORT -c "grant all privileges on database ${APP_DB_DATABASE} to ${APP_DB_USER}";
+              PGPASSWORD=$DB_PASSWORD psql -U $DB_USER -h $DB_HOSTNAME -p $DB_PORT -c "ALTER DATABASE ${APP_DB_DATABASE} OWNER TO ${APP_DB_USER}";
           env:
             # FROM commondb-pguser-postgres.yaml
             - name: DB_HOSTNAME

@@ -3,6 +3,7 @@ package com.fabien.repositories.containers
 import app.cash.sqldelight.driver.jdbc.asJdbcDriver
 import com.fabien.Database
 import com.fabien.domain.Postgres
+import com.fabien.kotlinplaygroundrepositories.schema
 import com.fabien.repositories.hikari
 import org.testcontainers.containers.PostgreSQLContainer
 import org.testcontainers.junit.jupiter.Testcontainers
@@ -31,6 +32,6 @@ class PostgresContainerIT {
         )
         hikari = hikari(env)
         // create tables
-        Database.Schema.create(hikari.asJdbcDriver())
+        Database::class.schema.create(hikari.asJdbcDriver())
     }
 }
