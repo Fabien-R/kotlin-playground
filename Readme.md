@@ -116,6 +116,12 @@ I also added [Kover plugin](https://github.com/Kotlin/kotlinx-kover) to generate
 
 Tests are also executed during gitHook pre-commit and require to fil [environment-variables](.githooks/environment-variables)(gitHooks do not have access to IDE environment variables).
 
+## Infrastructure
+* Helm
+* Kubernetes
+* Kind
+* 
+
 ## Troubleshooting
 
 ### Insee certificate

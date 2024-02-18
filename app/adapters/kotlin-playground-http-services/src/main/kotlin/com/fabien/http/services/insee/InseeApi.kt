@@ -79,6 +79,7 @@ open class InseeApi(
                     }
                 }.body()
             }.mapLeft { inseeTokenException ->
+                println("inseeTokenException: ${inseeTokenException.description}")
                 // Client authentication is handled via ktor plugins. We can not wrap their response with arrow type error handling framework before here
                 InseeError(inseeTokenException.statusCode, inseeTokenException.description)
                 // FIXME should treat insee error when querying the token at a finer granularity and oustide the error of the fetch

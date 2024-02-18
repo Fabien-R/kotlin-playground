@@ -1,0 +1,118 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "chart.fullname" . }}
+  labels:
+    {{- include "chart.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "chart.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "chart.labels" . | nindent 8 }}
+        {{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "chart.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      initContainers:
+        - name: check-playground-db-ready
+          image: "postgres:{{ .Values.postgres.version }}"
+          command:
+            - sh
+            - "-c"
+            - |
+              export PGPASSWORD=$DB_PASSWORD
+              until pg_isready --host="$DB_HOSTNAME" --port="$DB_PORT" --username="$DB_USER" --dbname="$DB_DATABASE"; do
+                echo "Waiting for the cluster to be ready..."
+                sleep 2
+              done
+
+              until psql -h $DB_HOSTNAME -U $DB_USER -d $DB_DATABASE -lqt | cut -d \| -f 1 | grep -qw $DB_DATABASE; do
+                echo "Waiting for the database $DB_DATABASE to be ready..."
+                sleep 2
+              done
+              echo "Postgres database $DB_DATABASE is ready"
+          envFrom:
+            - configMapRef:
+                name: {{ include "configName" . }}
+            - secretRef:
+                name: {{ include "secretName" . }}
+          env:
+            - name: DB_HOSTNAME
+              valueFrom: { secretKeyRef: { name: "commondb-pguser-postgres", key: host } }
+            - name: DB_PORT
+              valueFrom: { secretKeyRef: { name: "commondb-pguser-postgres", key: port } }
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.appConfiguration.port }}
+              protocol: TCP
+{{/*          livenessProbe:*/}}
+{{/*            httpGet:*/}}
+{{/*              path: /*/}}
+{{/*              port: http*/}}
+{{/*          readinessProbe:*/}}
+{{/*            httpGet:*/}}
+{{/*              path: /*/}}
+{{/*              port: http*/}}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          envFrom:
+            - configMapRef:
+                name: {{ include "configName" . }}
+            - secretRef:
+                name: {{ include "secretName" . }}
+          env:
+            - name: DB_HOSTNAME
+              valueFrom: { secretKeyRef: { name: "commondb-pguser-postgres", key: host } }
+            - name: DB_PORT
+              valueFrom: { secretKeyRef: { name: "commondb-pguser-postgres", key: port } }
+          {{- with .Values.volumeMounts }}
+          volumeMounts:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+      {{- with .Values.volumes }}
+      volumes:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ include "chart.serviceAccountName" . }}
+  labels:
+    {{- include "chart.labels" . | nindent 4 }}

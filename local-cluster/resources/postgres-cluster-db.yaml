@@ -1,0 +1,98 @@
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: postgres-cluster-pv
+  labels:
+    type: local
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 3Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: /data/postgres-cluster-db
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-cluster-pvc
+spec:
+  storageClassName: manual
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 3Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres-cluster-db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres-cluster-db
+  template:
+    metadata:
+      labels:
+        app: postgres-cluster-db
+    spec:
+      containers:
+        - name: postgres-cluster-db
+          image: postgres:15
+          args:
+            - -c
+            - wal_level=logical
+          ports:
+            - containerPort: 5432
+          envFrom:
+            - configMapRef:
+                name: postgres-cluster-db-secret
+          volumeMounts:
+            - mountPath: /var/lib/postgres/postgres-cluster-db-data
+              name: postgres-cluster-db-data
+      volumes:
+        - name: postgres-cluster-db-data
+          persistentVolumeClaim:
+            claimName: postgres-cluster-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-cluster-db
+  labels:
+    app: postgres-cluster-db
+spec:
+  type: NodePort
+  ports:
+    - port: 5432
+  selector:
+    app: postgres-cluster-db
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-cluster-db-secret
+  labels:
+    app: postgres-cluster-db
+data:
+  POSTGRES_DB: postgres
+  POSTGRES_USER: postgres
+  POSTGRES_PASSWORD: postgres
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: commondb-pguser-postgres
+  labels:
+    postgres-operator.crunchydata.com/cluster: commondb
+    postgres-operator.crunchydata.com/pguser: postgres
+    postgres-operator.crunchydata.com/role: pguser
+stringData:
+  host: "postgres-cluster-db.default.svc.cluster.local"
+  password: "postgres"
+  user: "postgres"
+  port: "5432"
