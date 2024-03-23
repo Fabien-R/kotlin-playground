@@ -8,6 +8,7 @@ import com.mindee.MindeeException
 import com.mindee.input.LocalInputSource
 import com.mindee.parsing.standard.CompanyRegistrationField
 import com.mindee.parsing.standard.TaxField
+import com.mindee.parsing.standard.Taxes
 import com.mindee.product.invoice.InvoiceV4
 import com.mindee.product.invoice.InvoiceV4Document
 import com.mindee.product.invoice.InvoiceV4LineItem
@@ -514,9 +515,10 @@ internal class MindeeApiTest {
             taxesPrediction.toExtractedTax()
         } returnsMany taxes
 
+
         every {
             invoiceDocumentPrediction.taxes
-        } returns List(taxes.size) { taxesPrediction }
+        } returns Taxes().apply { addAll(List(taxes.size) { taxesPrediction })}
 
         every {
             itemsPrediction.toExtractedItem()
