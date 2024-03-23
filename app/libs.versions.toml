@@ -18,7 +18,7 @@ postgresql = "42.7.3"
 serialization = "1.6.3"
 spotless = "6.25.0"
 sqldelight = "2.0.1"
-testcontainers = "1.19.6"
+testcontainers = "1.19.7"
 
 [libraries]
 arrow-core = { module = "io.arrow-kt:arrow-core", version.ref = "arrow" }
