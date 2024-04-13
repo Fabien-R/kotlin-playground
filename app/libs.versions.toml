@@ -1,5 +1,5 @@
 [versions]
-arrow = "1.2.3"
+arrow = "1.2.4"
 aws-sdk-kotlin = "1.0.68"
 coroutines = "1.8.0"
 datetime = "0.5.0"
