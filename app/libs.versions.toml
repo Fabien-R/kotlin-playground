@@ -1,6 +1,6 @@
 [versions]
 arrow = "1.2.4"
-aws-sdk-kotlin = "1.0.68"
+aws-sdk-kotlin = "1.1.18"
 coroutines = "1.8.0"
 datetime = "0.5.0"
 hikari = "5.1.0"
