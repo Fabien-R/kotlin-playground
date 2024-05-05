@@ -9,7 +9,7 @@ jwt:
   audience: $JWT_AUDIENCE
 insee:
   baseApi: "$INSEE_BASE_API:api.insee.fr"
-  siretApi: "$INSEE_SIRET_API:entreprises/sirene/V3/siret"
+  siretApi: "$INSEE_SIRET_API:entreprises/sirene/V3.11/siret"
   authenticationApi: "$INSEE_AUTHENTICATION_API:token"
   consumerKey: $INSEE_CONSUMER_KEY
   consumerSecret: $INSEE_CONSUMER_SECRET
