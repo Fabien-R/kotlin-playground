@@ -81,12 +81,12 @@ class OrganizationIdentityTest {
     @Test
     fun searchOrganizationWithZipCodeAndSearchText() = testApplication {
         parametrizeApplicationTest()
-        createClientWithJsonNegotiation().get("/organization/extract?zipCode=33800&searchText=plop").apply {
+        createClientWithJsonNegotiation().get("/organization/extract?zipCode=33000&searchText=plop").apply {
             assertEquals(HttpStatusCode.OK, status)
             NewOrganization(
                 name = "PLOP",
                 nationalId = "78870646300015",
-                zipCode = "33800",
+                zipCode = "33000",
                 country = "FRANCE",
                 city = "BORDEAUX",
                 address = "91 RUE CAMILLE SAUVAGEAU",
@@ -107,8 +107,8 @@ class OrganizationIdentityTest {
                 nationalId = "82454312800022",
                 zipCode = "69003",
                 country = "FRANCE",
-                city = "LYON 3EME",
-                address = "106 BD MARIUS VIVIER MERLE",
+                city = "LYON",
+                address = "106 BOULEVARD MARIUS VIVIER-MERLE",
                 active = false,
             ).let {
                 assertEquals(PaginatedOrganizations(listOf(it), 0, 1), body())
