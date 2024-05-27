@@ -9,10 +9,12 @@ dependencies {
     kover(project(":adapters:kotlin-playground-http-services"))
 }
 
-koverReport {
-    defaults {
-        xml {
-            onCheck = true
+kover {
+    reports {
+        total {
+            xml {
+                onCheck = true
+            }
         }
     }
 }
