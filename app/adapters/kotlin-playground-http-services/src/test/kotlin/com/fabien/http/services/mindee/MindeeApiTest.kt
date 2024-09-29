@@ -476,11 +476,11 @@ internal class MindeeApiTest {
         val itemsPrediction = mockk<InvoiceV4LineItem>()
 
         every {
-            invoiceDocumentPrediction.invoiceDateField.value
+            invoiceDocumentPrediction.date.value
         } returns date.value
 
         every {
-            invoiceDocumentPrediction.invoiceDateField.confidence
+            invoiceDocumentPrediction.date.confidence
         } returns date.confidence
 
         every {
