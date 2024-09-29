@@ -28,7 +28,7 @@ enum class MindeeCompanyRegistrationType(val type: String) {
 internal fun interface MindeeInvoiceExtractionApi : InvoiceExtractionService {
 
     fun InvoiceV4Document.toExtractedInvoice() = ExtractedInvoice(
-        invoiceDate = this.invoiceDateField.toExtractedField(),
+        invoiceDate = this.date.toExtractedField(),
         invoiceNumber = this.invoiceNumber.toExtractedField(),
         supplier = this.getExtractedSupplier(),
         totalExcl = this.totalNet.toExtractedField(),
