@@ -103,6 +103,7 @@ jib {
     container {
         // Hardcoded due to reproducibility https://github.com/GoogleContainerTools/jib/blob/master/docs/faq.md#please-tell-me-more-about-reproducibility
 //        creationTime.set("2023-12-23T14:15:00+01:00")
+        mainClass = "com.fabien.app.ApplicationKt"
     }
     to {
         image = "ghcr.io/fabien-r/${project.parent!!.name}:${System.getenv("DOCKER_REF") ?: "local"}"
