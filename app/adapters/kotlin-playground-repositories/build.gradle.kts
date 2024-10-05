@@ -25,6 +25,8 @@ dependencies {
     testImplementation(libs.kotlin.test.junit)
     testImplementation(libs.mockk)
     testFixturesImplementation(libs.bundles.testcontainers)
+    testFixturesImplementation(project(":kotlin-playground-domain"))
+    testFixturesImplementation(libs.bundles.database)
 
     kover(project(":kotlin-playground-domain"))
 }
