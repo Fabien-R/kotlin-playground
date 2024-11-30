@@ -102,7 +102,7 @@ jobs:
           USER_MAIL: ${{secrets.USER_MAIL}}
           USER_PASSWORD: ${{secrets.USER_PASSWORD}}
       - name: Upload coverage reports to Codecov
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         with:
           token: ${{secrets.CODECOV_TOKEN}}
           files: build/reports/kover/report.xml
