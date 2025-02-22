@@ -6,7 +6,7 @@ datetime = "0.6.2"
 hikari = "6.2.1"
 hoplite = "2.9.0"
 jib = "3.4.4"
-jupiter = "5.11.4"
+jupiter = "5.12.0"
 klint = "0.49.1"
 kotlin = "2.1.10"
 kover = "0.9.1"
@@ -18,7 +18,7 @@ postgresql = "42.7.5"
 serialization = "1.8.0"
 spotless = "7.0.2"
 sqldelight = "2.0.2"
-testcontainers = "1.20.4"
+testcontainers = "1.20.5"
 
 [libraries]
 arrow-core = { module = "io.arrow-kt:arrow-core", version.ref = "arrow" }
